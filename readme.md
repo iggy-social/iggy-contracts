@@ -140,3 +140,8 @@ Docs: https://github.com/crytic/slither
 ### Error: ENOENT: no such file or directory
 
 Run `npx hardhat clean` and then `npx hardhat compile`.
+
+## Frontends
+
+- Development preview: https://iggy-social-frontend.vercel.app/
+- Landing page: https://iggy.social
