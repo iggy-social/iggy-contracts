@@ -37,8 +37,12 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
   event MintPost (address nftReceiver, string post, address author);
 
   // constructor
-  constructor(uint256 _defaultPrice) ERC1155("") {
+  constructor(
+    uint256 _defaultPrice,
+    address _metadataAddress
+  ) ERC1155("") {
     defaultPrice = _defaultPrice;
+    metadataAddress = _metadataAddress;
   }
 
   // READ
