@@ -10,7 +10,7 @@ interface IIggyPostNftMetadata {
 }
 
 /// @title Iggy Social Post NFT
-contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
+contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   address public metadataAddress; // address of the metadata contract
   address public minterAddress; // address of the minter contract
 
@@ -51,7 +51,7 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
     return getPostTokenId[_postId][_authorId] != 0;
   }
 
-  function getPostPrice (string memory _postId, address _author) external view returns (uint256) {
+  function getPostPrice(string memory _postId, address _author) external view returns (uint256) {
     uint256 price = getPriceForPost[_postId][_author];
 
     if (price == 0) {
@@ -72,11 +72,11 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
 
   // WRITE
 
-  function authorSetPostPrice (string memory _postId, uint256 _price) external {
+  function authorSetPostPrice(string memory _postId, uint256 _price) external {
     getPriceForPost[_postId][msg.sender] = _price;
   }
 
-  function authorSetDefaultPrice (uint256 _price) external {
+  function authorSetDefaultPrice(uint256 _price) external {
     getAuthorsDefaultPrice[msg.sender] = _price;
   }
 
@@ -88,8 +88,8 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
     string memory _textPreview,
     uint256 _quantity
   ) nonReentrant external returns(uint256 tokenId) {
-    require(msg.sender == minterAddress, "Sender is not minter");
-    require(bytes(_textPreview).length <= textPreviewLength, "Text preview is too long");
+    require(msg.sender == minterAddress, "IggyPost: Only minter can mint");
+    require(bytes(_textPreview).length <= textPreviewLength, "IggyPost: Text preview is too long");
 
     tokenId = getPostTokenId[_postId][_author];
 
@@ -109,22 +109,22 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
   // OWNER
 
   // change default price
-  function ownerChangeDefaultPrice (uint256 _newDefaultPrice) external onlyOwner {
+  function ownerChangeDefaultPrice(uint256 _newDefaultPrice) external onlyOwner {
     defaultPrice = _newDefaultPrice;
   }
 
   // change metadata address
-  function ownerChangeMetadataAddress (address _newMetadataAddress) external onlyOwner {
+  function ownerChangeMetadataAddress(address _newMetadataAddress) external onlyOwner {
     metadataAddress = _newMetadataAddress;
   }
 
   // change minter address
-  function ownerChangeMinterAddress (address _newMinterAddress) external onlyOwner {
+  function ownerChangeMinterAddress(address _newMinterAddress) external onlyOwner {
     minterAddress = _newMinterAddress;
   }
 
   // change text preview length
-  function ownerChangeTextPreviewLength (uint256 _newTextPreviewLength) external onlyOwner {
+  function ownerChangeTextPreviewLength(uint256 _newTextPreviewLength) external onlyOwner {
     textPreviewLength = _newTextPreviewLength;
   }
 
