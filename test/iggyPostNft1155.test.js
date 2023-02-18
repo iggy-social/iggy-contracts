@@ -30,6 +30,9 @@ describe("IggyPostNft1155", function () {
   let user2;
   let dev;
 
+  const daoFee = 2000;
+  const devFee = 1000;
+
   const defaultPrice = ethers.utils.parseEther("1");
 
   const provider = waffle.provider;
@@ -42,11 +45,11 @@ describe("IggyPostNft1155", function () {
     await metadataContract.deployed();
 
     const IggyPost = await ethers.getContractFactory("IggyPostNft1155");
-    iggyPostContract = await IggyPost.deploy();
-    await iggyPostContract.deployed(defaultPrice, metadataContract.address);
+    iggyPostContract = await IggyPost.deploy(defaultPrice, metadataContract.address);
+    await iggyPostContract.deployed();
 
     const IggyMinter = await ethers.getContractFactory("IggyPostMinter");
-    minterContract = await IggyMinter.deploy();
+    minterContract = await IggyMinter.deploy(dao.address, dev.address, iggyPostContract.address, daoFee, devFee);
     await minterContract.deployed();
   });
 

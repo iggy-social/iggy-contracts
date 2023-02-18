@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface IIggyPostNftMetadata {
   function getMetadata(uint256 _tokenId, string memory _postId, address _author, string memory _textPreview) external view returns (string memory);
@@ -34,7 +34,7 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
   mapping (string => mapping (address => uint256)) public getPriceForPost; // mapping (postId => mapping (authorAddress => price)), if zero, use author's default price
 
   // events
-  event MintPost (address nftReceiver, string post, address author);
+  event MintPost (address nftReceiver, string post, address author, uint256 quantity);
 
   // constructor
   constructor(
@@ -47,11 +47,11 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
 
   // READ
 
-  function doesPostExist(string memory _postId, address _authorId) public view returns (bool) {
+  function doesPostExist(string memory _postId, address _authorId) external view returns (bool) {
     return getPostTokenId[_postId][_authorId] != 0;
   }
 
-  function getPostPrice (string memory _postId, address _author) public view returns (uint256) {
+  function getPostPrice (string memory _postId, address _author) external view returns (uint256) {
     uint256 price = getPriceForPost[_postId][_author];
 
     if (price == 0) {
@@ -72,11 +72,11 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
 
   // WRITE
 
-  function authorSetPostPrice (string memory _postId, uint256 _price) public {
+  function authorSetPostPrice (string memory _postId, uint256 _price) external {
     getPriceForPost[_postId][msg.sender] = _price;
   }
 
-  function authorSetDefaultPrice (uint256 _price) public {
+  function authorSetDefaultPrice (uint256 _price) external {
     getAuthorsDefaultPrice[msg.sender] = _price;
   }
 
@@ -85,23 +85,13 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
     string memory _postId, 
     address _author, 
     address _nftReceiver, 
-    string memory _textPreview
-  ) nonReentrant public payable {
+    string memory _textPreview,
+    uint256 _quantity
+  ) nonReentrant external returns(uint256 tokenId) {
     require(msg.sender == minterAddress, "Sender is not minter");
     require(bytes(_textPreview).length <= textPreviewLength, "Text preview is too long");
 
-    uint256 price = getPriceForPost[_postId][_author];
-
-    if (price == 0) {
-      price = getAuthorsDefaultPrice[_author];
-      if (price == 0) {
-        price = defaultPrice;
-      }
-    }
-
-    require(msg.value >= price, "Value below price");
-
-    uint256 tokenId = getPostTokenId[_postId][_author];
+    tokenId = getPostTokenId[_postId][_author];
 
     if (tokenId == 0) {
       tokenId = counter;
@@ -111,30 +101,30 @@ contract IggyPostNft is ERC1155, Ownable, ReentrancyGuard {
       getPost[tokenId] = Post(tokenId, _postId, _author, _textPreview);
     }
 
-    _mint(_nftReceiver, tokenId, 1, "");
+    _mint(_nftReceiver, tokenId, _quantity, "");
 
-    emit MintPost(_nftReceiver, _postId, _author);
+    emit MintPost(_nftReceiver, _postId, _author, _quantity);
   }
 
   // OWNER
 
   // change default price
-  function ownerChangeDefaultPrice (uint256 _newDefaultPrice) public onlyOwner {
+  function ownerChangeDefaultPrice (uint256 _newDefaultPrice) external onlyOwner {
     defaultPrice = _newDefaultPrice;
   }
 
   // change metadata address
-  function ownerChangeMetadataAddress (address _newMetadataAddress) public onlyOwner {
+  function ownerChangeMetadataAddress (address _newMetadataAddress) external onlyOwner {
     metadataAddress = _newMetadataAddress;
   }
 
   // change minter address
-  function ownerChangeMinterAddress (address _newMinterAddress) public onlyOwner {
+  function ownerChangeMinterAddress (address _newMinterAddress) external onlyOwner {
     minterAddress = _newMinterAddress;
   }
 
   // change text preview length
-  function ownerChangeTextPreviewLength (uint256 _newTextPreviewLength) public onlyOwner {
+  function ownerChangeTextPreviewLength (uint256 _newTextPreviewLength) external onlyOwner {
     textPreviewLength = _newTextPreviewLength;
   }
 

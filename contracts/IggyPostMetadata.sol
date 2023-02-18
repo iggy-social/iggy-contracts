@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Base64.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @title Domain metadata contract
 /// @author Tempe Techie
@@ -44,13 +44,7 @@ contract IggyPostMetadata is Ownable {
   ) public view returns(string memory) {
     return string(
       abi.encodePacked("data:application/json;base64,", Base64.encode(bytes(abi.encodePacked(
-        '{"name": "', brand, ' Post #', _tokenId ,'", ',
-        '"description": "', description, '", ',
-        '"external_url": "', url, '?id=', _postId ,'", ',
-        '"attributes": [',
-          '{"trait_type": "postId", "value": "', _postId ,'"}, ',
-          '{"trait_type": "author", "value": "', _author ,'"}'
-        '], '
+        _getOtherData(_tokenId, _postId, _author),
         '"image": "', _getImage(_tokenId, _textPreview), '"}'))))
     );
   }
@@ -70,6 +64,18 @@ contract IggyPostMetadata is Ownable {
     ))));
 
     return string(abi.encodePacked("data:image/svg+xml;base64,", svgBase64Encoded));
+  }
+
+  function _getOtherData(uint256 _tokenId, string calldata _postId, address _author) internal view returns (string memory) {
+    return string(abi.encodePacked(
+      '{"name": "', brand, ' Post #', _tokenId ,'", ',
+      '"description": "', description, '", ',
+      '"external_url": "', url, '?id=', _postId ,'", ',
+      '"attributes": [',
+        '{"trait_type": "postId", "value": "', _postId ,'"}, ',
+        '{"trait_type": "author", "value": "', _author ,'"}'
+      '], '
+    ));
   }
 
   // WRITE (OWNER)
