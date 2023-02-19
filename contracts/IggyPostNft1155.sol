@@ -23,6 +23,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
     string postId; // post id on Ceramic network
     address author;
     string textPreview;
+    uint256 timestamp;
   }
 
   // post mappings
@@ -32,6 +33,9 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   // price mappings
   mapping (address => uint256) public getAuthorsDefaultPrice; // mapping (authorAddress => price), if zero, use default price
   mapping (string => mapping (address => uint256)) public getPriceForPost; // mapping (postId => mapping (authorAddress => price)), if zero, use author's default price
+  
+  // post minting deadline
+  mapping (string => mapping (address => uint256)) public getPostMintingTime; // mapping (postId => mapping (authorAddress => secondsToMint)), if zero, there's no deadline to mint
 
   // events
   event MintPost (address nftReceiver, string post, address author, uint256 quantity);
@@ -98,7 +102,14 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
       counter++;
 
       getPostTokenId[_postId][_author] = tokenId;
-      getPost[tokenId] = Post(tokenId, _postId, _author, _textPreview);
+      getPost[tokenId] = Post(tokenId, _postId, _author, _textPreview, block.timestamp);
+    }
+
+    // check if author has set up a mint time
+    uint256 mintTime = getPostMintingTime[_postId][_author];
+
+    if (mintTime != 0) {
+      require(block.timestamp <= (getPost[tokenId].timestamp + mintTime), "IggyPost: Minting deadline has passed");
     }
 
     _mint(_nftReceiver, tokenId, _quantity, "");

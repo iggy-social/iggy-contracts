@@ -62,9 +62,9 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     require(!paused, "Minting paused");
 
     // find price
-    uint256 price = IIggyPostNft(postAddress).getPostPrice(_postId, _author);
+    uint256 price = IIggyPostNft(postAddress).getPostPrice(_postId, _author) * _quantity;
 
-    require(msg.value >= (price*_quantity), "Value below price");
+    require(msg.value >= price, "Value below price");
 
     // send a dev fee
     if (devFee > 0 && devAddress != address(0)) {
