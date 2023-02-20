@@ -33,6 +33,7 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
   uint256 public constant MAX_BPS = 10_000;
   uint256 public daoFee; // share of each domain purchase (in bips) that goes to the DAO/community that owns the frontend
   uint256 public devFee; // share of each domain purchase (in bips) that goes to the developer (Iggy team)
+  uint256 public referrerFee; // share of each domain purchase (in bips) that goes to the referrer
 
   // CONSTRUCTOR
   constructor(
@@ -40,7 +41,8 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     address _devAddress,
     address _postAddress,
     uint256 _daoFee,
-    uint256 _devFee
+    uint256 _devFee,
+    uint256 _referrerFee
   ) {
     daoAddress = _daoAddress;
     devAddress = _devAddress;
@@ -48,6 +50,7 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
 
     daoFee = _daoFee;
     devFee = _devFee;
+    referrerFee = _referrerFee;
   }
 
   // WRITE
@@ -56,6 +59,7 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     string memory _postId, 
     address _author, 
     address _nftReceiver, 
+    address _referrer,
     string memory _textPreview,
     uint256 _quantity
   ) external nonReentrant payable returns(uint256 tokenId) {
@@ -65,6 +69,13 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     uint256 price = IIggyPostNft(postAddress).getPostPrice(_postId, _author) * _quantity;
 
     require(msg.value >= price, "Value below price");
+
+    // send a referrer fee
+    if (referrerFee > 0 && _referrer != address(0)) {
+      uint256 referrerPayment = (price * referrerFee) / MAX_BPS;
+      (bool sentReferrerFee, ) = payable(_referrer).call{value: referrerPayment}("");
+      require(sentReferrerFee, "Failed to send referrer fee");
+    }
 
     // send a dev fee
     if (devFee > 0 && devAddress != address(0)) {
@@ -89,6 +100,18 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
   }
 
   // OWNER
+
+  // change dao fee
+  function changeDaoFee(uint256 _daoFee) external onlyOwner {
+    require(_daoFee <= MAX_BPS, "Fee cannot be more than 100%");
+    daoFee = _daoFee;
+  }
+
+  // change referrer fee
+  function changeReferrerFee(uint256 _referrerFee) external onlyOwner {
+    require(_referrerFee <= 2000, "Fee cannot be more than 20%");
+    referrerFee = _referrerFee;
+  }
 
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
   function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyOwner {
@@ -127,6 +150,13 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
   function changeDevAddress(address _devAddress) external {
     require(_msgSender() == devAddress, "Sender is not the developer");
     devAddress = _devAddress;
+  }
+
+  // change dev fee (only dev can change it)
+  function changeDevFee(uint256 _devFee) external {
+    require(_msgSender() == devAddress, "Sender is not the developer");
+    require(_devFee <= 2000, "Fee cannot be more than 20%");
+    devFee = _devFee;
   }
 
   // RECEIVE & FALLBACK

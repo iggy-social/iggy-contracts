@@ -29,11 +29,13 @@ describe("IggyPostNft1155", function () {
   let user1;
   let user2;
   let dev;
+  let referrer;
 
   const defaultAddressBalance = ethers.utils.parseEther("10000");
 
   const daoFee = 2000; // 20%
   const devFee = 1000; // 10%
+  const referrerFee = 1000; // 10%
 
   const defaultPrice = ethers.utils.parseEther("1");
   const postId = "testjkdnw6t6dq37gg7";
@@ -48,7 +50,7 @@ describe("IggyPostNft1155", function () {
   //const provider = waffle.provider;
 
   beforeEach(async function () {
-    [owner, dao, author, user1, user2, dev] = await ethers.getSigners();
+    [owner, dao, author, user1, user2, dev, referrer] = await ethers.getSigners();
 
     const IggyMetadata = await ethers.getContractFactory("IggyPostMetadata");
     metadataContract = await IggyMetadata.deploy(brand, description, url);
@@ -59,7 +61,7 @@ describe("IggyPostNft1155", function () {
     await iggyPostContract.deployed();
 
     const IggyMinter = await ethers.getContractFactory("IggyPostMinter");
-    minterContract = await IggyMinter.deploy(dao.address, dev.address, iggyPostContract.address, daoFee, devFee);
+    minterContract = await IggyMinter.deploy(dao.address, dev.address, iggyPostContract.address, daoFee, devFee, referrerFee);
     await minterContract.deployed();
 
     iggyPostContract.ownerChangeMinterAddress(minterContract.address);
@@ -144,6 +146,7 @@ describe("IggyPostNft1155", function () {
       postId, // post ID
       author.address, // post author
       user1.address, // NFT receiver
+      referrer.address, // referrer
       textPreview, // text preview
       quantityOne, // quantity
       { 
@@ -160,7 +163,7 @@ describe("IggyPostNft1155", function () {
 
     // check author ETH balance after
     const authorEthBalanceAfter = await author.getBalance();
-    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(defaultPrice.mul(10000 - daoFee - devFee).div(10000)));
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(defaultPrice.mul(10000 - daoFee - devFee - referrerFee).div(10000)));
 
     // check dao ETH balance after
     const daoEthBalanceAfter = await dao.getBalance();
@@ -240,6 +243,7 @@ describe("IggyPostNft1155", function () {
       postId, // post ID
       author.address, // post author
       user1.address, // NFT receiver
+      referrer.address, // referrer
       textPreview, // text preview
       quantityMultiple, // quantity
       {
@@ -256,7 +260,7 @@ describe("IggyPostNft1155", function () {
 
     // check author ETH balance after
     const authorEthBalanceAfter = await author.getBalance();
-    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(defaultPrice.mul(quantityMultiple).mul(10000 - daoFee - devFee).div(10000)));
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(defaultPrice.mul(quantityMultiple).mul(10000 - daoFee - devFee - referrerFee).div(10000)));
   
     // check dao ETH balance after
     const daoEthBalanceAfter = await dao.getBalance();
@@ -292,6 +296,7 @@ describe("IggyPostNft1155", function () {
       postId, // post ID
       author.address, // post author
       user1.address, // NFT receiver
+      referrer.address, // referrer
       textPreview, // text preview
       quantityOne, // quantity
       {
@@ -308,7 +313,7 @@ describe("IggyPostNft1155", function () {
 
     // check author ETH balance after
     const authorEthBalanceAfter = await author.getBalance();
-    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(defaultPrice.mul(10000 - daoFee - devFee).div(10000)));
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(defaultPrice.mul(10000 - daoFee - devFee - referrerFee).div(10000)));
 
     // check dao ETH balance after
     const daoEthBalanceAfter = await dao.getBalance();
@@ -323,6 +328,7 @@ describe("IggyPostNft1155", function () {
       postId, // post ID
       author.address, // post author
       user2.address, // NFT receiver
+      referrer.address, // referrer
       textPreview, // text preview
       quantityOne, // quantity
       {
@@ -339,7 +345,7 @@ describe("IggyPostNft1155", function () {
 
     // check author ETH balance after
     const authorEthBalanceAfter2 = await author.getBalance();
-    expect(authorEthBalanceAfter2).to.equal(authorEthBalanceAfter.add(defaultPrice.mul(10000 - daoFee - devFee).div(10000)));
+    expect(authorEthBalanceAfter2).to.equal(authorEthBalanceAfter.add(defaultPrice.mul(10000 - daoFee - devFee - referrerFee).div(10000)));
 
     // check dao ETH balance after
     const daoEthBalanceAfter2 = await dao.getBalance();
@@ -377,6 +383,7 @@ describe("IggyPostNft1155", function () {
       postId, // post ID
       author.address, // post author
       user1.address, // NFT receiver
+      referrer.address, // referrer
       textPreview, // text preview
       quantityOne, // quantity
       {
@@ -393,7 +400,7 @@ describe("IggyPostNft1155", function () {
 
     // check author ETH balance after
     const authorEthBalanceAfter = await author.getBalance();
-    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(authorDefaultPrice.mul(10000 - daoFee - devFee).div(10000)));
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(authorDefaultPrice.mul(10000 - daoFee - devFee - referrerFee).div(10000)));
 
     // check dao ETH balance after
     const daoEthBalanceAfter = await dao.getBalance();
@@ -431,6 +438,7 @@ describe("IggyPostNft1155", function () {
       postId, // post ID
       author.address, // post author
       user1.address, // NFT receiver
+      referrer.address, // referrer
       textPreview, // text preview
       quantityMultiple, // quantity
       {
@@ -447,7 +455,7 @@ describe("IggyPostNft1155", function () {
 
     // check author ETH balance after
     const authorEthBalanceAfter = await author.getBalance();
-    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(authorDefaultPrice.mul(10000 - daoFee - devFee).div(10000).mul(quantityMultiple)));
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(authorDefaultPrice.mul(10000 - daoFee - devFee - referrerFee).div(10000).mul(quantityMultiple)));
 
     // check dao ETH balance after
     const daoEthBalanceAfter = await dao.getBalance();
