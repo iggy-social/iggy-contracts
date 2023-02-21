@@ -68,7 +68,7 @@ contract IggyPostMetadata is Ownable {
 
   function _getOtherData(uint256 _tokenId, string calldata _postId, address _author) internal view returns (string memory) {
     return string(abi.encodePacked(
-      '{"name": "', brand, ' Post #', _tokenId ,'", ',
+      '{"name": "', brand, ' Post #', _tokenId.toString() ,'", ',
       '"description": "', description, '", ',
       '"external_url": "', url, '?id=', _postId ,'", ',
       '"attributes": [',

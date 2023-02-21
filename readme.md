@@ -10,7 +10,6 @@ Create a `.env` file with the following keys:
 
 ```bash
 DEPLOYER_PRIVATE_KEY=enter-key-here
-AURORASCAN_API_KEY=enter-key-here
 ```
 
 ### Compile
@@ -55,26 +54,8 @@ npx hardhat run scripts/deploy.js --network localhost
 
 ### Deployment
 
-Testnet:
-
 ```bash
-npx hardhat run scripts/deploy.js --network auroraTestnet
-```
-
-Mainnet:
-
-```bash
-npx hardhat run scripts/deploy.js --network aurora
-```
-
-### Verify contract on Aurorascan:
-
-Get yourself an API key from Aurorascan and enter it into the `.env` file.
-
-Then run this command:
-
-```bash
-npx hardhat verify --network aurora <contract-address> "argument"
+npx hardhat run scripts/deploy.js --network <network-name>
 ```
 
 > Also make sure you have the `@nomiclabs/hardhat-etherscan` library `3.1.0` or above.
