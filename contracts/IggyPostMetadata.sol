@@ -40,11 +40,13 @@ contract IggyPostMetadata is Ownable {
     uint256 _tokenId,
     string calldata _postId, 
     address _author,
-    string calldata _textPreview
+    string calldata _textPreview,
+    uint256 _timestamp
   ) public view returns(string memory) {
     return string(
       abi.encodePacked("data:application/json;base64,", Base64.encode(bytes(abi.encodePacked(
-        _getOtherData(_tokenId, _postId, _author),
+        _getInitialData(_tokenId, _postId),
+        _getAttributes(_postId, _author, _timestamp),
         '"image": "', _getImage(_tokenId, _textPreview), '"}'))))
     );
   }
@@ -66,15 +68,21 @@ contract IggyPostMetadata is Ownable {
     return string(abi.encodePacked("data:image/svg+xml;base64,", svgBase64Encoded));
   }
 
-  function _getOtherData(uint256 _tokenId, string calldata _postId, address _author) internal view returns (string memory) {
+  function _getAttributes(string calldata _postId, address _author, uint256 _timestamp) internal pure returns (string memory) {
+    return string(abi.encodePacked(
+      '"attributes": [',
+        '{"trait_type": "post id", "value": "', _postId ,'"}, ',
+        '{"trait_type": "author", "value": "', _author ,'"}',
+        '{"trait_type": "timestamp", "value": "', _timestamp.toString() ,'"}'
+      '], '
+    ));
+  }
+
+  function _getInitialData(uint256 _tokenId, string calldata _postId) internal view returns (string memory) {
     return string(abi.encodePacked(
       '{"name": "', brand, ' Post #', _tokenId.toString() ,'", ',
       '"description": "', description, '", ',
-      '"external_url": "', url, '?id=', _postId ,'", ',
-      '"attributes": [',
-        '{"trait_type": "postId", "value": "', _postId ,'"}, ',
-        '{"trait_type": "author", "value": "', _author ,'"}'
-      '], '
+      '"external_url": "', url, '?id=', _postId ,'", '
     ));
   }
 

@@ -476,4 +476,6 @@ describe("IggyPostNft1155", function () {
   // user fails to mint 1 nft at default price because the contract is paused
   // user fails to mint an NFT because the preview text is too long
 
+  // fetch metadata
+
 });
