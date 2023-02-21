@@ -173,6 +173,9 @@ describe("IggyPostNft1155", function () {
     const devEthBalanceAfter = await dev.getBalance();
     expect(devEthBalanceAfter).to.equal(defaultAddressBalance.add(defaultPrice.mul(devFee).div(10000)));
 
+    // get NFT metadata
+    const nftMetadata = await iggyPostContract.uri(tokenId);
+    console.log("NFT metadata: ", nftMetadata);
   });
 
   // user fails to mint through the post contract because only the minter contract can mint
@@ -468,10 +471,239 @@ describe("IggyPostNft1155", function () {
   });
 
   // mint 1 nft at post price
-  // mint multiple nfts at post price
+  it("can mint 1 nft at post price", async function () {
+    const tokenId = 1;
 
-  // author set mint time to 1 day, user1 mints an NFT within that time
+    // author set post price
+    const postPrice = ethers.utils.parseEther("0.1");
+    await iggyPostContract.connect(author).authorSetPostPrice(postId, postPrice);
+
+    // check user1 balance before
+    const user1BalanceBefore = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceBefore).to.equal(0);
+
+    // get author's ETH balance before
+    const authorEthBalanceBefore = await author.getBalance();
+
+    // check dao ETH balance before
+    const daoEthBalanceBefore = await dao.getBalance();
+
+    // check dev ETH balance before
+    const devEthBalanceBefore = await dev.getBalance();
+
+    // mint through the minter contract
+    const tx = await minterContract.connect(user1).mint(
+      postId, // post ID
+      author.address, // post author
+      user1.address, // NFT receiver
+      referrer.address, // referrer
+      textPreview, // text preview
+      quantityOne, // quantity
+      {
+        value: postPrice
+      }
+    );
+
+    const receipt = await tx.wait();
+    calculateGasCosts("mintOneNftPostPrice", receipt);
+
+    // check user1 balance after
+    const user1BalanceAfter = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceAfter).to.equal(quantityOne);
+
+    // check author ETH balance after
+    const authorEthBalanceAfter = await author.getBalance();
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(postPrice.mul(10000 - daoFee - devFee - referrerFee).div(10000)));
+
+    // check dao ETH balance after
+    const daoEthBalanceAfter = await dao.getBalance();
+    expect(daoEthBalanceAfter).to.equal(daoEthBalanceBefore.add(postPrice.mul(daoFee).div(10000)));
+
+    // check dev ETH balance after
+    const devEthBalanceAfter = await dev.getBalance();
+    expect(devEthBalanceAfter).to.equal(devEthBalanceBefore.add(postPrice.mul(devFee).div(10000)));
+
+  });
+
+  // mint multiple nfts at post price
+  it("can mint multiple nfts at post price", async function () {
+    const tokenId = 1;
+
+    // author set post price
+    const postPrice = ethers.utils.parseEther("0.1");
+    await iggyPostContract.connect(author).authorSetPostPrice(postId, postPrice);
+
+    // check user1 balance before
+    const user1BalanceBefore = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceBefore).to.equal(0);
+
+    // get author's ETH balance before
+    const authorEthBalanceBefore = await author.getBalance();
+
+    // check dao ETH balance before
+    const daoEthBalanceBefore = await dao.getBalance();
+
+    // check dev ETH balance before
+    const devEthBalanceBefore = await dev.getBalance();
+
+    // mint through the minter contract
+    const tx = await minterContract.connect(user1).mint(
+      postId, // post ID
+      author.address, // post author
+      user1.address, // NFT receiver
+      referrer.address, // referrer
+      textPreview, // text preview
+      quantityMultiple, // quantity
+      {
+        value: postPrice.mul(quantityMultiple)
+      }
+    );
+
+    const receipt = await tx.wait();
+    calculateGasCosts("mintMultipleNftsPostPrice", receipt);
+
+    // check user1 balance after
+    const user1BalanceAfter = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceAfter).to.equal(quantityMultiple);
+
+    // check author ETH balance after
+    const authorEthBalanceAfter = await author.getBalance();
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(postPrice.mul(10000 - daoFee - devFee - referrerFee).div(10000).mul(quantityMultiple)));
+
+    // check dao ETH balance after
+    const daoEthBalanceAfter = await dao.getBalance();
+    expect(daoEthBalanceAfter).to.equal(daoEthBalanceBefore.add(postPrice.mul(daoFee).div(10000).mul(quantityMultiple)));
+
+    // check dev ETH balance after
+    const devEthBalanceAfter = await dev.getBalance();
+    expect(devEthBalanceAfter).to.equal(devEthBalanceBefore.add(postPrice.mul(devFee).div(10000).mul(quantityMultiple)));
+
+  });
+
+  // author set mint time to 1 day, user1 mints an NFT within that time at default price
+  it("can mint 1 nft at default price within mint time", async function () {
+    const tokenId = 1;
+
+    // author set mint time to 1 day
+    const mintTime = 86400;
+    await iggyPostContract.connect(author).authorSetMintTime(postId, mintTime);
+
+    // check user1 balance before
+    const user1BalanceBefore = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceBefore).to.equal(0);
+
+    // get author's ETH balance before
+    const authorEthBalanceBefore = await author.getBalance();
+
+    // check dao ETH balance before
+    const daoEthBalanceBefore = await dao.getBalance();
+
+    // check dev ETH balance before
+    const devEthBalanceBefore = await dev.getBalance();
+
+    // mint through the minter contract
+    const tx = await minterContract.connect(user1).mint(
+      postId, // post ID
+      author.address, // post author
+      user1.address, // NFT receiver
+      referrer.address, // referrer
+      textPreview, // text preview
+      quantityOne, // quantity
+      {
+        value: defaultPrice
+      }
+    );
+
+    const receipt = await tx.wait();
+    calculateGasCosts("mintOneNftWithinMintTime", receipt);
+
+    // check user1 balance after
+    const user1BalanceAfter = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceAfter).to.equal(quantityOne);
+
+    // check author ETH balance after
+    const authorEthBalanceAfter = await author.getBalance();
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(defaultPrice.mul(10000 - daoFee - devFee - referrerFee).div(10000)));
+
+    // check dao ETH balance after
+    const daoEthBalanceAfter = await dao.getBalance();
+    expect(daoEthBalanceAfter).to.equal(daoEthBalanceBefore.add(defaultPrice.mul(daoFee).div(10000)));
+
+    // check dev ETH balance after
+    const devEthBalanceAfter = await dev.getBalance();
+    expect(devEthBalanceAfter).to.equal(devEthBalanceBefore.add(defaultPrice.mul(devFee).div(10000)));
+
+  });
+
   // author set mint time to 1 day, user1 fails at minting an NFT after that time has passed
+  it("cannot mint an nft after mint time has passed", async function () {
+    const tokenId = 1;
+
+    // author set mint time to 1 day
+    const mintTime = 86400;
+    await iggyPostContract.connect(author).authorSetMintTime(postId, mintTime);
+
+    // check user1 balance before
+    const user1BalanceBefore = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceBefore).to.equal(0);
+
+    // get author's ETH balance before
+    const authorEthBalanceBefore = await author.getBalance();
+
+    // check dao ETH balance before
+    const daoEthBalanceBefore = await dao.getBalance();
+
+    // check dev ETH balance before
+    const devEthBalanceBefore = await dev.getBalance();
+
+    // successful mint through the minter contract (important: minting time starts from this moment on)
+    const tx = await minterContract.connect(user1).mint(
+      postId, // post ID
+      author.address, // post author
+      user1.address, // NFT receiver
+      referrer.address, // referrer
+      textPreview, // text preview
+      quantityOne, // quantity
+      {
+        value: defaultPrice
+      }
+    );
+
+    // fast forward time by 1 day
+    await network.provider.send("evm_increaseTime", [mintTime+100]);
+
+    // fails to mint after the minting time has passed
+    await expect(
+      minterContract.connect(user1).mint(
+        postId, // post ID
+        author.address, // post author
+        user1.address, // NFT receiver
+        referrer.address, // referrer
+        textPreview, // text preview
+        quantityOne, // quantity
+        {
+          value: defaultPrice
+        }
+      )
+    ).to.be.revertedWith("IggyPost: Minting deadline has passed");
+
+    // check user1 balance after
+    const user1BalanceAfter = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceAfter).to.equal(quantityOne);
+
+    // check author ETH balance after
+    const authorEthBalanceAfter = await author.getBalance();
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore.add(defaultPrice.mul(10000 - daoFee - devFee - referrerFee).div(10000)));
+
+    // check dao ETH balance after
+    const daoEthBalanceAfter = await dao.getBalance();
+    expect(daoEthBalanceAfter).to.equal(daoEthBalanceBefore.add(defaultPrice.mul(daoFee).div(10000)));
+
+    // check dev ETH balance after
+    const devEthBalanceAfter = await dev.getBalance();
+    expect(devEthBalanceAfter).to.equal(devEthBalanceBefore.add(defaultPrice.mul(devFee).div(10000)));
+
+  });
 
   // user fails to mint 1 nft at default price because the contract is paused
   // user fails to mint an NFT because the preview text is too long

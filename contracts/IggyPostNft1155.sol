@@ -6,7 +6,7 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface IIggyPostNftMetadata {
-  function getMetadata(uint256 _tokenId, string memory _postId, address _author, string memory _textPreview) external view returns (string memory);
+  function getMetadata(uint256 _tokenId, string memory _postId, address _author, string memory _textPreview, uint256 _timestamp) external view returns (string memory);
 }
 
 /// @title Iggy Social Post NFT
@@ -34,7 +34,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   mapping (address => uint256) public getAuthorsDefaultPrice; // mapping (authorAddress => price), if zero, use default price
   mapping (string => mapping (address => uint256)) public getPriceForPost; // mapping (postId => mapping (authorAddress => price)), if zero, use author's default price
   
-  // post minting deadline
+  // post minting deadline (important: minting time starts when the first NFT of a post is minted)
   mapping (string => mapping (address => uint256)) public getPostMintingTime; // mapping (postId => mapping (authorAddress => secondsToMint)), if zero, there's no deadline to mint
 
   // events
@@ -71,17 +71,21 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
 
   function uri(uint256 _tokenId) public view override returns (string memory) {
     Post memory post = getPost[_tokenId];
-    return IIggyPostNftMetadata(metadataAddress).getMetadata(_tokenId, post.postId, post.author, post.textPreview);
+    return IIggyPostNftMetadata(metadataAddress).getMetadata(_tokenId, post.postId, post.author, post.textPreview, post.timestamp);
   }
 
   // WRITE
 
-  function authorSetPostPrice(string memory _postId, uint256 _price) external {
-    getPriceForPost[_postId][msg.sender] = _price;
+  function authorSetDefaultPrice(uint256 _price) external {
+    getAuthorsDefaultPrice[_msgSender()] = _price;
   }
 
-  function authorSetDefaultPrice(uint256 _price) external {
-    getAuthorsDefaultPrice[msg.sender] = _price;
+  function authorSetMintTime(string memory _postId, uint256 _secondsToMint) external {
+    getPostMintingTime[_postId][_msgSender()] = _secondsToMint;
+  }
+
+  function authorSetPostPrice(string memory _postId, uint256 _price) external {
+    getPriceForPost[_postId][_msgSender()] = _price;
   }
 
   /// @notice Mint a post NFT
@@ -92,7 +96,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
     string memory _textPreview,
     uint256 _quantity
   ) nonReentrant external returns(uint256 tokenId) {
-    require(msg.sender == minterAddress, "IggyPost: Only minter can mint");
+    require(_msgSender() == minterAddress, "IggyPost: Only minter can mint");
     require(bytes(_textPreview).length <= textPreviewLength, "IggyPost: Text preview is too long");
 
     tokenId = getPostTokenId[_postId][_author];

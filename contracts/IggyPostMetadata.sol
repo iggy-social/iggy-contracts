@@ -71,18 +71,18 @@ contract IggyPostMetadata is Ownable {
   function _getAttributes(string calldata _postId, address _author, uint256 _timestamp) internal pure returns (string memory) {
     return string(abi.encodePacked(
       '"attributes": [',
-        '{"trait_type": "post id", "value": "', _postId ,'"}, ',
-        '{"trait_type": "author", "value": "', _author ,'"}',
-        '{"trait_type": "timestamp", "value": "', _timestamp.toString() ,'"}'
+        '{"trait_type": "post id", "value": "', _postId, '"}, ',
+        '{"trait_type": "author", "value": "', Strings.toHexString(uint160(_author), 20), '"}',
+        '{"trait_type": "timestamp", "value": "', _timestamp.toString(), '"}'
       '], '
     ));
   }
 
   function _getInitialData(uint256 _tokenId, string calldata _postId) internal view returns (string memory) {
     return string(abi.encodePacked(
-      '{"name": "', brand, ' Post #', _tokenId.toString() ,'", ',
+      '{"name": "', brand, ' Post #', _tokenId.toString(), '", ',
       '"description": "', description, '", ',
-      '"external_url": "', url, '?id=', _postId ,'", '
+      '"external_url": "', url, '?id=', _postId, '", '
     ));
   }
 
