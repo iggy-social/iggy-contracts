@@ -7,25 +7,25 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @title Domain metadata contract
 /// @author Tempe Techie
-/// @notice Contract that stores metadata for a TLD
+/// @notice Contract that stores metadata for a Iggy Post NFT
 contract IggyPostMetadata is Ownable {
   using Strings for uint256;
 
   string public description;
-  string public brand;
+  string public name;
   string public url;
 
   // EVENTS
   event DescriptionChanged(address indexed user, string description);
-  event BrandChanged(address indexed user, string brand);
+  event NameChanged(address indexed user, string name);
 
   // constructor
   constructor(
-    string memory _brand,
+    string memory _name,
     string memory _description,
     string memory _url
   ) {
-    brand = _brand;
+    name = _name;
     description = _description;
     url = _url;
   }
@@ -72,15 +72,15 @@ contract IggyPostMetadata is Ownable {
     return string(abi.encodePacked(
       '"attributes": [',
         '{"trait_type": "post id", "value": "', _postId, '"}, ',
-        '{"trait_type": "author", "value": "', Strings.toHexString(uint160(_author), 20), '"}',
-        '{"trait_type": "timestamp", "value": "', _timestamp.toString(), '"}'
+        '{"trait_type": "author", "value": "', Strings.toHexString(uint160(_author), 20), '"}, ',
+        '{"trait_type": "created", "display_type": "date", "value": "', _timestamp.toString(), '"}'
       '], '
     ));
   }
 
   function _getInitialData(uint256 _tokenId, string calldata _postId) internal view returns (string memory) {
     return string(abi.encodePacked(
-      '{"name": "', brand, ' Post #', _tokenId.toString(), '", ',
+      '{"name": "', name, ' #', _tokenId.toString(), '", ',
       '"description": "', description, '", ',
       '"external_url": "', url, '?id=', _postId, '", '
     ));
@@ -89,9 +89,9 @@ contract IggyPostMetadata is Ownable {
   // WRITE (OWNER)
 
   /// @notice Only metadata contract owner can call this function.
-  function changeBrand(string calldata _brand) external onlyOwner {
-    brand = _brand;
-    emit BrandChanged(msg.sender, _brand);
+  function changeName(string calldata _name) external onlyOwner {
+    name = _name;
+    emit NameChanged(msg.sender, _name);
   }
 
   /// @notice Only metadata contract owner can call this function.

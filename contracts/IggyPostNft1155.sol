@@ -11,6 +11,9 @@ interface IIggyPostNftMetadata {
 
 /// @title Iggy Social Post NFT
 contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
+  string public name;
+  string public symbol;
+
   address public metadataAddress; // address of the metadata contract
   address public minterAddress; // address of the minter contract
 
@@ -43,10 +46,14 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   // constructor
   constructor(
     uint256 _defaultPrice,
-    address _metadataAddress
+    address _metadataAddress,
+    string memory _name,
+    string memory _symbol
   ) ERC1155("") {
     defaultPrice = _defaultPrice;
     metadataAddress = _metadataAddress;
+    name = _name;
+    symbol = _symbol;
   }
 
   // READ

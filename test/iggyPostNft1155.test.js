@@ -43,9 +43,10 @@ describe("IggyPostNft1155", function () {
   const quantityOne = 1;
   const quantityMultiple = 3;
 
-  const brand = "Iggy";
-  const description = "Mint an Iggy Social post as an NFT";
-  const url = "https://iggy-social-frontend.vercel.app/post/";
+  const mdName = "Iggy";
+  const symbol = "IGGYPOST";
+  const mdDescription = "Mint an Iggy Social post as an NFT";
+  const mdUrl = "https://iggy-social-frontend.vercel.app/post/";
 
   //const provider = waffle.provider;
 
@@ -53,11 +54,11 @@ describe("IggyPostNft1155", function () {
     [owner, dao, author, user1, user2, dev, referrer] = await ethers.getSigners();
 
     const IggyMetadata = await ethers.getContractFactory("IggyPostMetadata");
-    metadataContract = await IggyMetadata.deploy(brand, description, url);
+    metadataContract = await IggyMetadata.deploy(mdName, mdDescription, mdUrl);
     await metadataContract.deployed();
 
     const IggyPost = await ethers.getContractFactory("IggyPostNft1155");
-    iggyPostContract = await IggyPost.deploy(defaultPrice, metadataContract.address);
+    iggyPostContract = await IggyPost.deploy(defaultPrice, metadataContract.address, mdName, symbol);
     await iggyPostContract.deployed();
 
     const IggyMinter = await ethers.getContractFactory("IggyPostMinter");
@@ -706,8 +707,108 @@ describe("IggyPostNft1155", function () {
   });
 
   // user fails to mint 1 nft at default price because the contract is paused
-  // user fails to mint an NFT because the preview text is too long
+  it("cannot mint 1 nft at default price because the contract is paused", async function () {
+    // owner pause minting in the minter contract
+    await minterContract.togglePaused();
 
-  // fetch metadata
+    const tokenId = 1;
+
+    // check user1 balance before
+    const user1BalanceBefore = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceBefore).to.equal(0);
+
+    // get author's ETH balance before
+    const authorEthBalanceBefore = await author.getBalance();
+
+    // check dao ETH balance before
+    const daoEthBalanceBefore = await dao.getBalance();
+
+    // check dev ETH balance before
+    const devEthBalanceBefore = await dev.getBalance();
+
+    // fails to mint because the contract is paused
+    await expect(
+      minterContract.connect(user1).mint(
+        postId, // post ID
+        author.address, // post author
+        user1.address, // NFT receiver
+        referrer.address, // referrer
+        textPreview, // text preview
+        quantityOne, // quantity
+        {
+          value: defaultPrice
+        }
+      )
+    ).to.be.revertedWith("Minting paused");
+
+    // check user1 balance after
+    const user1BalanceAfter = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceAfter).to.equal(0);
+
+    // check author ETH balance after
+    const authorEthBalanceAfter = await author.getBalance();
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore);
+
+    // check dao ETH balance after
+    const daoEthBalanceAfter = await dao.getBalance();
+    expect(daoEthBalanceAfter).to.equal(daoEthBalanceBefore);
+
+    // check dev ETH balance after
+    const devEthBalanceAfter = await dev.getBalance();
+    expect(devEthBalanceAfter).to.equal(devEthBalanceBefore);
+
+  });
+
+  // user fails to mint an NFT because the preview text is too long
+  it("cannot mint an nft because the preview text is too long", async function () {
+    const tokenId = 1;
+
+    const textPreviewLong = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. Donec auctor, nisl eget ultricies lacinia, nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet";
+
+    // check user1 balance before
+    const user1BalanceBefore = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceBefore).to.equal(0);
+
+    // get author's ETH balance before
+    const authorEthBalanceBefore = await author.getBalance();
+
+    // check dao ETH balance before
+    const daoEthBalanceBefore = await dao.getBalance();
+
+    // check dev ETH balance before
+    const devEthBalanceBefore = await dev.getBalance();
+
+    // fails to mint because the preview text is too long
+    await expect(
+      minterContract.connect(user1).mint(
+        postId, // post ID
+        author.address, // post author
+        user1.address, // NFT receiver
+        referrer.address, // referrer
+        textPreviewLong, // text preview
+        quantityOne, // quantity
+        {
+          value: defaultPrice
+        }
+      )
+    ).to.be.revertedWith("IggyPost: Text preview is too long");
+
+    // check user1 balance after
+    const user1BalanceAfter = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceAfter).to.equal(0);
+
+    // check author ETH balance after
+    const authorEthBalanceAfter = await author.getBalance();
+    expect(authorEthBalanceAfter).to.equal(authorEthBalanceBefore);
+
+    // check dao ETH balance after
+    const daoEthBalanceAfter = await dao.getBalance();
+    expect(daoEthBalanceAfter).to.equal(daoEthBalanceBefore);
+
+    // check dev ETH balance after
+    const devEthBalanceAfter = await dev.getBalance();
+    expect(devEthBalanceAfter).to.equal(devEthBalanceBefore);
+
+  });
 
 });
