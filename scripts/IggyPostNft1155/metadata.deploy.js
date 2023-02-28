@@ -17,7 +17,7 @@ async function main() {
   const contract = await ethers.getContractFactory(contractName);
   const instance = await contract.deploy(mdName, description, url);
   
-  console.log("Metadata contract address:", instance.address);
+  console.log("Contract address:", instance.address);
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
   console.log("npx hardhat verify --network " + network.name + " " + instance.address + ' "' + mdName + '" "' + description + '" "' + url + '"');

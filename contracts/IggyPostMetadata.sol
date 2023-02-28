@@ -59,7 +59,7 @@ contract IggyPostMetadata is Ownable {
         '<rect x="0" y="0" width="500" height="500" fill="hsl(', hue, ', 50%, 40%)"/>',
         '<foreignObject x="0" y="0" width="100%" height="100%" font-size="28">',
           '<div xmlns="http://www.w3.org/1999/xhtml" style="width=100%; height: 100%; padding: 10px; display: flex; justify-content: center; align-items: center; text-align: center; color: #ffffff;">',
-            _textPreview, ' ...',
+            _textPreview,
           '</div>',
         '</foreignObject>',
       '</svg>'
