@@ -23,17 +23,12 @@ module.exports = {
     },
     arbitrumGoerli: {
       url: 'https://goerli-rollup.arbitrum.io/rpc',
+      //url: 'https://endpoints.omniatech.io/v1/arbitrum/goerli/public',
       chainId: 421613,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
       gasPrice: 1000000000, // 1 gwei
-    },
-    arbitrumTestnet: {
-      url: 'https://rinkeby.arbitrum.io/rpc',
-      chainId: 421611,
-      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
-      gas: "auto", // gas limit
-      gasPrice: 1000000000, // 1 gwei
+      allowUnlimitedContractSize: true
     },
     aurora: {
       url: 'https://mainnet.aurora.dev',
@@ -140,7 +135,6 @@ module.exports = {
   etherscan: {
     apiKey: { // all possible key names here: https://gist.github.com/tempe-techie/95a3ad4e81b46c895928a0524fc2b7ac
       arbitrumOne: process.env.ARBISCAN_API_KEY,
-      arbitrumTestnet: process.env.ARBISCAN_API_KEY,
       arbitrumGoerli: process.env.ARBISCAN_API_KEY,
       aurora: process.env.AURORASCAN_API_KEY,
       auroraTestnet: process.env.AURORASCAN_API_KEY,

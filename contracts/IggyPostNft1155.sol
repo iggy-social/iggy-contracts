@@ -77,6 +77,8 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   }
 
   function uri(uint256 _tokenId) public view override returns (string memory) {
+    require(_tokenId < counter, "IggyPost: Token id does not exist");
+
     Post memory post = getPost[_tokenId];
     return IIggyPostNftMetadata(metadataAddress).getMetadata(_tokenId, post.postId, post.author, post.textPreview, post.timestamp);
   }

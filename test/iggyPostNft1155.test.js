@@ -177,6 +177,9 @@ describe("IggyPostNft1155", function () {
     // get NFT metadata
     const nftMetadata = await iggyPostContract.uri(tokenId);
     console.log("NFT metadata: ", nftMetadata);
+
+    // fail at fetching uri for non-existent token
+    await expect(iggyPostContract.uri(23)).to.be.revertedWith("IggyPost: Token id does not exist");
   });
 
   // user fails to mint through the post contract because only the minter contract can mint
