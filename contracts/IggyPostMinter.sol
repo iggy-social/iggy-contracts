@@ -28,7 +28,7 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
   address public devAddress;
   address public immutable postAddress;
 
-  bool public paused = true;
+  bool public paused = false;
 
   uint256 public constant MAX_BPS = 10_000;
   uint256 public daoFee; // share of each domain purchase (in bips) that goes to the DAO/community that owns the frontend
