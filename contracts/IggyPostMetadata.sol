@@ -5,11 +5,18 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
+interface IBasePunkTLD {
+  function name() external view returns(string memory);
+  function defaultNames(address) external view returns(string memory);
+}
+
 /// @title Domain metadata contract
 /// @author Tempe Techie
-/// @notice Contract that stores metadata for a Iggy Post NFT
+/// @notice Contract that stores metadata for an Iggy Post NFT
 contract IggyPostMetadata is Ownable {
   using Strings for uint256;
+
+  address public immutable tldAddress;
 
   string public description;
   string public name;
@@ -23,11 +30,14 @@ contract IggyPostMetadata is Ownable {
   constructor(
     string memory _name,
     string memory _description,
-    string memory _url
+    string memory _url,
+    address _tldAddress
   ) {
     name = _name;
     description = _description;
     url = _url;
+
+    tldAddress = _tldAddress;
   }
 
   // INTERNAL
@@ -47,12 +57,19 @@ contract IggyPostMetadata is Ownable {
       abi.encodePacked("data:application/json;base64,", Base64.encode(bytes(abi.encodePacked(
         _getInitialData(_tokenId, _postId),
         _getAttributes(_postId, _author, _timestamp),
-        '"image": "', _getImage(_tokenId, _textPreview), '"}'))))
+        '"image": "', _getImage(_tokenId, _textPreview, _author), '"}'))))
     );
   }
 
-  function _getImage(uint256 _tokenId, string memory _textPreview) internal pure returns (string memory) {
+  function _getImage(uint256 _tokenId, string memory _textPreview, address _author) internal view returns (string memory) {
     string memory hue = _randomHueNum(_tokenId).toString();
+    string memory authorName = IBasePunkTLD(tldAddress).defaultNames(_author);
+
+    if (bytes(authorName).length == 0) {
+      authorName = "Anonymous";
+    } else {
+      authorName = string(abi.encodePacked(authorName, IBasePunkTLD(tldAddress).name()));
+    }
 
     string memory svgBase64Encoded = Base64.encode(bytes(string(abi.encodePacked(
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">',
@@ -60,6 +77,10 @@ contract IggyPostMetadata is Ownable {
         '<foreignObject x="0" y="0" width="100%" height="100%" font-size="28">',
           '<div xmlns="http://www.w3.org/1999/xhtml" style="width=100%; height: 100%; padding: 10px; display: flex; justify-content: center; align-items: center; text-align: center; color: #ffffff;">',
             _textPreview,
+            '<br />',
+            '---',
+            '<br />',
+            authorName,
           '</div>',
         '</foreignObject>',
       '</svg>'

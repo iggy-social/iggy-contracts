@@ -22,6 +22,7 @@ describe("IggyPostNft1155", function () {
   let iggyPostContract;
   let metadataContract;
   let minterContract;
+  let mockPunkTldContract;
 
   let owner;
   let dao;
@@ -53,8 +54,12 @@ describe("IggyPostNft1155", function () {
   beforeEach(async function () {
     [owner, dao, author, user1, user2, dev, referrer] = await ethers.getSigners();
 
+    const MockPunkTld = await ethers.getContractFactory("MockPunkTld");
+    mockPunkTldContract = await MockPunkTld.deploy();
+    await mockPunkTldContract.deployed();
+
     const IggyMetadata = await ethers.getContractFactory("IggyPostMetadata");
-    metadataContract = await IggyMetadata.deploy(mdName, mdDescription, mdUrl);
+    metadataContract = await IggyMetadata.deploy(mdName, mdDescription, mdUrl, mockPunkTldContract.address);
     await metadataContract.deployed();
 
     const IggyPost = await ethers.getContractFactory("IggyPostNft1155");

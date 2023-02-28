@@ -6,6 +6,7 @@ const contractName = "IggyPostMetadata";
 const mdName = "Iggy Post";
 const description = "This is description";
 const url = "https://iggy-social-frontend.vercel.app/post/";
+const tldAddress = "";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -15,12 +16,12 @@ async function main() {
 
   // deploy contract
   const contract = await ethers.getContractFactory(contractName);
-  const instance = await contract.deploy(mdName, description, url);
+  const instance = await contract.deploy(mdName, description, url, tldAddress);
   
   console.log("Contract address:", instance.address);
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + instance.address + ' "' + mdName + '" "' + description + '" "' + url + '"');
+  console.log("npx hardhat verify --network " + network.name + " " + instance.address + ' "' + mdName + '" "' + description + '" "' + url + '" ' + tldAddress);
 }
 
 main()
