@@ -11,15 +11,17 @@ interface IIggyPostNftMetadata {
 
 /// @title Iggy Social Post NFT
 contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
-  string public name;
-  string public symbol;
-
   address public metadataAddress; // address of the metadata contract
   address public minterAddress; // address of the minter contract
+
+  bool public textPreviewChangingDisabledForever = false; // if true, owner can no longer change text preview of a post
 
   uint256 public counter = 1; // id counter, starts with 1
   uint256 public defaultPrice; // default price for minting a post
   uint256 public textPreviewLength = 100; // length of the text preview
+
+  string public name;
+  string public symbol;
 
   struct Post {
     uint256 tokenId;
@@ -41,7 +43,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   mapping (string => mapping (address => uint256)) public getPostMintingTime; // mapping (postId => mapping (authorAddress => secondsToMint)), if zero, there's no deadline to mint
 
   // events
-  event MintPost (address nftReceiver, string post, address author, uint256 quantity);
+  event MintPost(address nftReceiver, string post, address author, uint256 quantity);
 
   // constructor
   constructor(
@@ -147,9 +149,22 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
     minterAddress = _newMinterAddress;
   }
 
+  // owner can change text preview of a post
+  function ownerChangeTextPreview(uint256 _tokenId, string memory _newTextPreview) external onlyOwner {
+    require(_tokenId < counter, "IggyPost: Token id does not exist");
+    require(!textPreviewChangingDisabledForever, "IggyPost: Text preview changing is disabled forever");
+    require(bytes(_newTextPreview).length <= textPreviewLength, "IggyPost: Text preview is too long");
+    getPost[_tokenId].textPreview = _newTextPreview;
+  }
+
   // change text preview length
   function ownerChangeTextPreviewLength(uint256 _newTextPreviewLength) external onlyOwner {
     textPreviewLength = _newTextPreviewLength;
+  }
+
+  // owner disable text preview changing forever (this action is irreversible!)
+  function ownerDisableTextPreviewChangingForever() external onlyOwner {
+    textPreviewChangingDisabledForever = true;
   }
 
 }

@@ -180,6 +180,19 @@ describe("IggyPostNft1155", function () {
 
     // fail at fetching uri for non-existent token
     await expect(iggyPostContract.uri(23)).to.be.revertedWith("IggyPost: Token id does not exist");
+
+    // fetch Post data (token id 1) and assert that text preview in post data is correct
+    const postData = await iggyPostContract.getPost(tokenId);
+    expect(postData.textPreview).to.equal(textPreview);
+
+    // owner changes text preview of post with token id 1
+    const newTextPreview = "New text preview";
+    await iggyPostContract.ownerChangeTextPreview(tokenId, newTextPreview);
+
+    // fetch Post data (token id 1) and assert that text preview in post data is now changed
+    const postDataAfter = await iggyPostContract.getPost(tokenId);
+    expect(postDataAfter.textPreview).to.equal(newTextPreview);
+
   });
 
   // user fails to mint through the post contract because only the minter contract can mint
