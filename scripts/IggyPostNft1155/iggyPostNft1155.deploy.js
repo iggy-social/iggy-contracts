@@ -1,4 +1,4 @@
-// Deploy metadata contract
+// 2. Deploy metadata contract
 // npx hardhat run scripts/IggyPostNft1155/iggyPostNft1155.deploy.js --network polygonMumbai
 
 const contractName = "IggyPostNft1155";
@@ -18,7 +18,7 @@ async function main() {
   const contract = await ethers.getContractFactory(contractName);
   const instance = await contract.deploy(defaultPrice, metadataAddress, collectionName, collectionSymbol);
   
-  console.log("Contract address:", instance.address);
+  console.log(contractName + " contract address:", instance.address);
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
   console.log("npx hardhat verify --network " + network.name + " " + instance.address + ' "' + defaultPrice + '" ' + metadataAddress + ' "' + collectionName + '" "' + collectionSymbol + '"');

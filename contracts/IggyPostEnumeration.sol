@@ -35,6 +35,16 @@ contract IggyPostEnumeration is Ownable {
     getMintedWei[_user] += _wei;
   }
 
+  // get minted post IDs array
+  function getMintedPostIdsArray(address _user) external view returns (uint256[] memory) {
+    return getMintedPostIds[_user];
+  }
+
+  // get minted post IDs length
+  function getMintedPostIdsLength(address _user) external view returns (uint256) {
+    return getMintedPostIds[_user].length;
+  }
+
   // OWNER
 
   function setMinterAddress(address _minterAddress) external onlyOwner {

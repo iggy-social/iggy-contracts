@@ -1,8 +1,8 @@
 // npx hardhat run scripts/IggyPostNft1155/calls.js --network songbird
 
-const postAddress = "0x5e54CebB2612744cB56547bC7CC41466ad7ac557";
-const minterAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2";
-const metadataAddress = "0x06A7Ab7Bb68b0ad6eB7688C5781E60BE6AFc658d";
+const postAddress = "";
+const minterAddress = "";
+const metadataAddress = "";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
