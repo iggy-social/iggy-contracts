@@ -1,12 +1,12 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/IggyPostNft1155/metadata.deploy.js --network polygonMumbai
+// npx hardhat run scripts/IggyPostNft1155/metadata.deploy.js --network songbird
 
 const contractName = "IggyPostMetadata";
 
-const mdName = "Iggy Post";
-const description = "This is description";
-const url = "https://iggy-social-frontend.vercel.app/post/";
-const tldAddress = "";
+const mdName = "Sgb.chat Post";
+const description = "Sgb.chat is the first decentralized social network on Songbird.";
+const url = "https://sgb.chat/post/";
+const tldAddress = "0xBDACF94dDCAB51c39c2dD50BffEe60Bb8021949a";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

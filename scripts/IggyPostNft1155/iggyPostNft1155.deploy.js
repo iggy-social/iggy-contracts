@@ -1,12 +1,12 @@
 // 2. Deploy metadata contract
-// npx hardhat run scripts/IggyPostNft1155/iggyPostNft1155.deploy.js --network polygonMumbai
+// npx hardhat run scripts/IggyPostNft1155/iggyPostNft1155.deploy.js --network songbird
 
 const contractName = "IggyPostNft1155";
 
-const defaultPrice = ethers.utils.parseEther("0.0001");
-const metadataAddress = "";
-const collectionName = "Iggy Posts";
-const collectionSymbol = "IGGYPOST";
+const defaultPrice = ethers.utils.parseEther("99");
+const metadataAddress = "0x2D4144B4E00cf1dC1c4DeDa37cb1CaCEda030998";
+const collectionName = "sgb.chat";
+const collectionSymbol = "SGBCHAT";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
