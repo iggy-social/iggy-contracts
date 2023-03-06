@@ -18,7 +18,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
 
   uint256 public counter = 1; // id counter, starts with 1
   uint256 public defaultPrice; // default price for minting a post
-  uint256 public textPreviewLength = 100; // length of the text preview
+  uint256 public maxTextPreviewLength = 100; // max length of the text preview
 
   string public name;
   string public symbol;
@@ -108,7 +108,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
     uint256 _quantity
   ) nonReentrant external returns(uint256 tokenId) {
     require(_msgSender() == minterAddress, "IggyPost: Only minter can mint");
-    require(bytes(_textPreview).length <= textPreviewLength, "IggyPost: Text preview is too long");
+    require(bytes(_textPreview).length <= maxTextPreviewLength, "IggyPost: Text preview is too long");
 
     tokenId = getPostTokenId[_postId][_author];
 
@@ -153,13 +153,13 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   function ownerChangeTextPreview(uint256 _tokenId, string memory _newTextPreview) external onlyOwner {
     require(_tokenId < counter, "IggyPost: Token id does not exist");
     require(!textPreviewChangingDisabledForever, "IggyPost: Text preview changing is disabled forever");
-    require(bytes(_newTextPreview).length <= textPreviewLength, "IggyPost: Text preview is too long");
+    require(bytes(_newTextPreview).length <= maxTextPreviewLength, "IggyPost: Text preview is too long");
     getPost[_tokenId].textPreview = _newTextPreview;
   }
 
   // change text preview length
-  function ownerChangeTextPreviewLength(uint256 _newTextPreviewLength) external onlyOwner {
-    textPreviewLength = _newTextPreviewLength;
+  function ownerChangeMaxTextPreviewLength(uint256 _newMaxTextPreviewLength) external onlyOwner {
+    maxTextPreviewLength = _newMaxTextPreviewLength;
   }
 
   // owner disable text preview changing forever (this action is irreversible!)
