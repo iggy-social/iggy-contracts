@@ -71,9 +71,6 @@ describe("IggyPostNft1155", function () {
     await minterContract.deployed();
 
     iggyPostContract.ownerChangeMinterAddress(minterContract.address);
-
-    // owner unpause minting in the minter contract
-    await minterContract.togglePaused();
   });
 
   // list of tests

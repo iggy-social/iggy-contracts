@@ -10,7 +10,7 @@ interface IBasePunkTLD {
   function defaultNames(address) external view returns(string memory);
 }
 
-/// @title Domain metadata contract
+/// @title Metadata contract
 /// @author Tempe Techie
 /// @notice Contract that stores metadata for an Iggy Post NFT
 contract IggyPostMetadata is Ownable {

@@ -23,11 +23,19 @@ interface IIggyPostNft is IERC1155 {
 
 }
 
+interface IIggyPostEnumeration {
+  function addMintedPostId(address _user, uint256 _postId) external;
+  function addMintedWei(address _user, uint256 _wei) external;
+}
+
 contract IggyPostMinter is Ownable, ReentrancyGuard {
   address public daoAddress;
   address public devAddress;
+  address public devFeeUpdaterAddress;
   address public immutable postAddress;
+  address public enumAddress;
 
+  bool public enumEnabled = false;
   bool public paused = false;
 
   uint256 public constant MAX_BPS = 10_000;
@@ -46,6 +54,7 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
   ) {
     daoAddress = _daoAddress;
     devAddress = _devAddress;
+    devFeeUpdaterAddress = _devAddress;
     postAddress = _postAddress;
 
     daoFee = _daoFee;
@@ -97,6 +106,12 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
 
     // mint the post as NFT
     tokenId = IIggyPostNft(postAddress).mint(_postId, _author, _nftReceiver, _textPreview, _quantity);
+
+    // store token ID to the list of post IDs minted by NFT receiver
+    if (enumEnabled && enumAddress != address(0)) {
+      IIggyPostEnumeration(enumAddress).addMintedPostId(_nftReceiver, tokenId);
+      IIggyPostEnumeration(enumAddress).addMintedWei(_nftReceiver, price);
+    }
   }
 
   // OWNER
@@ -105,6 +120,11 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
   function changeDaoFee(uint256 _daoFee) external onlyOwner {
     require(_daoFee <= MAX_BPS, "Fee cannot be more than 100%");
     daoFee = _daoFee;
+  }
+
+  // change enum address
+  function changeEnumAddress(address _enumAddress) external onlyOwner {
+    enumAddress = _enumAddress;
   }
 
   // change referrer fee
@@ -126,6 +146,10 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
   /// @notice Recover any ERC-1155 token mistakenly sent to this contract address
   function recoverERC1155(address tokenAddress_, uint256 tokenId_, address recipient_, uint256 _amount) external onlyOwner {
     IERC1155(tokenAddress_).safeTransferFrom(address(this), recipient_, tokenId_, _amount, "");
+  }
+
+  function toggleEnumEnabled() external onlyOwner {
+    enumEnabled = !enumEnabled;
   }
 
   function togglePaused() external onlyOwner {
@@ -152,9 +176,15 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     devAddress = _devAddress;
   }
 
-  // change dev fee (only dev can change it)
+  /// @notice This changes the dev fee updater's address in the minter contract
+  function changeDevFeeUpdaterAddress(address _devFeeUpdaterAddress) external {
+    require(_msgSender() == devFeeUpdaterAddress, "Sender is not the dev fee updater");
+    devFeeUpdaterAddress = _devFeeUpdaterAddress;
+  }
+
+  // change dev fee (only dev fee updater can change it)
   function changeDevFee(uint256 _devFee) external {
-    require(_msgSender() == devAddress, "Sender is not the developer");
+    require(_msgSender() == devFeeUpdaterAddress, "Sender is not the dev fee updater");
     require(_devFee <= 2000, "Fee cannot be more than 20%");
     devFee = _devFee;
   }
