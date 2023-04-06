@@ -26,6 +26,7 @@ interface IIggyPostNft is IERC1155 {
 interface IIggyPostEnumeration {
   function addMintedPostId(address _user, uint256 _postId) external;
   function addMintedWei(address _user, uint256 _wei) external;
+  function addWeiEarnedByAuthorPerPostId(uint256 _postId, uint256 _wei) external;
 }
 
 contract IggyPostMinter is Ownable, ReentrancyGuard {
@@ -107,10 +108,14 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     // mint the post as NFT
     tokenId = IIggyPostNft(postAddress).mint(_postId, _author, _nftReceiver, _textPreview, _quantity);
 
-    // store token ID to the list of post IDs minted by NFT receiver
+    // store some stats in the enumeration contract
     if (enumEnabled && enumAddress != address(0)) {
+      price = price - ((price * referrerFee) / MAX_BPS) - ((price * devFee) / MAX_BPS) - ((price * daoFee) / MAX_BPS);
+
+      // feel free to comment out the stats that you don't need to track
       IIggyPostEnumeration(enumAddress).addMintedPostId(_nftReceiver, tokenId);
       IIggyPostEnumeration(enumAddress).addMintedWei(_nftReceiver, price);
+      IIggyPostEnumeration(enumAddress).addWeiEarnedByAuthorPerPostId(tokenId, price);
     }
   }
 

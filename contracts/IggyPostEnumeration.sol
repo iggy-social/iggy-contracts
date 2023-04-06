@@ -14,6 +14,8 @@ contract IggyPostEnumeration is Ownable {
 
   mapping (address => uint256[]) public getMintedPostIds; // user => postIds; get a list of post IDs minted by a user
   mapping (address => uint256) public getMintedWei; // user => wei; get the total amount of wei paid for minting posts by a user
+  mapping (uint256 => uint256) public weiEarnedByAuthorPerPostId; // postId => wei; get the total amount of wei earned by author for a given post ID
+  mapping (uint256 => uint256) public postMintedCounter; // postId => counter; get the number of times a post has been minted
 
   // EVENTS
   event MinterAddressChanged(address indexed user, address minterAddress);
@@ -23,17 +25,7 @@ contract IggyPostEnumeration is Ownable {
     minterAddress = _minterAddress;
   }
 
-  // WRITE
-
-  function addMintedPostId(address _user, uint256 _postId) external {
-    require(_msgSender() == minterAddress, "IggyPostMetadata: Only minter can add minted post ID");
-    getMintedPostIds[_user].push(_postId);
-  }
-
-  function addMintedWei(address _user, uint256 _wei) external {
-    require(_msgSender() == minterAddress, "IggyPostMetadata: Only minter can add minted wei");
-    getMintedWei[_user] += _wei;
-  }
+  // READ
 
   // get minted post IDs array
   function getMintedPostIdsArray(address _user) external view returns (uint256[] memory) {
@@ -43,6 +35,28 @@ contract IggyPostEnumeration is Ownable {
   // get minted post IDs length
   function getMintedPostIdsLength(address _user) external view returns (uint256) {
     return getMintedPostIds[_user].length;
+  }
+
+  function getWeiEarnedByAuthorPerPostId(uint256 _postId) external view returns (uint256) {
+    return weiEarnedByAuthorPerPostId[_postId];
+  }
+
+  // WRITE
+
+  function addMintedPostId(address _user, uint256 _postId) external {
+    require(_msgSender() == minterAddress, "IggyPostEnumeration: Only minter can add minted post ID");
+    getMintedPostIds[_user].push(_postId);
+    postMintedCounter[_postId] += 1;
+  }
+
+  function addMintedWei(address _user, uint256 _wei) external {
+    require(_msgSender() == minterAddress, "IggyPostEnumeration: Only minter can add minted wei");
+    getMintedWei[_user] += _wei;
+  }
+
+  function addWeiEarnedByAuthorPerPostId(uint256 _postId, uint256 _wei) external {
+    require(_msgSender() == minterAddress, "IggyPostEnumeration: Only minter can add wei earned by author per post ID");
+    weiEarnedByAuthorPerPostId[_postId] += _wei;
   }
 
   // OWNER
@@ -67,5 +81,11 @@ contract IggyPostEnumeration is Ownable {
   /// @notice Recover any ERC-1155 token mistakenly sent to this contract address
   function recoverERC1155(address tokenAddress_, uint256 tokenId_, address recipient_, uint256 _amount) external onlyOwner {
     IERC1155(tokenAddress_).safeTransferFrom(address(this), recipient_, tokenId_, _amount, "");
+  }
+
+  /// @notice Withdraw native coins from contract
+  function withdraw() external onlyOwner {
+    (bool success, ) = owner().call{value: address(this).balance}("");
+    require(success, "Failed to withdraw native coins from contract");
   }
 }
