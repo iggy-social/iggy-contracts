@@ -9,27 +9,20 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 interface IUniswapV2Router02 {
   function getAmountsOut(uint amountIn, address[] memory path) external view returns (uint[] memory amounts);
 
-  function swapExactETHForTokensSupportingFeeOnTransferTokens(
-    uint amountOutMin,
-    address[] calldata path,
-    address to,
-    uint deadline
-  ) external payable;
-
-  function swapExactTokensForTokensSupportingFeeOnTransferTokens(
+  function swapExactTokensForTokens(
     uint amountIn,
     uint amountOutMin,
     address[] calldata path,
     address to,
     uint deadline
-  ) external;
+  ) external returns (uint[] memory amounts);
 }
 
-/// @title Iggy swap helper contract
+/// @title Iggy swap custom contract
 /// @author Tempe Techie
-/// @notice Contract that helps an Iggy frontend to swap tokens
-contract IggySwapHelper is Ownable {
-  address public daoAddress; // address of a DAO/community which runs the frontend
+/// @notice Contract that helps an Iggy frontend to swap tokens (custom because it's specific to a particular frontend)
+contract IggySwapCustom is Ownable {
+  address public frontendAddress; // address of a DAO/community which runs the frontend
   address public iggyAddress;
   address public routerAddress; // DEX router address
   address public feeChangerAddress; // a special role that is allowed to change fees and share amounts
@@ -38,15 +31,15 @@ contract IggySwapHelper is Ownable {
   uint256 public constant MAX_BPS = 10_000;
   uint256 public swapFee = 80; // 0.8% default fee
   uint256 public referrerShare = 1000; // 10% share of the swap fee
-  uint256 public daoShare = 5000; // 50% share of the swap fee (after referrer share is deducted)
+  uint256 public frontendShare = 5000; // 50% share of the swap fee (after referrer share is deducted)
 
   constructor(
-    address _daoAddress,
+    address _frontendAddress,
     address _iggyAddress,
     address _routerAddress,
     address _wethAddress
   ) {
-    daoAddress = _daoAddress;
+    frontendAddress = _frontendAddress;
     iggyAddress = _iggyAddress;
     routerAddress = _routerAddress;
     feeChangerAddress = _msgSender();
@@ -59,7 +52,11 @@ contract IggySwapHelper is Ownable {
     _;
   }
 
-  // INTERNAL
+  // READ INTERNAL
+  function _getFeeAmount(uint _amount) internal view returns (uint) {
+    return (_amount * swapFee) / MAX_BPS;
+  }
+
   function _getTokensAmountOut(
     uint amountIn, 
     address[] memory path
@@ -75,36 +72,89 @@ contract IggySwapHelper is Ownable {
     return IUniswapV2Router02(routerAddress).getAmountsOut(amountIn, path);
   }
 
-  // READ
+  // READ PUBLIC/EXTERNAL
   function getAmountsOut(
     uint amountIn, 
     address[] memory path
   ) public view returns (uint[] memory amounts) {
     amounts = _getTokensAmountOut(amountIn, path);
-    amounts[1] = amounts[1] - ((amounts[1] * swapFee) / MAX_BPS); // deduce swap fee from amount out
+    amounts[amounts.length - 1] = amounts[amounts.length - 1] - _getFeeAmount(amounts[amounts.length - 1]); // deduce swap fee from amount out
   }
 
-  // WRITE
-  /*
-  // without refrerrer
-  function swapExactTokensForTokensSupportingFeeOnTransferTokens(
+  // WRITE INTERNAL
+  function _swapExactTokensForTokens(
     uint amountIn,
-    uint amountOutMin,
-    address[] calldata path,
-    address to,
-    uint deadline
-  ) external {}
-
-  // with referrer
-  function swapExactTokensForTokensSupportingFeeOnTransferTokens(
-    uint amountIn,
-    uint amountOutMin,
+    uint amountOutMin, // amount out deducted by slippage
     address[] calldata path,
     address to,
     uint deadline,
     address referrer
-  ) external {}
+  ) internal returns (uint256 _amountOut, uint256 _feeAmount) {
+    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+    IERC20(path[0]).approve(routerAddress, amountIn); // approve router to spend tokens
 
+    // make the swap via router
+    uint[] memory amounts = IUniswapV2Router02(routerAddress).swapExactTokensForTokens(
+      amountIn,
+      amountOutMin,
+      path,
+      address(this), // initially the receiver is this contract (tokens will be later transferred to the recipient and to fee receivers)
+      deadline
+    );
+
+    _amountOut = amounts[amounts.length - 1]; // total amount out (including fee)
+    _feeAmount = _getFeeAmount(_amountOut); // swap fee amount
+
+    require((_amountOut - _feeAmount) >= amountOutMin, "IggySwapHelper: Amount out is less than the minimum amount out");
+
+    address tokenOut = path[path.length - 1]; // receiving token address
+
+    // transfer tokens to the recipient (deduct the fee)
+    IERC20(tokenOut).transfer(to, (_amountOut - _feeAmount));
+
+    // if there's a referrer, send them a share of the fee
+    if (referrer != address(0) && referrerShare > 0) {
+      uint256 referrerShareAmount = (_feeAmount * referrerShare) / MAX_BPS;
+      IERC20(tokenOut).transfer(referrer, referrerShareAmount);
+      _feeAmount -= referrerShareAmount; // deduct referrer's share from the fee
+    }
+
+    // calculate frontend and iggy fee share amounts
+    uint256 frontendShareAmount = (_feeAmount * frontendShare) / MAX_BPS;
+    uint256 iggyShareAmount = (_feeAmount * (MAX_BPS - frontendShare)) / MAX_BPS;
+
+    // transfer tokens to fee receivers
+    IERC20(tokenOut).transfer(frontendAddress, frontendShareAmount); // send part of the fee to the frontend operator
+    IERC20(tokenOut).transfer(iggyAddress, iggyShareAmount); // send part of the fee to iggy
+  }
+  
+  // WRITE PUBLIC/EXTERNAL
+
+  /// @notice Swap exact ERC-20 tokens for ERC-20 tokens
+  function swapExactTokensForTokens(
+    uint amountIn,
+    uint amountOutMin, // amount out deducted by slippage
+    address[] calldata path,
+    address to,
+    uint deadline
+  ) external {
+    _swapExactTokensForTokens(amountIn, amountOutMin, path, to, deadline, address(0)); // no referrer
+  }
+
+  /// @notice Swap exact ERC-20 tokens for ERC-20 tokens (with referrer)
+  function swapExactTokensForTokens(
+    uint amountIn,
+    uint amountOutMin, // amount out deducted by slippage
+    address[] calldata path,
+    address to,
+    uint deadline,
+    address referrer
+  ) external {
+    _swapExactTokensForTokens(amountIn, amountOutMin, path, to, deadline, referrer);
+  }
+
+  /*
+  // TODO: swap exact ETH for tokens (convert to WETH first!)
   // without referrer
   function swapExactETHForTokensSupportingFeeOnTransferTokens(
     uint amountOutMin,
@@ -129,14 +179,17 @@ contract IggySwapHelper is Ownable {
   }
 
   function changeReferrerShare(uint256 _newReferrerShare) external onlyFeeChanger {
+    require(_newReferrerShare <= MAX_BPS, "IggySwapHelper: Referrer share is greater than MAX_BPS");
     referrerShare = _newReferrerShare;
   }
 
-  function changeDaoShare(uint256 _newDaoShare) external onlyFeeChanger {
-    daoShare = _newDaoShare;
+  function changeFrontendShare(uint256 _newFrontendShare) external onlyFeeChanger {
+    require(_newFrontendShare <= MAX_BPS, "IggySwapHelper: Frontend share is greater than MAX_BPS");
+    frontendShare = _newFrontendShare;
   }
 
   function changeSwapFee(uint256 _newSwapFee) external onlyFeeChanger {
+    require(_newSwapFee <= MAX_BPS, "IggySwapHelper: Swap fee is greater than MAX_BPS");
     swapFee = _newSwapFee;
   }
 
