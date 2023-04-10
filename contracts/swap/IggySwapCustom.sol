@@ -155,7 +155,7 @@ contract IggySwapCustom is Ownable {
   }
 
   /// @notice Swap exact ERC-20 tokens for ERC-20 tokens (with referrer)
-  function swapExactTokensForTokens(
+  function swapExactTokensForTokensWithReferrer(
     uint amountIn,
     uint amountOutMin, // amount out deducted by slippage
     address[] calldata path,
@@ -182,7 +182,7 @@ contract IggySwapCustom is Ownable {
   }
 
   /// @notice Swap exact ERC-20 tokens for ETH (with referrer)
-  function swapExactTokensForETH(
+  function swapExactTokensForETHWithReferrer(
     uint amountIn, 
     uint amountOutMin, 
     address[] memory path, 
@@ -218,7 +218,7 @@ contract IggySwapCustom is Ownable {
   }
 
   /// @notice Swap exact ETH for ERC-20 tokens (with referrer)
-  function swapExactETHForTokens(
+  function swapExactETHForTokensWithReferrer(
     uint amountOutMin, 
     address[] memory path, 
     address to, 

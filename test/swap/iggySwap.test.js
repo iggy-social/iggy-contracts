@@ -36,6 +36,11 @@ describe("Iggy Swap tests", function () {
   beforeEach(async function () {
     [owner, frontend, iggy, user1, user2, referrer] = await ethers.getSigners();
 
+  
+  });
+
+  it("gets correct amounts from getAmountsOut() function", async function () {
+
     const UniswapFactory = await ethers.getContractFactory("UniswapFactory");
     uniFactoryContract = await UniswapFactory.deploy(owner.address);
     await uniFactoryContract.deployed();
@@ -62,25 +67,32 @@ describe("Iggy Swap tests", function () {
 
     // token approvals for router
     await daiContract.approve(uniRouterContract.address, ethers.utils.parseUnits("100000000", "ether"));
+    await daiContract.approve(uniFactoryContract.address, ethers.utils.parseUnits("100000000", "ether"));
     await wethContract.approve(uniRouterContract.address, ethers.utils.parseUnits("100000000", "ether"));
+    await wethContract.approve(uniFactoryContract.address, ethers.utils.parseUnits("100000000", "ether"));
     await aaveContract.approve(uniRouterContract.address, ethers.utils.parseUnits("100000000", "ether"));
 
+    // factory create pair
+    await uniFactoryContract.createPair(daiContract.address, wethContract.address);
+    
+    // all pairs length after Dai-Weth pair
+    const allPairsLengthAfterDai = await uniFactoryContract.allPairsLength();
+    expect(allPairsLengthAfterDai).to.equal(1);
+
+    
     // add liquidity to pair DAI-WETH
     await uniRouterContract.addLiquidity(
       daiContract.address, // token A
       wethContract.address, // token B
       ethers.utils.parseUnits("188", "ether"), // amount A desired
       ethers.utils.parseUnits("0.1", "ether"), // amount B desired
-      ethers.utils.parseUnits("188", "ether"), // amount A min
-      ethers.utils.parseUnits("0.1", "ether"), // amount B min
+      ethers.utils.parseUnits("0", "ether"), // amount A min
+      ethers.utils.parseUnits("0", "ether"), // amount B min
       owner.address,
       ethers.constants.MaxUint256 // deadline
     );
 
-    // all pairs length after Dai-Weth pair
-    const allPairsLengthAfterDai = await uniFactoryContract.allPairsLength();
-    expect(allPairsLengthAfterDai).to.equal(1);
-
+    /*
     // add liquidity to pair AAVE-WETH
     await uniRouterContract.addLiquidity(
       aaveContract.address, // token A
@@ -106,8 +118,18 @@ describe("Iggy Swap tests", function () {
       wethContract.address
     );
     await iggySwapCustomContract.deployed();
-  });
 
-  xit("gets correct amounts from getAmountsOut() function", async function () {});
+    const amountIn = ethers.utils.parseUnits("1", "ether");
+    const path = [daiContract.address, wethContract.address];
+
+    console.log("amountIn: ", amountIn);
+    console.log("path: ", path);
+
+    const amountsOut = await iggySwapCustomContract.getAmountsOut(amountIn, path);
+    console.log("amountsOut: ", amountsOut);
+    console.log(amountsOut);
+    //expect(amountsOut[1]).to.equal(ethers.utils.parseUnits("0.005", "ether"));
+    */
+  });
 
 });

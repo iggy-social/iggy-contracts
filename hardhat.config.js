@@ -9,9 +9,11 @@ module.exports = {
   defaultNetwork: 'hardhat',
 
   networks: {
+    hardhat: {
+      gas: "auto", // gas limit
+    },
     localhost: {
-      url: 'http://127.0.0.1:8545/',
-      chainId: 31337
+      gas: "auto", // gas limit
     },
     arbitrumOne: {
       //url: 'https://arb-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_ARBITRUM,
@@ -95,11 +97,11 @@ module.exports = {
     },
     polygon: {
       //url: 'https://polygon-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_POLYGON,
-      url: 'https://1rpc.io/matic',
+      url: "https://poly-rpc.gateway.pokt.network",
       chainId: 137,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 200000000000, // 100 gwei
+      gasPrice: 400000000000, // 400 gwei
     },
     polygonMumbai: {
       url: 'https://polygon-mumbai.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_MUMBAI,
@@ -199,13 +201,21 @@ module.exports = {
   },
 
   solidity: {
-    version: "0.8.17",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200
-      }
-    }
+    compilers: [
+      {
+        version: "0.5.5",
+      },
+      {
+        version: "0.8.17",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
+      },
+    ],
+    
   }
   
 };
