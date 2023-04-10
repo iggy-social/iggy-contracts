@@ -1,5 +1,5 @@
 // 4. Deploy enumeration contract
-// npx hardhat run scripts/IggyPostNft1155/enumeration.deploy.js --network songbird
+// npx hardhat run scripts/post/IggyPostNft1155/enumeration.deploy.js --network songbird
 
 const contractName = "IggyPostEnumeration";
 

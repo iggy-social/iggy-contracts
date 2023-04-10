@@ -1,5 +1,5 @@
 // 2. Deploy metadata contract
-// npx hardhat run scripts/IggyPostNft1155/iggyPostNft1155.deploy.js --network songbird
+// npx hardhat run scripts/post/IggyPostNft1155/iggyPostNft1155.deploy.js --network songbird
 
 const contractName = "IggyPostNft1155";
 

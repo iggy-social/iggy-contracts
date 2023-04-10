@@ -1,4 +1,4 @@
-// npx hardhat test test/iggyPostNft1155.test.js
+// npx hardhat test test/post/iggyPostNft1155.test.js
 
 const { expect } = require("chai");
 

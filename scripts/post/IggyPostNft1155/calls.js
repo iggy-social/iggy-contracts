@@ -1,4 +1,4 @@
-// npx hardhat run scripts/IggyPostNft1155/calls.js --network songbird
+// npx hardhat run scripts/post/IggyPostNft1155/calls.js --network songbird
 
 const postAddress = "";
 const minterAddress = "";

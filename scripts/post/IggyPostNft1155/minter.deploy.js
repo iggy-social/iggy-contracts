@@ -1,5 +1,5 @@
 // 3. Deploy minter contract
-// npx hardhat run scripts/IggyPostNft1155/minter.deploy.js --network songbird
+// npx hardhat run scripts/post/IggyPostNft1155/minter.deploy.js --network songbird
 
 const contractName = "IggyPostMinter";
 
