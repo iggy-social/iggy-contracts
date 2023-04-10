@@ -18,6 +18,11 @@ interface IUniswapV2Router02 {
   ) external returns (uint[] memory amounts);
 }
 
+interface IWETH {
+  function deposit() external payable;
+  function withdraw(uint) external;
+}
+
 /// @title Iggy swap custom contract
 /// @author Tempe Techie
 /// @notice Contract that helps an Iggy frontend to swap tokens (custom because it's specific to a particular frontend)
@@ -48,7 +53,7 @@ contract IggySwapCustom is Ownable {
 
   // MODIFIERS
   modifier onlyFeeChanger() {
-    require(_msgSender() == feeChangerAddress, "IggySwapHelper: Sender is not the Fee Changer");
+    require(_msgSender() == feeChangerAddress, "IggySwap: Sender is not the Fee Changer");
     _;
   }
 
@@ -82,19 +87,19 @@ contract IggySwapCustom is Ownable {
   }
 
   // WRITE INTERNAL
-  function _swapExactTokensForTokens(
+  function _swap(
     uint amountIn,
     uint amountOutMin, // amount out deducted by slippage
-    address[] calldata path,
+    address[] memory path,
     address to,
     uint deadline,
-    address referrer
-  ) internal returns (uint256 _amountOut, uint256 _feeAmount) {
-    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+    address referrer,
+    bool convertToNative
+  ) internal  returns (uint[] memory amounts) {
     IERC20(path[0]).approve(routerAddress, amountIn); // approve router to spend tokens
 
     // make the swap via router
-    uint[] memory amounts = IUniswapV2Router02(routerAddress).swapExactTokensForTokens(
+    amounts = IUniswapV2Router02(routerAddress).swapExactTokensForTokens(
       amountIn,
       amountOutMin,
       path,
@@ -102,15 +107,21 @@ contract IggySwapCustom is Ownable {
       deadline
     );
 
-    _amountOut = amounts[amounts.length - 1]; // total amount out (including fee)
-    _feeAmount = _getFeeAmount(_amountOut); // swap fee amount
+    uint256 _amountOut = amounts[amounts.length - 1]; // total amount out (including fee)
+    uint256 _feeAmount = _getFeeAmount(_amountOut); // swap fee amount
 
-    require((_amountOut - _feeAmount) >= amountOutMin, "IggySwapHelper: Amount out is less than the minimum amount out");
+    require((_amountOut - _feeAmount) >= amountOutMin, "IggySwap: Amount out is less than the minimum amount out");
 
     address tokenOut = path[path.length - 1]; // receiving token address
 
     // transfer tokens to the recipient (deduct the fee)
-    IERC20(tokenOut).transfer(to, (_amountOut - _feeAmount));
+    if (convertToNative && tokenOut == wethAddress) {
+      IWETH(tokenOut).withdraw(_amountOut - _feeAmount);
+      (bool sentWeth, ) = payable(to).call{value: (_amountOut - _feeAmount)}("");
+      require(sentWeth, "Failed to send native coins to the recipient");
+    } else {
+      IERC20(tokenOut).transfer(to, (_amountOut - _feeAmount));
+    }
 
     // if there's a referrer, send them a share of the fee
     if (referrer != address(0) && referrerShare > 0) {
@@ -137,8 +148,10 @@ contract IggySwapCustom is Ownable {
     address[] calldata path,
     address to,
     uint deadline
-  ) external {
-    _swapExactTokensForTokens(amountIn, amountOutMin, path, to, deadline, address(0)); // no referrer
+  ) external returns (uint[] memory amounts) {
+    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+
+    amounts = _swap(amountIn, amountOutMin, path, to, deadline, address(0), false); // no referrer
   }
 
   /// @notice Swap exact ERC-20 tokens for ERC-20 tokens (with referrer)
@@ -149,29 +162,79 @@ contract IggySwapCustom is Ownable {
     address to,
     uint deadline,
     address referrer
-  ) external {
-    _swapExactTokensForTokens(amountIn, amountOutMin, path, to, deadline, referrer);
+  ) external returns (uint[] memory amounts) {
+    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+
+    amounts = _swap(amountIn, amountOutMin, path, to, deadline, referrer, false);
   }
 
-  /*
-  // TODO: swap exact ETH for tokens (convert to WETH first!)
-  // without referrer
-  function swapExactETHForTokensSupportingFeeOnTransferTokens(
-    uint amountOutMin,
-    address[] calldata path,
-    address to,
+  /// @notice Swap exact ERC-20 tokens for ETH
+  function swapExactTokensForETH(
+    uint amountIn, 
+    uint amountOutMin, 
+    address[] calldata path, 
+    address to, 
     uint deadline
-  ) external payable {}
+  ) external returns (uint[] memory amounts) {
+    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
 
-  // with referrer
-  function swapExactETHForTokensSupportingFeeOnTransferTokens(
-    uint amountOutMin,
-    address[] calldata path,
-    address to,
+    amounts = _swap(amountIn, amountOutMin, path, to, deadline, address(0), true); // no referrer
+  }
+
+  /// @notice Swap exact ERC-20 tokens for ETH (with referrer)
+  function swapExactTokensForETH(
+    uint amountIn, 
+    uint amountOutMin, 
+    address[] memory path, 
+    address to, 
     uint deadline,
     address referrer
-  ) external payable {}
-  */
+  ) external returns (uint[] memory amounts) {
+    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+
+    if (path[1] == address(0)) {
+      path[1] = wethAddress;
+    }
+
+    amounts = _swap(amountIn, amountOutMin, path, to, deadline, referrer, true);
+  }
+
+  /// @notice Swap exact ETH for ERC-20 tokens
+  function swapExactETHForTokens(
+    uint amountOutMin, 
+    address[] memory path, 
+    address to, 
+    uint deadline
+  ) external payable returns (uint[] memory amounts) {
+    require(msg.value > 0, "IggySwap: Native coin amount is zero");
+
+    IWETH(wethAddress).deposit{value: msg.value}(); // convert ETH to WETH
+
+    if (path[0] == address(0)) {
+      path[0] = wethAddress;
+    }
+
+    amounts = _swap(msg.value, amountOutMin, path, to, deadline, address(0), false); // no referrer
+  }
+
+  /// @notice Swap exact ETH for ERC-20 tokens (with referrer)
+  function swapExactETHForTokens(
+    uint amountOutMin, 
+    address[] memory path, 
+    address to, 
+    uint deadline,
+    address referrer
+  ) external payable returns (uint[] memory amounts) {
+    require(msg.value > 0, "IggySwap: Native coin amount is zero");
+
+    IWETH(wethAddress).deposit{value: msg.value}(); // convert ETH to WETH
+
+    if (path[0] == address(0)) {
+      path[0] = wethAddress;
+    }
+
+    amounts = _swap(msg.value, amountOutMin, path, to, deadline, referrer, false);
+  }
 
   // FEE CHANGER
   function changeFeeChangerAddress(address _newFeeChangerAddress) external onlyFeeChanger {
@@ -179,17 +242,17 @@ contract IggySwapCustom is Ownable {
   }
 
   function changeReferrerShare(uint256 _newReferrerShare) external onlyFeeChanger {
-    require(_newReferrerShare <= MAX_BPS, "IggySwapHelper: Referrer share is greater than MAX_BPS");
+    require(_newReferrerShare <= MAX_BPS, "IggySwap: Referrer share is greater than MAX_BPS");
     referrerShare = _newReferrerShare;
   }
 
   function changeFrontendShare(uint256 _newFrontendShare) external onlyFeeChanger {
-    require(_newFrontendShare <= MAX_BPS, "IggySwapHelper: Frontend share is greater than MAX_BPS");
+    require(_newFrontendShare <= MAX_BPS, "IggySwap: Frontend share is greater than MAX_BPS");
     frontendShare = _newFrontendShare;
   }
 
   function changeSwapFee(uint256 _newSwapFee) external onlyFeeChanger {
-    require(_newSwapFee <= MAX_BPS, "IggySwapHelper: Swap fee is greater than MAX_BPS");
+    require(_newSwapFee <= MAX_BPS, "IggySwap: Swap fee is greater than MAX_BPS");
     swapFee = _newSwapFee;
   }
 
