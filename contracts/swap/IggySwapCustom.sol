@@ -70,8 +70,8 @@ contract IggySwapCustom is Ownable {
       path[0] = wethAddress;
     }
 
-    if (path[1] == address(0)) {
-      path[1] = wethAddress;
+    if (path[path.length - 1] == address(0)) {
+      path[path.length - 1] = wethAddress;
     }
 
     return IUniswapV2Router02(routerAddress).getAmountsOut(amountIn, path);
@@ -172,11 +172,15 @@ contract IggySwapCustom is Ownable {
   function swapExactTokensForETH(
     uint amountIn, 
     uint amountOutMin, 
-    address[] calldata path, 
+    address[] memory path, 
     address to, 
     uint deadline
   ) external returns (uint[] memory amounts) {
     IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+
+    if (path[path.length - 1] == address(0)) {
+      path[path.length - 1] = wethAddress;
+    }
 
     amounts = _swap(amountIn, amountOutMin, path, to, deadline, address(0), true); // no referrer
   }
@@ -192,8 +196,8 @@ contract IggySwapCustom is Ownable {
   ) external returns (uint[] memory amounts) {
     IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
 
-    if (path[1] == address(0)) {
-      path[1] = wethAddress;
+    if (path[path.length - 1] == address(0)) {
+      path[path.length - 1] = wethAddress;
     }
 
     amounts = _swap(amountIn, amountOutMin, path, to, deadline, referrer, true);

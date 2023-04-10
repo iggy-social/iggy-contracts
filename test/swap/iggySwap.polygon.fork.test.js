@@ -160,43 +160,8 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     console.log("Owner's MATIC balance after swap:", ethers.utils.formatUnits(ownerEthBalanceAfter3, "ether"), "MATIC");
     expect(ownerEthBalanceAfter3).to.be.lt(ownerEthBalanceBefore);
 
-    // console.log("--------- third swap (AAVE -> ETH) ---------");
-
-    /*
-    const amountIn = ethers.utils.parseUnits("1", "ether"); // 1 DAI
-    const path = [daiAddress, wethAddress]; // path to swap dai for eth
-
-    //console.log("amountIn: ", Number(amountIn));
-    //console.log("path: ", path);
-
-    const amountsOut = await iggySwapCustomContract.getAmountsOut(amountIn, path);
-    //console.log("amountsOut[0]:", Number(amountsOut[0]));
-    console.log("amountsOut[1]:", ethers.utils.formatUnits(amountsOut[1], "ether"), "WETH");
-    expect(amountsOut[1]).to.be.gt(0);
-
-    const minAmountOut = amountsOut[1].sub(amountsOut[1].div(100)); // 1% slippage
-    console.log("minAmountOut:", ethers.utils.formatUnits(minAmountOut, "ether"), "WETH");
-
-    // add allowance to iggy swap contract
-    const daiContract = await ethers.getContractAt("IERC20", daiAddress);
-    await daiContract.connect(owner).approve(iggySwapCustomContract.address, amountIn);
-
-    // check owner's DAI balance before swap
-    const ownerDaiBalanceBefore = await daiContract.balanceOf(owner.address);
-    expect(ownerDaiBalanceBefore).to.equal(ethers.utils.parseUnits("1000", "ether")); // 1000 DAI
-    console.log("ownerDaiBalanceBefore:", ethers.utils.formatUnits(ownerDaiBalanceBefore, "ether"), "DAI");
-    */
-
-    // swap
-    /*
-    const tx = await iggySwapCustomContract.connect(owner).swapExactTokensForTokens(
-      amountIn,
-      minAmountOut,
-      path,
-      user1.address,
-      referrer.address
-    );
-    */
+    console.log("--------- third swap (AAVE -> ETH) ---------");
+    // TODO
   });
 
 });
