@@ -131,7 +131,7 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     // set allowance for DAI
     await daiContract.approve(iggySwapCustomContract.address, amountIn3);
 
-    // swapExactETHForTokens (swap DAI for AAVE)
+    // swapExactTokensForTokens (swap DAI for AAVE)
     const deadline3 = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
     const minAmountOut3 = amountsOut3[path3.length-1].sub(amountsOut3[path3.length-1].div(100)); // 1% slippage
     console.log("Min AAVE to receive (deduct 1% slippage):", ethers.utils.formatUnits(minAmountOut3, "ether"), "AAVE");
@@ -160,8 +160,56 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     console.log("Owner's MATIC balance after swap:", ethers.utils.formatUnits(ownerEthBalanceAfter3, "ether"), "MATIC");
     expect(ownerEthBalanceAfter3).to.be.lt(ownerEthBalanceBefore);
 
-    console.log("--------- third swap (AAVE -> ETH) ---------");
-    // TODO
+    // check owner's DAI balance after swap
+    const ownerDaiBalanceAfter3 = await daiContract.balanceOf(owner.address);
+    console.log("Owner's DAI balance after swap:", ethers.utils.formatUnits(ownerDaiBalanceAfter3, "ether"), "DAI");
+    expect(ownerDaiBalanceAfter3).to.equal(ownerDaiBalanceAfter.sub(amountIn3));
+
+    console.log("--------- third swap (AAVE -> MATIC) ---------");
+
+    // set amount in and path for the AAVE -> MATIC swap
+    const amountIn4 = ethers.utils.parseUnits("0.01", "ether"); // 1 AAVE
+    console.log("Amount of AAVE to swap:", ethers.utils.formatUnits(amountIn4, "ether"), "AAVE");
+
+    const path4 = [aaveAddress, wethAddress]; // path to swap aave for matic
+
+    // check getAmountsOut first before swap (via iggySwapCustomContract)
+    const amountsOut4 = await iggySwapCustomContract.getAmountsOut(amountIn4, path4);
+    console.log("Amount of MATIC to receive:", ethers.utils.formatUnits(amountsOut4[path4.length-1], "ether"), "MATIC");
+    expect(amountsOut4[path4.length-1]).to.be.gt(0);
+
+    // set allowance for AAVE
+    await aaveContract.approve(iggySwapCustomContract.address, amountIn4);
+
+    // swapExactTokensForETH (swap AAVE for MATIC)
+    const deadline4 = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
+    const minAmountOut4 = amountsOut4[path4.length-1].sub(amountsOut4[path4.length-1].div(100)); // 1% slippage
+    console.log("Min MATIC to receive (deduct 1% slippage):", ethers.utils.formatUnits(minAmountOut4, "ether"), "MATIC");
+
+    const tx4 = await iggySwapCustomContract.swapExactTokensForETH(
+      amountIn4,
+      minAmountOut4,
+      path4,
+      owner.address,
+      deadline4,
+      {
+        gasPrice: ethers.utils.parseUnits("500", "gwei"),
+        gasLimit: 500000
+      }
+    );
+    const receipt4 = await tx4.wait();
+    calculateGasCosts("Swap (AAVE -> MATIC)", receipt4);
+
+    // check owner's MATIC balance after swap
+    const ownerEthBalanceAfter4 = await owner.getBalance();
+    console.log("Owner's MATIC balance after swap:", ethers.utils.formatUnits(ownerEthBalanceAfter4, "ether"), "MATIC");
+    expect(ownerEthBalanceAfter4).to.be.gt(ownerEthBalanceAfter3);
+
+    // check owner's AAVE balance after swap
+    const ownerAaveBalanceAfter4 = await aaveContract.balanceOf(owner.address);
+    console.log("Owner's AAVE balance after swap:", ethers.utils.formatUnits(ownerAaveBalanceAfter4, "ether"), "AAVE");
+    expect(ownerAaveBalanceAfter4).to.equal(ownerAaveBalanceAfter.sub(amountIn4));
+
   });
 
 });
