@@ -57,6 +57,17 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     console.log("Owner's MATIC balance before swap:", ethers.utils.formatUnits(ownerEthBalanceBefore, "ether"), "MATIC");
     expect(ownerEthBalanceBefore).to.be.gt(ethers.utils.parseUnits("9990", "ether"));
 
+    // check frontend's DAI balance before swap
+    const daiContract = await ethers.getContractAt("IERC20", daiAddress);
+    const frontendDaiBalanceBefore = await daiContract.balanceOf(frontend.address);
+    console.log("Frontend's DAI balance before swap:", ethers.utils.formatUnits(frontendDaiBalanceBefore, "ether"), "DAI");
+    expect(frontendDaiBalanceBefore).to.be.eq(0);
+
+    // check iggy's DAI balance before swap
+    const iggyDaiBalanceBefore = await daiContract.balanceOf(iggy.address);
+    console.log("Iggy's DAI balance before swap:", ethers.utils.formatUnits(iggyDaiBalanceBefore, "ether"), "DAI");
+    expect(iggyDaiBalanceBefore).to.be.eq(0);
+
     // set amount in and path for the MATIC -> DAI swap
     const amountIn = ethers.utils.parseUnits("400", "ether"); // 400 MATIC
     console.log("Amount of MATIC to swap:", ethers.utils.formatUnits(amountIn, "ether"), "MATIC");
@@ -75,7 +86,6 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     expect(amountsOut2[path.length-1]).to.be.gt(0);
 
     // check owner's DAI balance before swap
-    const daiContract = await ethers.getContractAt("IERC20", daiAddress);
     const ownerDaiBalanceBefore = await daiContract.balanceOf(owner.address);
     console.log("Owner's DAI balance before swap:", ethers.utils.formatUnits(ownerDaiBalanceBefore, "ether"), "DAI");
     expect(ownerDaiBalanceBefore).to.equal(0);
@@ -103,6 +113,16 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     const ownerDaiBalanceAfter = await daiContract.balanceOf(owner.address);
     console.log("Owner's DAI balance after swap:", ethers.utils.formatUnits(ownerDaiBalanceAfter, "ether"), "DAI");
     expect(ownerDaiBalanceAfter).to.be.gt(0);
+
+    // check frontend's DAI balance after swap
+    const frontendDaiBalanceAfter = await daiContract.balanceOf(frontend.address);
+    console.log("Frontend's DAI balance after swap:", ethers.utils.formatUnits(frontendDaiBalanceAfter, "ether"), "DAI");
+    expect(frontendDaiBalanceAfter).to.be.gt(0);
+
+    // check iggy's DAI balance after swap
+    const iggyDaiBalanceAfter = await daiContract.balanceOf(iggy.address);
+    console.log("Iggy's DAI balance after swap:", ethers.utils.formatUnits(iggyDaiBalanceAfter, "ether"), "DAI");
+    expect(iggyDaiBalanceAfter).to.be.gt(0);
 
     // check owner's ETH balance after swap
     const ownerEthBalanceAfter = await owner.getBalance();
