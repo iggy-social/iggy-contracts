@@ -62,7 +62,8 @@ describe("ChatTokenClaimDomains", function () {
     chatTokenClaimDomainsContract = await ChatTokenClaimDomains.deploy(
       chatTokenMinterContract.address, // ChatTokenMinter address
       mockPunkTldContract.address, // TLD address
-      chatReward // chat rewards per domain
+      chatReward, // chat rewards per domain
+      100 // max domain NFT ID eligible for airdrop (aka snapshot)
     );
 
     // add ChatTokenClaimDomains address as minter in ChatTokenMinter

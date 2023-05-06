@@ -9,6 +9,7 @@ interface IChatTokenMinter is IERC20 {
 }
 
 interface IBasePunkTLD {
+  function domains(string calldata _domainName) external view returns(string memory, uint256, address, string memory);
   function getDomainHolder(string calldata _domainName) external view returns(address);
 }
 
@@ -23,6 +24,7 @@ contract ChatTokenClaimDomains is Ownable {
   bool public paused = false;
 
   uint256 public immutable chatReward; // how many tokens a domain gets
+  uint256 public immutable maxIdEligible; // max domain ID eligible for claiming (aka snapshot)
   
   mapping(string => bool) public hasClaimed; // domain names that have already claimed
 
@@ -30,7 +32,8 @@ contract ChatTokenClaimDomains is Ownable {
   constructor(
     address _chatTokenMinter, 
     address _domainAddress, 
-    uint256 _chatReward 
+    uint256 _chatReward, 
+    uint256 _maxIdEligible
   ) {
     require(_chatReward > 0, "ChatTokenClaimDomains: chatReward must be greater than 0");
     require(_chatTokenMinter != address(0), "ChatTokenClaimDomains: chatTokenMinter cannot be zero address");
@@ -39,6 +42,7 @@ contract ChatTokenClaimDomains is Ownable {
     chatTokenMinter = _chatTokenMinter;
     domainAddress = _domainAddress;
     chatReward = _chatReward;
+    maxIdEligible = _maxIdEligible;
   }
 
   // WRITE
@@ -49,6 +53,9 @@ contract ChatTokenClaimDomains is Ownable {
   function claim(string calldata _domainName) external {
     require(!paused, "ChatTokenClaimDomains: claiming is paused");
     require(!hasClaimed[_domainName], "ChatTokenClaimDomains: domain already claimed");
+
+    (, uint256 _domainId, , ) = IBasePunkTLD(domainAddress).domains(_domainName); // check if domain exists
+    require(_domainId <= maxIdEligible, "ChatTokenClaimDomains: domain ID not eligible for claiming");
 
     address _domainHolder = IBasePunkTLD(domainAddress).getDomainHolder(_domainName);
     require(_domainHolder != address(0), "ChatTokenClaimDomains: domain not registered");

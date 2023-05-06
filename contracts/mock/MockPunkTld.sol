@@ -8,6 +8,15 @@ contract MockPunkTld {
     return "mockname";
   }
 
+  function domains(string calldata _domainName) external view returns(string memory, uint256, address, string memory) {
+    return (
+      _domainName, // domain name
+      1, // domain NFT ID
+      domainHolders[_domainName], // domain holder
+      "" // domain data
+    );
+  }
+
   function getDomainHolder(string calldata _domainName) external view returns(address) {
     return domainHolders[_domainName];
   }
