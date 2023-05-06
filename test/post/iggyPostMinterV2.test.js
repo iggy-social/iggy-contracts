@@ -1,6 +1,7 @@
-// npx hardhat test test/post/iggyPostNft1155.test.js
+// npx hardhat test test/post/iggyPostMinterV2.test.js
 
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 function calculateGasCosts(testName, receipt) {
   console.log(testName + " gasUsed: " + receipt.gasUsed);
@@ -18,11 +19,13 @@ function calculateGasCosts(testName, receipt) {
   console.log(testName + " gas cost (Polygon): $" + String(Number(gasCostMatic)*matic));
 }
 
-describe("IggyPostNft1155", function () {
+describe("IggyPostMinterV2", function () {
   let iggyPostContract;
   let metadataContract;
   let minterContract;
   let mockPunkTldContract;
+  let chatTokenContract;
+  let chatTokenMinterContract;
 
   let owner;
   let dao;
@@ -34,9 +37,13 @@ describe("IggyPostNft1155", function () {
 
   const defaultAddressBalance = ethers.utils.parseEther("10000");
 
-  const daoFee = 2000; // 20%
-  const devFee = 1000; // 10%
-  const referrerFee = 1000; // 10%
+  const chatEthRatio = 1000;
+  const chatRewardsDuration = 60 * 60 * 24 * 7 * 52; // 52 weeks (1 year)
+
+  const daoFee = 450; // 4.5%
+  const stakingFee = 450; // 4.5%
+  const devFee = 900; // 9%
+  const referrerFee = 200; // 2%
 
   const defaultPrice = ethers.utils.parseEther("1");
   const postId = "testjkdnw6t6dq37gg7";
@@ -66,9 +73,34 @@ describe("IggyPostNft1155", function () {
     iggyPostContract = await IggyPost.deploy(defaultPrice, metadataContract.address, mdName, symbol);
     await iggyPostContract.deployed();
 
-    const IggyMinter = await ethers.getContractFactory("IggyPostMinter");
-    minterContract = await IggyMinter.deploy(dao.address, dev.address, iggyPostContract.address, daoFee, devFee, referrerFee);
+    // deploy ChatToken
+    const ChatToken = await ethers.getContractFactory("ChatToken");
+    chatTokenContract = await ChatToken.deploy("Chat Token", "CHAT");
+    await chatTokenContract.deployed();
+
+    // deploy ChatTokenMinter
+    const ChatTokenMinter = await ethers.getContractFactory("ChatTokenMinter");
+    chatTokenMinterContract = await ChatTokenMinter.deploy(chatTokenContract.address);
+    await chatTokenMinterContract.deployed();
+
+    // add minter to ChatToken
+    await chatTokenContract.setMinter(chatTokenMinterContract.address);
+
+    // iggy post minter
+    const IggyMinter = await ethers.getContractFactory("IggyPostMinterV2");
+    minterContract = await IggyMinter.deploy(
+      chatTokenMinterContract.address,
+      dao.address, 
+      dev.address, 
+      iggyPostContract.address, 
+      chatEthRatio,
+      chatRewardsDuration,
+      daoFee, 
+      stakingFee
+    );
     await minterContract.deployed();
+
+    await chatTokenMinterContract.addMinter(minterContract.address);
 
     await iggyPostContract.ownerChangeMinterAddress(minterContract.address);
   });
@@ -826,6 +858,121 @@ describe("IggyPostNft1155", function () {
     // check dev ETH balance after
     const devEthBalanceAfter = await dev.getBalance();
     expect(devEthBalanceAfter).to.equal(devEthBalanceBefore);
+
+  });
+
+  // checks chat token balances at various points in time (CHAT rewards are decreasing linearly)
+  it("checks chat token balances at various points in time (CHAT rewards are decreasing linearly)", async function () {
+    // get fixed chatEthRatio from the minter contract
+    const fixedChatEthRatio = await minterContract.chatEthRatio();
+    console.log("fixedChatEthRatio", fixedChatEthRatio, "CHAT/ETH");
+
+    // get chatRewardsDuration from the minter contract
+    const _chatRewardsDuration = await minterContract.chatRewardsDuration();
+    console.log("chatRewardsDuration", _chatRewardsDuration.toString(), "seconds");
+    expect(_chatRewardsDuration).to.equal(chatRewardsDuration);
+
+    // get chatRewardsEnd from the minter contract
+    const _chatRewardsEnd = await minterContract.chatRewardsEnd();
+    console.log("chatRewardsEnd", _chatRewardsEnd.toString(), "seconds");
+
+    // get current timestamp in seconds
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    console.log("currentTimestamp", currentTimestamp.toString(), "seconds");
+
+    // getCurrentChatEthRatio in the minter contract
+    const currentChatEthRatio = await minterContract.getCurrentChatEthRatio();
+    console.log("currentChatEthRatio", ethers.utils.formatEther(currentChatEthRatio), "CHAT/ETH");
+
+    // check user1 CHAT balance 1
+    const user1ChatBalance1 = await chatTokenContract.balanceOf(user1.address);
+    expect(user1ChatBalance1).to.equal(0);
+
+    // user1: mint through the minter contract
+    const tx = await minterContract.connect(user1).mint(
+      postId, // post ID
+      author.address, // post author
+      user1.address, // NFT receiver
+      referrer.address, // referrer
+      textPreview, // text preview
+      quantityOne, // quantity
+      { 
+        value: defaultPrice 
+      }
+    );
+
+    const receipt = await tx.wait();
+    calculateGasCosts("mintOneNftDefaultPrice", receipt);
+
+    // check user1 CHAT balance 2
+    const user1ChatBalance2 = await chatTokenContract.balanceOf(user1.address);
+    console.log("user1ChatBalance2", ethers.utils.formatEther(user1ChatBalance2), "CHAT");
+
+    console.log("--------------------");
+    console.log("AFTER 1 WEEK");
+
+    // wait 1 week
+    await ethers.provider.send("evm_increaseTime", [86400*7]);
+
+    // check user2 CHAT balance 1
+    const user2ChatBalance1 = await chatTokenContract.balanceOf(user2.address);
+    expect(user2ChatBalance1).to.equal(0);
+
+    // user2: mint through the minter contract
+    const tx2 = await minterContract.connect(user2).mint(
+      postId, // post ID
+      author.address, // post author
+      user2.address, // NFT receiver
+      referrer.address, // referrer
+      textPreview, // text preview
+      quantityOne, // quantity
+      {
+        value: defaultPrice
+      }
+    );
+
+    const receipt2 = await tx2.wait();
+    calculateGasCosts("mintOneNftDefaultPrice", receipt2);
+
+    // check user2 CHAT balance 2
+    const user2ChatBalance2 = await chatTokenContract.balanceOf(user2.address);
+    console.log("user2ChatBalance2", ethers.utils.formatEther(user2ChatBalance2), "CHAT");
+
+    console.log("--------------------");
+    console.log("AFTER 1 YEAR");
+
+    // wait 1 year
+    await ethers.provider.send("evm_increaseTime", [86400*365]);
+
+    // check user1 CHAT balance 3
+    const user1ChatBalance3 = await chatTokenContract.balanceOf(user1.address);
+    console.log("user1ChatBalance3", ethers.utils.formatEther(user1ChatBalance3), "CHAT");
+    // expect user1ChatBalance3 is the same as user1ChatBalance2
+    expect(user1ChatBalance3).to.equal(user1ChatBalance2);
+
+    // user1: mint through the minter contract
+    const tx3 = await minterContract.connect(user1).mint(
+      postId, // post ID
+      author.address, // post author
+      user1.address, // NFT receiver
+      referrer.address, // referrer
+      textPreview, // text preview
+      quantityOne, // quantity
+      {
+        value: defaultPrice
+      }
+    );
+
+    // check user1 CHAT balance 4
+    const user1ChatBalance4 = await chatTokenContract.balanceOf(user1.address);
+    console.log("user1ChatBalance4", ethers.utils.formatEther(user1ChatBalance4), "CHAT");
+    // expect user1ChatBalance4 is the same as user1ChatBalance3 because the rewards have ended
+    expect(user1ChatBalance4).to.equal(user1ChatBalance3);
+
+    // getCurrentChatEthRatio in the minter contract should return 0
+    const currentChatEthRatio2 = await minterContract.getCurrentChatEthRatio();
+    console.log("currentChatEthRatio2", ethers.utils.formatEther(currentChatEthRatio2), "CHAT/ETH");
+    expect(currentChatEthRatio2).to.equal(0);
 
   });
 

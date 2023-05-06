@@ -41,17 +41,26 @@ contract ChatTokenClaimPostMinters is Ownable {
     chatEthRatio = _chatEthRatio;
   }
 
+  // READ
+
+  function claimPreview(address _address) public view returns (uint256) {
+    if (hasClaimed[_address]) return 0; // already claimed
+
+    uint256 _mintedWei = IIggyPostEnumeration(iggyPostEnumeration).getMintedWei(_address);
+    return _mintedWei * chatEthRatio;
+  }
+
   // WRITE
 
   function claim() external {
     require(!paused, "ChatTokenClaimPostMinters: claiming is paused");
-    require(!hasClaimed[_msgSender()], "ChatTokenClaimPostMinters: already claimed");
+    require(!hasClaimed[_msgSender()], "ChatTokenClaimPostMinters: user already claimed");
 
-    uint256 _mintedWei = IIggyPostEnumeration(iggyPostEnumeration).getMintedWei(_msgSender());
-    require(_mintedWei > 0, "ChatTokenClaimPostMinters: no tokens to claim");
+    uint256 _claimAmount = claimPreview(_msgSender());
+    require(_claimAmount > 0, "ChatTokenClaimPostMinters: no tokens to claim");
 
     hasClaimed[_msgSender()] = true; // mark as claimed
-    IChatTokenMinter(chatTokenMinter).mint(_msgSender(), (_mintedWei * chatEthRatio));
+    IChatTokenMinter(chatTokenMinter).mint(_msgSender(), _claimAmount);
   }
 
   // OWNER

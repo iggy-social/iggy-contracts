@@ -39,7 +39,7 @@ interface IIggyPostEnumeration {
 @dev Use this contract when CHAT token is deployed.
 */
 contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
-  address public immutable chatTokenAddress;
+  address public immutable chatTokenMinterAddress;
   address public daoAddress;
   address public devAddress;
   address public devFeeUpdaterAddress;
@@ -50,39 +50,58 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   bool public enumEnabled = false;
   bool public paused = false;
 
-  uint256 public chatEthRatio = 1_000; // 1 ETH (or payment token) = 1,000 CHAT
+  uint256 public immutable chatEthRatio; // e.g. 1_000, which means 1 ETH (or payment token) = 1,000 CHAT
+  uint256 public immutable chatRewardsDuration; // CHAT rewards duration in seconds
+  uint256 public immutable chatRewardsEnd; // timestamp when CHAT rewards end
 
   uint256 public constant MAX_BPS = 10_000;
   uint256 public daoFee; // share of each domain purchase (in bips) that goes to the DAO/community that owns the frontend
-  uint256 public devFee; // share of each domain purchase (in bips) that goes to the developer (Iggy team)
-  uint256 public referrerFee; // share of each domain purchase (in bips) that goes to the referrer
+  uint256 public devFee = 900; // share of each domain purchase (in bips) that goes to the developer (Iggy team)
+  uint256 public referrerFee = 200; // share of each domain purchase (in bips) that goes to the referrer
   uint256 public stakingFee; // share of each domain purchase (in bips) that goes to the staking contract
 
   // CONSTRUCTOR
   constructor(
-    address _chatTokenAddress,
+    address _chatTokenMinterAddress,
     address _daoAddress,
     address _devAddress,
     address _postAddress,
-    uint256 _daoFee,
-    uint256 _devFee,
-    uint256 _referrerFee,
-    uint256 _stakingFee
+    uint256 _chatEthRatio, // e.g. 1_000, which means 1 ETH (or payment token) = 1,000 CHAT
+    uint256 _chatRewardsDuration, // CHAT rewards duration in seconds
+    uint256 _daoFee, // e.g. 450, which means 4.5% of the price goes to the DAO
+    uint256 _stakingFee // e.g. 450 which means 4.5% of the price goes to the staking contract
   ) {
-    require(_daoFee + _devFee + _referrerFee + _stakingFee <= MAX_BPS, "IggyPostMinterV2: Fees cannot be more than 100%");
-    require(_chatTokenAddress != address(0), "IggyPostMinterV2: CHAT token cannot be zero address");
+    require(_daoFee + devFee + referrerFee + _stakingFee <= MAX_BPS, "IggyPostMinterV2: Fees cannot be more than 100%");
+    require(_chatTokenMinterAddress != address(0), "IggyPostMinterV2: CHAT token cannot be zero address");
     require(_postAddress != address(0), "IggyPostMinterV2: Post address cannot be zero address");
 
-    chatTokenAddress = _chatTokenAddress;
+    chatTokenMinterAddress = _chatTokenMinterAddress;
     daoAddress = _daoAddress;
     devAddress = _devAddress;
     devFeeUpdaterAddress = _devAddress;
     postAddress = _postAddress;
 
+    chatEthRatio = _chatEthRatio;
+
     daoFee = _daoFee;
-    devFee = _devFee;
-    referrerFee = _referrerFee;
     stakingFee = _stakingFee;
+
+    chatRewardsDuration = _chatRewardsDuration; // e.g. 1 year (31_536_000 seconds)
+    chatRewardsEnd = block.timestamp + _chatRewardsDuration;
+  }
+
+  // READ
+
+  function getCurrentChatEthRatio() public view returns(uint256) {
+    // if chat rewards period ended, return 0
+    if (block.timestamp > chatRewardsEnd) {
+      return 0;
+    }
+
+    uint256 diff = chatRewardsEnd - block.timestamp;
+    uint256 diffRatio = ((diff * MAX_BPS) / chatRewardsDuration);
+
+    return (chatEthRatio * diffRatio) / MAX_BPS;
   }
 
   // WRITE
@@ -147,9 +166,9 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
     }
 
     // mint chat tokens for the NFT receiver (use only the fees to calculate the share of chat tokens, not the whole price)
-    if (chatTokenAddress != address(0)) {
+    if (chatTokenMinterAddress != address(0) && block.timestamp <= chatRewardsEnd) {
       uint256 fees = (price * (devFee + daoFee)) / MAX_BPS; // exclude the referrer fee because msg sender could include their own address as a referrer
-      IChatTokenMinter(chatTokenAddress).mint(_nftReceiver, fees*chatEthRatio);
+      IChatTokenMinter(chatTokenMinterAddress).mint(_nftReceiver, fees*getCurrentChatEthRatio());
     }
   }
 
@@ -217,12 +236,6 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   }
 
   // OTHER WRITE METHODS
-
-  // @notice This changes the CHAT:ETH ratio
-  function changeChatEthRatio(uint256 _chatEthRatio) external {
-    require(_msgSender() == daoAddress, "Sender is not the DAO");
-    chatEthRatio = _chatEthRatio;
-  }
 
   /// @notice This changes the developer's address in the minter contract
   function changeDevAddress(address _devAddress) external {
