@@ -32,9 +32,9 @@ contract ChatTokenClaimDomains is Ownable {
     address _domainAddress, 
     uint256 _chatReward 
   ) {
-    require(_chatReward > 0, "ChatTokenClaimPostMinters: chatReward must be greater than 0");
-    require(_chatTokenMinter != address(0), "ChatTokenClaimPostMinters: chatTokenMinter cannot be zero address");
-    require(_domainAddress != address(0), "ChatTokenClaimPostMinters: domain contract cannot be zero address");
+    require(_chatReward > 0, "ChatTokenClaimDomains: chatReward must be greater than 0");
+    require(_chatTokenMinter != address(0), "ChatTokenClaimDomains: chatTokenMinter cannot be zero address");
+    require(_domainAddress != address(0), "ChatTokenClaimDomains: domain contract cannot be zero address");
 
     chatTokenMinter = _chatTokenMinter;
     domainAddress = _domainAddress;
@@ -47,11 +47,11 @@ contract ChatTokenClaimDomains is Ownable {
   @notice Claim chat tokens for a domain name. Anyone can claim for any domain name, but only holder gets the tokens.
   */
   function claim(string calldata _domainName) external {
-    require(!paused, "ChatTokenClaimPostMinters: claiming is paused");
-    require(!hasClaimed[_domainName], "ChatTokenClaimPostMinters: already claimed");
+    require(!paused, "ChatTokenClaimDomains: claiming is paused");
+    require(!hasClaimed[_domainName], "ChatTokenClaimDomains: domain already claimed");
 
     address _domainHolder = IBasePunkTLD(domainAddress).getDomainHolder(_domainName);
-    require(_domainHolder != address(0), "ChatTokenClaimPostMinters: domain holder cannot be zero address");
+    require(_domainHolder != address(0), "ChatTokenClaimDomains: domain not registered");
 
     hasClaimed[_domainName] = true; // mark as claimed
     IChatTokenMinter(chatTokenMinter).mint(_domainHolder, chatReward);
