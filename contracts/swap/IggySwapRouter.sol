@@ -2,11 +2,20 @@
 pragma solidity ^0.8.17;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { IERC1155 } from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+interface iUniswapV2Factory {
+  function getPair(address tokenA, address tokenB) external view returns (address pair);
+}
+
+interface IUniswapV2Pair {
+  function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+}
 
 interface IUniswapV2Router02 {
+  function factory() external pure returns (address);
+
   function getAmountsOut(uint amountIn, address[] memory path) external view returns (uint[] memory amounts);
 
   function swapExactTokensForTokens(
@@ -23,10 +32,12 @@ interface IWETH {
   function withdraw(uint) external;
 }
 
-/// @title Iggy swap custom contract
+/// @title Iggy swap router contract
 /// @author Tempe Techie
 /// @notice Contract that helps an Iggy frontend to swap tokens (custom because it's specific to a particular frontend)
-contract IggySwapCustom is Ownable {
+contract IggySwapRouter is Ownable {
+  using SafeERC20 for IERC20;
+
   address public frontendAddress; // address of a DAO/community which runs the frontend
   address public iggyAddress;
   address public routerAddress; // DEX router address
@@ -38,6 +49,12 @@ contract IggySwapCustom is Ownable {
   uint256 public referrerShare = 1000; // 10% share of the swap fee
   uint256 public frontendShare = 5000; // 50% share of the swap fee (after referrer share is deducted)
 
+  // MODIFIERS
+  modifier onlyFeeChanger() {
+    require(msg.sender == feeChangerAddress, "IggySwap: Sender is not the Fee Changer");
+    _;
+  }
+
   constructor(
     address _frontendAddress,
     address _iggyAddress,
@@ -47,35 +64,12 @@ contract IggySwapCustom is Ownable {
     frontendAddress = _frontendAddress;
     iggyAddress = _iggyAddress;
     routerAddress = _routerAddress;
-    feeChangerAddress = _msgSender();
+    feeChangerAddress = msg.sender;
     wethAddress = _wethAddress;
   }
 
-  // MODIFIERS
-  modifier onlyFeeChanger() {
-    require(_msgSender() == feeChangerAddress, "IggySwap: Sender is not the Fee Changer");
-    _;
-  }
-
-  // READ INTERNAL
-  function _getFeeAmount(uint _amount) internal view returns (uint) {
-    return (_amount * swapFee) / MAX_BPS;
-  }
-
-  function _getTokensAmountOut(
-    uint amountIn, 
-    address[] memory path
-  ) internal view returns(uint[] memory amounts) {
-    if (path[0] == address(0)) {
-      path[0] = wethAddress;
-    }
-
-    if (path[path.length - 1] == address(0)) {
-      path[path.length - 1] = wethAddress;
-    }
-
-    return IUniswapV2Router02(routerAddress).getAmountsOut(amountIn, path);
-  }
+  // RECEIVE
+  receive() external payable {}
 
   // READ PUBLIC/EXTERNAL
   function getAmountsOut(
@@ -86,57 +80,42 @@ contract IggySwapCustom is Ownable {
     amounts[amounts.length - 1] = amounts[amounts.length - 1] - _getFeeAmount(amounts[amounts.length - 1]); // deduce swap fee from amount out
   }
 
-  // WRITE INTERNAL
-  function _swap(
-    uint amountIn,
-    uint amountOutMin, // amount out deducted by slippage
-    address[] memory path,
-    address to,
-    uint deadline,
-    address referrer,
-    bool convertToNative
-  ) internal  returns (uint[] memory amounts) {
-    IERC20(path[0]).approve(routerAddress, amountIn); // approve router to spend tokens
+  // READ - EXTERNAL/PUBLIC
 
-    // make the swap via router
-    amounts = IUniswapV2Router02(routerAddress).swapExactTokensForTokens(
-      amountIn,
-      amountOutMin,
-      path,
-      address(this), // initially the receiver is this contract (tokens will be later transferred to the recipient and to fee receivers)
-      deadline
-    );
-
-    uint256 _amountOut = amounts[amounts.length - 1]; // total amount out (including fee)
-    uint256 _feeAmount = _getFeeAmount(_amountOut); // swap fee amount
-
-    require((_amountOut - _feeAmount) >= amountOutMin, "IggySwap: Amount out is less than the minimum amount out");
-
-    address tokenOut = path[path.length - 1]; // receiving token address
-
-    // transfer tokens to the recipient (deduct the fee)
-    if (convertToNative && tokenOut == wethAddress) {
-      IWETH(tokenOut).withdraw(_amountOut - _feeAmount);
-      (bool sentWeth, ) = payable(to).call{value: (_amountOut - _feeAmount)}("");
-      require(sentWeth, "Failed to send native coins to the recipient");
-    } else {
-      IERC20(tokenOut).transfer(to, (_amountOut - _feeAmount));
+  /**
+  @notice Calculates the price impact of a swap (in bips)
+  */
+  function getPriceImpact(
+    address tokenIn, 
+    address tokenOut, 
+    uint amountIn
+  ) external view returns (uint) {
+    if (tokenIn == address(0)) {
+      tokenIn = wethAddress;
     }
 
-    // if there's a referrer, send them a share of the fee
-    if (referrer != address(0) && referrerShare > 0) {
-      uint256 referrerShareAmount = (_feeAmount * referrerShare) / MAX_BPS;
-      IERC20(tokenOut).transfer(referrer, referrerShareAmount);
-      _feeAmount -= referrerShareAmount; // deduct referrer's share from the fee
+    if (tokenOut == address(0)) {
+      tokenOut = wethAddress;
     }
 
-    // calculate frontend and iggy fee share amounts
-    uint256 frontendShareAmount = (_feeAmount * frontendShare) / MAX_BPS;
-    uint256 iggyShareAmount = (_feeAmount * (MAX_BPS - frontendShare)) / MAX_BPS;
+    if (tokenIn == tokenOut) {
+      return 0;
+    }
 
-    // transfer tokens to fee receivers
-    IERC20(tokenOut).transfer(frontendAddress, frontendShareAmount); // send part of the fee to the frontend operator
-    IERC20(tokenOut).transfer(iggyAddress, iggyShareAmount); // send part of the fee to iggy
+    // get factory address from router
+    address factoryAddress = IUniswapV2Router02(routerAddress).factory();
+
+    // get reserves for both tokens (reserve is a token total amount in a pool)
+    (uint reserveIn, uint reserveOut) = _getReserves(factoryAddress, tokenIn, tokenOut);
+
+    uint k = reserveIn * reserveOut; // calculate a constant k (x * y = k, standard Uniswap V2 formula)
+
+    // calculate the amount of tokens user would receive if they swapped
+    uint newReserveOut = k / (reserveIn + amountIn);
+
+    uint amountOut = reserveOut - newReserveOut;
+
+    return (amountOut * MAX_BPS) / newReserveOut; // return price impact in bips
   }
   
   // WRITE PUBLIC/EXTERNAL
@@ -149,7 +128,7 @@ contract IggySwapCustom is Ownable {
     address to,
     uint deadline
   ) external returns (uint[] memory amounts) {
-    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+    IERC20(path[0]).safeTransferFrom(msg.sender, address(this), amountIn); // send user's tokens to this contract
 
     amounts = _swap(amountIn, amountOutMin, path, to, deadline, address(0), false); // no referrer
   }
@@ -163,7 +142,7 @@ contract IggySwapCustom is Ownable {
     uint deadline,
     address referrer
   ) external returns (uint[] memory amounts) {
-    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+    IERC20(path[0]).safeTransferFrom(msg.sender, address(this), amountIn); // send user's tokens to this contract
 
     amounts = _swap(amountIn, amountOutMin, path, to, deadline, referrer, false);
   }
@@ -176,7 +155,7 @@ contract IggySwapCustom is Ownable {
     address to, 
     uint deadline
   ) external returns (uint[] memory amounts) {
-    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+    IERC20(path[0]).safeTransferFrom(msg.sender, address(this), amountIn); // send user's tokens to this contract
 
     if (path[path.length - 1] == address(0)) {
       path[path.length - 1] = wethAddress;
@@ -194,7 +173,7 @@ contract IggySwapCustom is Ownable {
     uint deadline,
     address referrer
   ) external returns (uint[] memory amounts) {
-    IERC20(path[0]).transferFrom(_msgSender(), address(this), amountIn); // send user's tokens to this contract
+    IERC20(path[0]).safeTransferFrom(msg.sender, address(this), amountIn); // send user's tokens to this contract
 
     if (path[path.length - 1] == address(0)) {
       path[path.length - 1] = wethAddress;
@@ -263,17 +242,7 @@ contract IggySwapCustom is Ownable {
   // OWNER
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
   function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyOwner {
-    IERC20(tokenAddress_).transfer(recipient_, tokenAmount_);
-  }
-
-  /// @notice Recover any ERC-721 token mistakenly sent to this contract address
-  function recoverERC721(address tokenAddress_, uint256 tokenId_, address recipient_) external onlyOwner {
-    IERC721(tokenAddress_).transferFrom(address(this), recipient_, tokenId_);
-  }
-
-  /// @notice Recover any ERC-1155 token mistakenly sent to this contract address
-  function recoverERC1155(address tokenAddress_, uint256 tokenId_, address recipient_, uint256 _amount) external onlyOwner {
-    IERC1155(tokenAddress_).safeTransferFrom(address(this), recipient_, tokenId_, _amount, "");
+    IERC20(tokenAddress_).safeTransfer(recipient_, tokenAmount_);
   }
 
   /// @notice Recover native coins from contract
@@ -282,7 +251,90 @@ contract IggySwapCustom is Ownable {
     require(success, "Failed to recover native coins from contract");
   }
 
-  // RECEIVE & FALLBACK
-  receive() external payable {}
-  fallback() external payable {}
+  // INTERNAL - READ
+  function _getFeeAmount(uint _amount) internal view returns (uint) {
+    return (_amount * swapFee) / MAX_BPS;
+  }
+
+  // fetches and sorts the reserves for a pair
+  function _getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
+    (address token0,) = _sortTokens(tokenA, tokenB);
+    address pair = iUniswapV2Factory(factory).getPair(tokenA, tokenB);
+    (uint reserve0, uint reserve1,) = IUniswapV2Pair(pair).getReserves();
+    (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
+  }
+
+  function _getTokensAmountOut(
+    uint amountIn, 
+    address[] memory path
+  ) internal view returns(uint[] memory amounts) {
+    if (path[0] == address(0)) {
+      path[0] = wethAddress;
+    }
+
+    if (path[path.length - 1] == address(0)) {
+      path[path.length - 1] = wethAddress;
+    }
+
+    return IUniswapV2Router02(routerAddress).getAmountsOut(amountIn, path);
+  }
+
+  function _sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
+    require(tokenA != tokenB, 'UniswapV2Library: IDENTICAL_ADDRESSES');
+    (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+    require(token0 != address(0), 'UniswapV2Library: ZERO_ADDRESS');
+  }
+
+  // INTERNAL - WRITE
+  function _swap(
+    uint amountIn,
+    uint amountOutMin, // amount out deducted by slippage
+    address[] memory path,
+    address to,
+    uint deadline,
+    address referrer,
+    bool convertToNative
+  ) internal  returns (uint[] memory amounts) {
+    IERC20(path[0]).approve(routerAddress, amountIn); // approve router to spend tokens
+
+    // make the swap via router
+    amounts = IUniswapV2Router02(routerAddress).swapExactTokensForTokens(
+      amountIn,
+      amountOutMin,
+      path,
+      address(this), // initially the receiver is this contract (tokens will be later transferred to the recipient and to fee receivers)
+      deadline
+    );
+
+    uint256 _amountOut = amounts[amounts.length - 1]; // total amount out (including fee)
+    uint256 _feeAmount = _getFeeAmount(_amountOut); // swap fee amount
+
+    require((_amountOut - _feeAmount) >= amountOutMin, "IggySwap: Amount out is less than the minimum amount out");
+
+    address tokenOut = path[path.length - 1]; // receiving token address
+
+    // transfer tokens to the recipient (deduct the fee)
+    if (convertToNative && tokenOut == wethAddress) {
+      IWETH(tokenOut).withdraw(_amountOut - _feeAmount);
+      (bool sentWeth, ) = payable(to).call{value: (_amountOut - _feeAmount)}("");
+      require(sentWeth, "Failed to send native coins to the recipient");
+    } else {
+      IERC20(tokenOut).safeTransfer(to, (_amountOut - _feeAmount));
+    }
+
+    // if there's a referrer, send them a share of the fee
+    if (referrer != address(0) && referrerShare > 0) {
+      uint256 referrerShareAmount = (_feeAmount * referrerShare) / MAX_BPS;
+      IERC20(tokenOut).safeTransfer(referrer, referrerShareAmount);
+      _feeAmount -= referrerShareAmount; // deduct referrer's share from the fee
+    }
+
+    // calculate frontend and iggy fee share amounts
+    uint256 frontendShareAmount = (_feeAmount * frontendShare) / MAX_BPS;
+    uint256 iggyShareAmount = (_feeAmount * (MAX_BPS - frontendShare)) / MAX_BPS;
+
+    // transfer tokens to fee receivers
+    IERC20(tokenOut).safeTransfer(frontendAddress, frontendShareAmount); // send part of the fee to the frontend operator
+    IERC20(tokenOut).safeTransfer(iggyAddress, iggyShareAmount); // send part of the fee to iggy
+  }
 }

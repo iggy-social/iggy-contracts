@@ -23,8 +23,8 @@ contract ChatTokenClaimDomains is Ownable {
 
   bool public paused = false;
 
-  uint256 public immutable chatReward; // how many tokens a domain gets
-  uint256 public immutable maxIdEligible; // max domain ID eligible for claiming (aka snapshot)
+  uint256 public chatReward; // how many tokens a domain gets
+  uint256 public maxIdEligible; // max domain ID eligible for claiming (aka snapshot)
   
   mapping(string => bool) public hasClaimed; // domain names that have already claimed
 
@@ -65,6 +65,15 @@ contract ChatTokenClaimDomains is Ownable {
   }
 
   // OWNER
+
+  function changeChatReward(uint256 _chatReward) external onlyOwner {
+    require(_chatReward > 0, "ChatTokenClaimDomains: chatReward must be greater than 0");
+    chatReward = _chatReward;
+  }
+
+  function changeMaxIdEligible(uint256 _maxIdEligible) external onlyOwner {
+    maxIdEligible = _maxIdEligible;
+  }
 
   function togglePaused() external onlyOwner {
     paused = !paused;

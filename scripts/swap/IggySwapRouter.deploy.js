@@ -1,6 +1,6 @@
-// npx hardhat run scripts/swap/IggySwapCustom.deploy.js --network songbird
+// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network songbird
 
-const contractName = "IggySwapCustom";
+const contractName = "IggySwapRouter";
 
 const frontendAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2";
 const iggyAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2";

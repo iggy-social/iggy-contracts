@@ -26,7 +26,7 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
   let daiAddress = "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"; // dai on polygon
   let aaveAddress = "0xd6df932a45c0f255f85145f286ea0b292b21c90b"; // aave on polygon
 
-  let iggySwapCustomContract;
+  let iggySwapRouterContract;
 
   let owner;
   let frontend;
@@ -38,19 +38,19 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
   beforeEach(async function () {
     [owner, frontend, iggy, user1, user2, referrer] = await ethers.getSigners();
 
-    // deploy IggySwapCustom
-    const IggySwapCustom = await ethers.getContractFactory("IggySwapCustom");
-    iggySwapCustomContract = await IggySwapCustom.deploy(
+    // deploy IggySwapRouter
+    const IggySwapRouter = await ethers.getContractFactory("IggySwapRouter");
+    iggySwapRouterContract = await IggySwapRouter.deploy(
       frontend.address,
       iggy.address,
       routerAddress,
       wethAddress
     );
-    await iggySwapCustomContract.deployed();
+    await iggySwapRouterContract.deployed();
   });
 
   it("test swapping via Iggy Swap", async function () {
-    console.log("--------- First swap (MATIC -> DAI) ---------");
+    console.log("--------- First swap (path: MATIC -> DAI) ---------");
 
     // check owner's ETH balance before swap
     const ownerEthBalanceBefore = await owner.getBalance();
@@ -74,8 +74,8 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
 
     const path = [wethAddress, daiAddress]; // path to swap eth for dai
 
-    // check getAmountsOut first before swap (via iggySwapCustomContract)
-    const amountsOut = await iggySwapCustomContract.getAmountsOut(amountIn, path);
+    // check getAmountsOut first before swap (via iggySwapRouterContract)
+    const amountsOut = await iggySwapRouterContract.getAmountsOut(amountIn, path);
     console.log("Amount of DAI to receive (iggy contract):", ethers.utils.formatUnits(amountsOut[path.length-1], "ether"), "DAI");
     expect(amountsOut[path.length-1]).to.be.gt(0);
 
@@ -90,12 +90,17 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     console.log("Owner's DAI balance before swap:", ethers.utils.formatUnits(ownerDaiBalanceBefore, "ether"), "DAI");
     expect(ownerDaiBalanceBefore).to.equal(0);
 
+    // get price impact
+    const priceImpact = await iggySwapRouterContract.getPriceImpact(path[0], path[path.length-1], amountIn);
+    console.log(priceImpact);
+    console.log("Price impact:", Number(priceImpact), "bps");
+
     // swapExactETHForTokens (swap ETH for DAI)
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
     const minAmountOut = amountsOut[path.length-1].sub(amountsOut[path.length-1].div(100)); // 1% slippage
     console.log("Min DAI to receive (deduct 1% slippage):", ethers.utils.formatUnits(minAmountOut, "ether"), "DAI");
 
-    const tx = await iggySwapCustomContract.swapExactETHForTokens(
+    const tx = await iggySwapRouterContract.swapExactETHForTokens(
       minAmountOut,
       path,
       owner.address,
@@ -129,7 +134,7 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     console.log("Owner's MATIC balance after swap:", ethers.utils.formatUnits(ownerEthBalanceAfter, "ether"), "MATIC");
     expect(ownerEthBalanceAfter).to.be.lt(ownerEthBalanceBefore);
 
-    console.log("--------- second swap (DAI -> AAVE) ---------");
+    console.log("--------- second swap (path: DAI -> MATIC -> AAVE) ---------");
 
     // check owner's AAVE balance before second swap
     const aaveContract = await ethers.getContractAt("IERC20", aaveAddress);
@@ -143,20 +148,25 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
 
     const path3 = [daiAddress, wethAddress, aaveAddress]; // path to swap dai for aave
 
-    // check getAmountsOut first before swap (via iggySwapCustomContract)
-    const amountsOut3 = await iggySwapCustomContract.getAmountsOut(amountIn3, path3);
+    // check getAmountsOut first before swap (via iggySwapRouterContract)
+    const amountsOut3 = await iggySwapRouterContract.getAmountsOut(amountIn3, path3);
     console.log("Amount of AAVE to receive:", ethers.utils.formatUnits(amountsOut3[path3.length-1], "ether"), "AAVE");
     expect(amountsOut3[path3.length-1]).to.be.gt(0);
 
     // set allowance for DAI
-    await daiContract.approve(iggySwapCustomContract.address, amountIn3);
+    await daiContract.approve(iggySwapRouterContract.address, amountIn3);
+
+    // get price impact
+    const priceImpact2 = await iggySwapRouterContract.getPriceImpact(path3[0], path3[path.length-1], amountIn3);
+    console.log(priceImpact2);
+    console.log("Price impact 2:", Number(priceImpact2), "bps");
 
     // swapExactTokensForTokens (swap DAI for AAVE)
     const deadline3 = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
     const minAmountOut3 = amountsOut3[path3.length-1].sub(amountsOut3[path3.length-1].div(100)); // 1% slippage
     console.log("Min AAVE to receive (deduct 1% slippage):", ethers.utils.formatUnits(minAmountOut3, "ether"), "AAVE");
 
-    const tx3 = await iggySwapCustomContract.swapExactTokensForTokens(
+    const tx3 = await iggySwapRouterContract.swapExactTokensForTokens(
       amountIn3,
       minAmountOut3,
       path3,
@@ -185,7 +195,7 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     console.log("Owner's DAI balance after swap:", ethers.utils.formatUnits(ownerDaiBalanceAfter3, "ether"), "DAI");
     expect(ownerDaiBalanceAfter3).to.equal(ownerDaiBalanceAfter.sub(amountIn3));
 
-    console.log("--------- third swap (AAVE -> MATIC) ---------");
+    console.log("--------- third swap (path: AAVE -> MATIC) ---------");
 
     // set amount in and path for the AAVE -> MATIC swap
     const amountIn4 = ethers.utils.parseUnits("0.01", "ether"); // 1 AAVE
@@ -193,20 +203,25 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
 
     const path4 = [aaveAddress, wethAddress]; // path to swap aave for matic
 
-    // check getAmountsOut first before swap (via iggySwapCustomContract)
-    const amountsOut4 = await iggySwapCustomContract.getAmountsOut(amountIn4, path4);
+    // check getAmountsOut first before swap (via iggySwapRouterContract)
+    const amountsOut4 = await iggySwapRouterContract.getAmountsOut(amountIn4, path4);
     console.log("Amount of MATIC to receive:", ethers.utils.formatUnits(amountsOut4[path4.length-1], "ether"), "MATIC");
     expect(amountsOut4[path4.length-1]).to.be.gt(0);
 
     // set allowance for AAVE
-    await aaveContract.approve(iggySwapCustomContract.address, amountIn4);
+    await aaveContract.approve(iggySwapRouterContract.address, amountIn4);
+
+    // get price impact
+    const priceImpact3 = await iggySwapRouterContract.getPriceImpact(path4[0], path4[path.length-1], amountIn3);
+    console.log(priceImpact3);
+    console.log("Price impact 3:", Number(priceImpact3), "bps");
 
     // swapExactTokensForETH (swap AAVE for MATIC)
     const deadline4 = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
     const minAmountOut4 = amountsOut4[path4.length-1].sub(amountsOut4[path4.length-1].div(100)); // 1% slippage
     console.log("Min MATIC to receive (deduct 1% slippage):", ethers.utils.formatUnits(minAmountOut4, "ether"), "MATIC");
 
-    const tx4 = await iggySwapCustomContract.swapExactTokensForETH(
+    const tx4 = await iggySwapRouterContract.swapExactTokensForETH(
       amountIn4,
       minAmountOut4,
       path4,
