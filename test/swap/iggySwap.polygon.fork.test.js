@@ -247,4 +247,103 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
 
   });
 
+  it("adds liquidity to the MATIC/DAI pool and then removes it", async function() {
+    console.log("------ ADDING LIQUIDITY ------ ");
+
+    const daiContract = await ethers.getContractAt("IERC20", daiAddress);
+
+    // get LP token balance (call getLpTokenAddress from the iggySwapRouterContract to get LP token address first)
+    const lpTokenAddress = await iggySwapRouterContract.getLpTokenAddress(daiAddress, wethAddress);
+    console.log("LP token address:", lpTokenAddress);
+
+    const lpTokenContract = await ethers.getContractAt("IERC20", lpTokenAddress);
+    const lpTokenBalanceBefore = await lpTokenContract.balanceOf(owner.address);
+    console.log("Owner's LP token balance before adding liquidity:", ethers.utils.formatUnits(lpTokenBalanceBefore, "ether"), "LP tokens");
+
+    // check DAI balance before adding liquidity
+    const ownerDaiBalanceBefore = await daiContract.balanceOf(owner.address);
+    console.log("Owner's DAI balance before adding liquidity:", ethers.utils.formatUnits(ownerDaiBalanceBefore, "ether"), "DAI");
+
+    const amountInDesired = ethers.utils.parseUnits("10", "ether"); // 10 DAI
+    const amountInMin = amountInDesired.sub(amountInDesired.div(10)); // 10% slippage
+
+    // give DAI allowance to the iggySwapRouterContract
+    await daiContract.approve(iggySwapRouterContract.address, amountInDesired);
+
+    // call addLiquidityETH function in a read-only way to get the amount of MATIC to send
+    const result = await iggySwapRouterContract.callStatic.addLiquidityETH(
+      daiAddress,
+      amountInDesired, // amount DAI desired
+      amountInMin, // amount DAI min
+      0, // amount ETH min
+      owner.address, // recipient (to)
+      Math.floor(Date.now() / 1000) + 60 * 20, // deadline: 20 minutes from the current Unix time
+      {
+        value: ethers.utils.parseUnits("100", "ether"), // some amount of ETH (doesn't matter, but needs to be big enough)
+        gasPrice: ethers.utils.parseUnits("500", "gwei"),
+        gasLimit: 500000
+      }
+    );
+    console.log("Amount of MATIC to send:", ethers.utils.formatUnits(result[1], "ether"), "MATIC");
+
+    // addLiquidityETH (write)
+    const tx = await iggySwapRouterContract.addLiquidityETH(
+      daiAddress,
+      amountInDesired, // amount DAI desired
+      amountInMin, // amount DAI min
+      0, // amount ETH min
+      owner.address, // recipient (to)
+      Math.floor(Date.now() / 1000) + 60 * 20, // deadline: 20 minutes from the current Unix time
+      {
+        value: result[1].add(result[1].div(10)), // result[1] + 10% slippage
+        gasPrice: ethers.utils.parseUnits("500", "gwei"),
+        gasLimit: 500000
+      }
+    );
+    const receipt = await tx.wait();
+    calculateGasCosts("Add liquidity", receipt);
+
+    // check DAI balance after adding liquidity
+    const ownerDaiBalanceAfter = await daiContract.balanceOf(owner.address);
+    console.log("Owner's DAI balance after adding liquidity:", ethers.utils.formatUnits(ownerDaiBalanceAfter, "ether"), "DAI");
+    expect(ownerDaiBalanceAfter).to.equal(ownerDaiBalanceBefore.sub(amountInDesired));
+
+    // check LP token balance after adding liquidity
+    const lpTokenBalanceAfter = await lpTokenContract.balanceOf(owner.address);
+    console.log("Owner's LP token balance after adding liquidity:", ethers.utils.formatUnits(lpTokenBalanceAfter, "ether"), "LP tokens");
+    expect(lpTokenBalanceAfter).to.be.gt(lpTokenBalanceBefore);
+
+    console.log("------ REMOVING LIQUIDITY ------ ");
+
+    // give LP token allowance to the iggySwapRouterContract
+    await lpTokenContract.approve(iggySwapRouterContract.address, lpTokenBalanceAfter);
+
+    // removeLiquidityETH (write)
+    const tx2 = await iggySwapRouterContract.removeLiquidityETH(
+      daiAddress,
+      lpTokenBalanceAfter, // amount LP tokens to remove
+      0, // amount DAI min
+      0, // amount ETH min
+      owner.address, // recipient (to)
+      Math.floor(Date.now() / 1000) + 60 * 20, // deadline: 20 minutes from the current Unix time
+      {
+        gasPrice: ethers.utils.parseUnits("500", "gwei"),
+        gasLimit: 500000
+      }
+    );
+    const receipt2 = await tx2.wait();
+    calculateGasCosts("Remove liquidity", receipt2);
+
+    // check DAI balance after removing liquidity
+    const ownerDaiBalanceAfter2 = await daiContract.balanceOf(owner.address);
+    console.log("Owner's DAI balance after removing liquidity:", ethers.utils.formatUnits(ownerDaiBalanceAfter2, "ether"), "DAI");
+    expect(ownerDaiBalanceAfter2).to.be.gt(ownerDaiBalanceAfter);
+
+    // check LP token balance after removing liquidity
+    const lpTokenBalanceAfter2 = await lpTokenContract.balanceOf(owner.address);
+    console.log("Owner's LP token balance after removing liquidity:", ethers.utils.formatUnits(lpTokenBalanceAfter2, "ether"), "LP tokens");
+    expect(lpTokenBalanceAfter2).to.equal(0);
+
+  });
+
 });

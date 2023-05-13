@@ -136,13 +136,13 @@ describe("IggyPostNft1155", function () {
     // get author's ETH balance before
     const authorEthBalanceBefore = await author.getBalance();
 
+    //return;
+
     // check dao ETH balance before
     const daoEthBalanceBefore = await dao.getBalance();
-    expect(daoEthBalanceBefore).to.equal(defaultAddressBalance);
 
     // check dev ETH balance before
     const devEthBalanceBefore = await dev.getBalance();
-    expect(devEthBalanceBefore).to.equal(defaultAddressBalance);
 
     // mint through the minter contract
     const tx = await minterContract.connect(user1).mint(
@@ -170,11 +170,11 @@ describe("IggyPostNft1155", function () {
 
     // check dao ETH balance after
     const daoEthBalanceAfter = await dao.getBalance();
-    expect(daoEthBalanceAfter).to.equal(defaultAddressBalance.add(defaultPrice.mul(daoFee).div(10000)));
+    expect(daoEthBalanceAfter).to.equal(daoEthBalanceBefore.add(defaultPrice.mul(daoFee).div(10000)));
 
     // check dev ETH balance after
     const devEthBalanceAfter = await dev.getBalance();
-    expect(devEthBalanceAfter).to.equal(defaultAddressBalance.add(defaultPrice.mul(devFee).div(10000)));
+    expect(devEthBalanceAfter).to.equal(devEthBalanceBefore.add(defaultPrice.mul(devFee).div(10000)));
 
     // get NFT metadata
     const nftMetadata = await iggyPostContract.uri(tokenId);

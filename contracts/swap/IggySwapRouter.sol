@@ -5,7 +5,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-interface iUniswapV2Factory {
+interface IUniswapV2Factory {
   function getPair(address tokenA, address tokenB) external view returns (address pair);
 }
 
@@ -15,8 +15,46 @@ interface IUniswapV2Pair {
 
 interface IUniswapV2Router02 {
   function factory() external pure returns (address);
-
   function getAmountsOut(uint amountIn, address[] memory path) external view returns (uint[] memory amounts);
+
+  function addLiquidity(
+    address tokenA,
+    address tokenB,
+    uint amountADesired,
+    uint amountBDesired,
+    uint amountAMin,
+    uint amountBMin,
+    address to,
+    uint deadline
+  ) external returns (uint amountA, uint amountB, uint liquidity);
+
+  function addLiquidityETH(
+    address token,
+    uint amountTokenDesired,
+    uint amountTokenMin,
+    uint amountETHMin,
+    address to,
+    uint deadline
+  ) external payable returns (uint amountToken, uint amountETH, uint liquidity);
+
+  function removeLiquidity(
+    address tokenA,
+    address tokenB,
+    uint liquidity,
+    uint amountAMin,
+    uint amountBMin,
+    address to,
+    uint deadline
+  ) external returns (uint amountA, uint amountB);
+
+  function removeLiquidityETH(
+    address token,
+    uint liquidity,
+    uint amountTokenMin,
+    uint amountETHMin,
+    address to,
+    uint deadline
+  ) external returns (uint amountToken, uint amountETH);
 
   function swapExactTokensForTokens(
     uint amountIn,
@@ -55,6 +93,7 @@ contract IggySwapRouter is Ownable {
     _;
   }
 
+  // CONSTRUCTOR
   constructor(
     address _frontendAddress,
     address _iggyAddress,
@@ -72,6 +111,8 @@ contract IggySwapRouter is Ownable {
   receive() external payable {}
 
   // READ PUBLIC/EXTERNAL
+
+  /// @notice Preview the amount of tokens that would be received for a given swap
   function getAmountsOut(
     uint amountIn, 
     address[] memory path
@@ -80,11 +121,20 @@ contract IggySwapRouter is Ownable {
     amounts[amounts.length - 1] = amounts[amounts.length - 1] - _getFeeAmount(amounts[amounts.length - 1]); // deduce swap fee from amount out
   }
 
-  // READ - EXTERNAL/PUBLIC
+  /// @notice Get LP (pair) token address for a given pair of tokens
+  function getLpTokenAddress(address tokenA, address tokenB) external view returns (address) {
+    if (tokenA == address(0)) {
+      tokenA = wethAddress;
+    }
 
-  /**
-  @notice Calculates the price impact of a swap (in bips)
-  */
+    if (tokenB == address(0)) {
+      tokenB = wethAddress;
+    }
+
+    return IUniswapV2Factory(IUniswapV2Router02(routerAddress).factory()).getPair(tokenA, tokenB);
+  }
+
+  /// @notice Calculates the price impact of a swap (in bips)
   function getPriceImpact(
     address tokenIn, 
     address tokenOut, 
@@ -119,6 +169,127 @@ contract IggySwapRouter is Ownable {
   }
   
   // WRITE PUBLIC/EXTERNAL
+
+  /// @notice Add liquidity to a pool (both tokens must be ERC-20 tokens)
+  function addLiquidity(
+    address tokenA,
+    address tokenB,
+    uint amountADesired,
+    uint amountBDesired,
+    uint amountAMin,
+    uint amountBMin,
+    address to,
+    uint deadline
+  ) external returns (uint amountA, uint amountB, uint liquidity) {
+    // transfer tokens to this contract
+    IERC20(tokenA).safeTransferFrom(msg.sender, address(this), amountADesired);
+    IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountBDesired);
+
+    // approve tokens to be spent by router
+    IERC20(tokenA).approve(routerAddress, amountADesired);
+    IERC20(tokenB).approve(routerAddress, amountBDesired);
+
+    // add liquidity
+    (amountA, amountB, liquidity) = IUniswapV2Router02(routerAddress).addLiquidity(
+      tokenA,
+      tokenB,
+      amountADesired,
+      amountBDesired,
+      amountAMin,
+      amountBMin,
+      to,
+      deadline
+    );
+  }
+
+  function addLiquidityETH(
+    address token,
+    uint amountTokenDesired,
+    uint amountTokenMin,
+    uint amountETHMin,
+    address to,
+    uint deadline
+  ) external payable returns (uint amountToken, uint amountETH, uint liquidity) {
+    // transfer tokens to this contract
+    IERC20(token).safeTransferFrom(msg.sender, address(this), amountTokenDesired);
+
+    // approve tokens to be spent by router
+    IERC20(token).approve(routerAddress, amountTokenDesired);
+
+    // add liquidity
+    (amountToken, amountETH, liquidity) = IUniswapV2Router02(routerAddress).addLiquidityETH{value: msg.value}(
+      token,
+      amountTokenDesired,
+      amountTokenMin,
+      amountETHMin,
+      to,
+      deadline
+    );
+  }
+
+  function removeLiquidity(
+    address tokenA,
+    address tokenB,
+    uint liquidity,
+    uint amountAMin,
+    uint amountBMin,
+    address to,
+    uint deadline
+  ) external returns (uint amountA, uint amountB) {
+    // get factory address from router
+    address factoryAddress = IUniswapV2Router02(routerAddress).factory();
+
+    // get LP token address
+    address pair = IUniswapV2Factory(factoryAddress).getPair(tokenA, tokenB);
+
+    // transfer liquidity tokens to this contract
+    IERC20(pair).safeTransferFrom(msg.sender, address(this), liquidity);
+
+    // approve tokens to be spent by router
+    IERC20(pair).approve(routerAddress, liquidity);
+
+    // remove liquidity
+    (amountA, amountB) = IUniswapV2Router02(routerAddress).removeLiquidity(
+      tokenA,
+      tokenB,
+      liquidity,
+      amountAMin,
+      amountBMin,
+      to,
+      deadline
+    );
+  }
+
+  function removeLiquidityETH(
+    address token,
+    uint liquidity,
+    uint amountTokenMin,
+    uint amountETHMin,
+    address to,
+    uint deadline
+  ) external returns (uint amountToken, uint amountETH) {
+    // get factory address from router
+    address factoryAddress = IUniswapV2Router02(routerAddress).factory();
+
+    // get LP token address
+    address pair = IUniswapV2Factory(factoryAddress).getPair(token, wethAddress);
+
+    // transfer liquidity tokens to this contract
+    IERC20(pair).safeTransferFrom(msg.sender, address(this), liquidity);
+
+    // approve tokens to be spent by router
+    IERC20(pair).approve(routerAddress, liquidity);
+
+    // remove liquidity
+    (amountToken, amountETH) = IUniswapV2Router02(routerAddress).removeLiquidityETH(
+      token,
+      liquidity,
+      amountTokenMin,
+      amountETHMin,
+      to,
+      deadline
+    );
+  }
 
   /// @notice Swap exact ERC-20 tokens for ERC-20 tokens
   function swapExactTokensForTokens(
@@ -259,7 +430,7 @@ contract IggySwapRouter is Ownable {
   // fetches and sorts the reserves for a pair
   function _getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
     (address token0,) = _sortTokens(tokenA, tokenB);
-    address pair = iUniswapV2Factory(factory).getPair(tokenA, tokenB);
+    address pair = IUniswapV2Factory(factory).getPair(tokenA, tokenB);
     (uint reserve0, uint reserve1,) = IUniswapV2Pair(pair).getReserves();
     (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
   }
