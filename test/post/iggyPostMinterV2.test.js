@@ -33,6 +33,7 @@ describe("IggyPostMinterV2", function () {
   let user1;
   let user2;
   let dev;
+  let devFeeUpdaterAddress;
   let referrer;
 
   const defaultAddressBalance = ethers.utils.parseEther("10000");
@@ -59,7 +60,7 @@ describe("IggyPostMinterV2", function () {
   //const provider = waffle.provider;
 
   beforeEach(async function () {
-    [owner, dao, author, user1, user2, dev, referrer] = await ethers.getSigners();
+    [owner, dao, author, user1, user2, dev, devFeeUpdaterAddress, referrer] = await ethers.getSigners();
 
     const MockPunkTld = await ethers.getContractFactory("MockPunkTld");
     mockPunkTldContract = await MockPunkTld.deploy();
@@ -91,12 +92,10 @@ describe("IggyPostMinterV2", function () {
     minterContract = await IggyMinter.deploy(
       chatTokenMinterContract.address,
       dao.address, 
-      dev.address, 
+      dev.address,
       iggyPostContract.address, 
       chatEthRatio,
-      chatRewardsDuration,
-      daoFee, 
-      stakingFee
+      chatRewardsDuration
     );
     await minterContract.deployed();
 

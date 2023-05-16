@@ -3,15 +3,13 @@ pragma solidity ^0.8.17;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import { IERC1155 } from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IChatTokenMinter {
   function mint(address to, uint256 amount) external;
 }
 
-interface IIggyPostNft is IERC1155 {
+interface IIggyPostNft {
 
   function getPostPrice (string memory _postId, address _author) external view returns (uint256);
 
@@ -55,36 +53,31 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   uint256 public immutable chatRewardsEnd; // timestamp when CHAT rewards end
 
   uint256 public constant MAX_BPS = 10_000;
-  uint256 public daoFee; // share of each domain purchase (in bips) that goes to the DAO/community that owns the frontend
+  uint256 public daoFee = 450; // share of each domain purchase (in bips) that goes to the DAO/community that owns the frontend
   uint256 public devFee = 900; // share of each domain purchase (in bips) that goes to the developer (Iggy team)
   uint256 public referrerFee = 200; // share of each domain purchase (in bips) that goes to the referrer
-  uint256 public stakingFee; // share of each domain purchase (in bips) that goes to the staking contract
+  uint256 public stakingFee = 450; // share of each domain purchase (in bips) that goes to the staking contract
 
   // CONSTRUCTOR
   constructor(
     address _chatTokenMinterAddress,
     address _daoAddress,
     address _devAddress,
+    address _devFeeUpdaterAddress,
     address _postAddress,
     uint256 _chatEthRatio, // e.g. 1_000, which means 1 ETH (or payment token) = 1,000 CHAT
-    uint256 _chatRewardsDuration, // CHAT rewards duration in seconds
-    uint256 _daoFee, // e.g. 450, which means 4.5% of the price goes to the DAO
-    uint256 _stakingFee // e.g. 450 which means 4.5% of the price goes to the staking contract
+    uint256 _chatRewardsDuration // CHAT rewards duration in seconds
   ) {
-    require(_daoFee + devFee + referrerFee + _stakingFee <= MAX_BPS, "IggyPostMinterV2: Fees cannot be more than 100%");
     require(_chatTokenMinterAddress != address(0), "IggyPostMinterV2: CHAT token cannot be zero address");
     require(_postAddress != address(0), "IggyPostMinterV2: Post address cannot be zero address");
 
     chatTokenMinterAddress = _chatTokenMinterAddress;
     daoAddress = _daoAddress;
     devAddress = _devAddress;
-    devFeeUpdaterAddress = _devAddress;
+    devFeeUpdaterAddress = _devFeeUpdaterAddress;
     postAddress = _postAddress;
 
     chatEthRatio = _chatEthRatio;
-
-    daoFee = _daoFee;
-    stakingFee = _stakingFee;
 
     chatRewardsDuration = _chatRewardsDuration; // e.g. 1 year (31_536_000 seconds)
     chatRewardsEnd = block.timestamp + _chatRewardsDuration;
@@ -99,7 +92,7 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
     }
 
     uint256 diff = chatRewardsEnd - block.timestamp;
-    uint256 diffRatio = ((diff * MAX_BPS) / chatRewardsDuration);
+    uint256 diffRatio = (diff * MAX_BPS) / chatRewardsDuration;
 
     return (chatEthRatio * diffRatio) / MAX_BPS;
   }
@@ -211,16 +204,6 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
     IERC20(tokenAddress_).transfer(recipient_, tokenAmount_);
   }
 
-  /// @notice Recover any ERC-721 token mistakenly sent to this contract address
-  function recoverERC721(address tokenAddress_, uint256 tokenId_, address recipient_) external onlyOwner {
-    IERC721(tokenAddress_).transferFrom(address(this), recipient_, tokenId_);
-  }
-
-  /// @notice Recover any ERC-1155 token mistakenly sent to this contract address
-  function recoverERC1155(address tokenAddress_, uint256 tokenId_, address recipient_, uint256 _amount) external onlyOwner {
-    IERC1155(tokenAddress_).safeTransferFrom(address(this), recipient_, tokenId_, _amount, "");
-  }
-
   function toggleEnumEnabled() external onlyOwner {
     enumEnabled = !enumEnabled;
   }
@@ -239,19 +222,19 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
 
   /// @notice This changes the developer's address in the minter contract
   function changeDevAddress(address _devAddress) external {
-    require(_msgSender() == devAddress, "Sender is not the developer");
+    require(msg.sender == devAddress, "Sender is not the developer");
     devAddress = _devAddress;
   }
 
   /// @notice This changes the dev fee updater's address in the minter contract
   function changeDevFeeUpdaterAddress(address _devFeeUpdaterAddress) external {
-    require(_msgSender() == devFeeUpdaterAddress, "Sender is not the dev fee updater");
+    require(msg.sender == devFeeUpdaterAddress, "Sender is not the dev fee updater");
     devFeeUpdaterAddress = _devFeeUpdaterAddress;
   }
 
   // change dev fee (only dev fee updater can change it)
   function changeDevFee(uint256 _devFee) external {
-    require(_msgSender() == devFeeUpdaterAddress, "Sender is not the dev fee updater");
+    require(msg.sender == devFeeUpdaterAddress, "Sender is not the dev fee updater");
     require(daoFee + _devFee + referrerFee + stakingFee <= MAX_BPS, "Fees cannot be more than 100%");
     devFee = _devFee;
   }

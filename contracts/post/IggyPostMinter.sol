@@ -3,11 +3,9 @@ pragma solidity ^0.8.17;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import { IERC1155 } from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-interface IIggyPostNft is IERC1155 {
+interface IIggyPostNft {
 
   function getPostPrice (string memory _postId, address _author) external view returns (uint256);
 
@@ -146,16 +144,6 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
   function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyOwner {
     IERC20(tokenAddress_).transfer(recipient_, tokenAmount_);
-  }
-
-  /// @notice Recover any ERC-721 token mistakenly sent to this contract address
-  function recoverERC721(address tokenAddress_, uint256 tokenId_, address recipient_) external onlyOwner {
-    IERC721(tokenAddress_).transferFrom(address(this), recipient_, tokenId_);
-  }
-
-  /// @notice Recover any ERC-1155 token mistakenly sent to this contract address
-  function recoverERC1155(address tokenAddress_, uint256 tokenId_, address recipient_, uint256 _amount) external onlyOwner {
-    IERC1155(tokenAddress_).safeTransferFrom(address(this), recipient_, tokenId_, _amount, "");
   }
 
   function toggleEnumEnabled() external onlyOwner {
