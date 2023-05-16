@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import { ERC20, ERC20Burnable } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
+import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ChatToken is ERC20Burnable, Ownable, ERC20Permit {

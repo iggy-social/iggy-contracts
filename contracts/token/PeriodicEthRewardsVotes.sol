@@ -8,12 +8,13 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /** 
-@title Staking contract with periodic ETH rewards
+@title Staking contract with periodic ETH rewards (with voting and permit)
 @author Tempe Techie
 @notice The contract issues a receipt token for any staked token in 1:1 ratio. Receipt token holders can 
-claim ETH rewards periodically. 
+claim ETH rewards periodically. Receipt token holders can also vote in governance (ERC20Votes) or have tokens 
+transferred using the erc-2612 permit() function (ERC20Permit).
 */
-contract PeriodicEthRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
+contract PeriodicEthRewardsVotes is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
   using SafeERC20 for IERC20;
 
   address public immutable asset; // staked token address (rebase tokens and tokens with fee-on-transfer are NOT supported!)
@@ -79,6 +80,16 @@ contract PeriodicEthRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
   }
 
   // READ
+
+  // Overrides IERC6372 functions to make the token & governor timestamp-based
+  function clock() public view override returns (uint48) {
+    return uint48(block.timestamp);
+  }
+
+  // Overrides IERC6372 functions to make the token & governor timestamp-based
+  function CLOCK_MODE() public pure override returns (string memory) { // solhint-disable-line func-name-mixedcase
+    return "mode=timestamp";
+  }
 
   /// @notice Returns the amount of time left (in seconds) until the user can withdraw their assets.
   function getLockedTimeLeft(address _user) external view returns (uint256) {

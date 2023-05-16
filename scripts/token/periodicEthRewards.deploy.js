@@ -1,5 +1,5 @@
 // npx hardhat run scripts/token/periodicEthRewards.deploy.js --network polygonMumbai
-const contractName = "PeriodicEthRewards";
+const contractName = "PeriodicEthRewardsVotes";
 
 const assetAddress = "0xF3B3ea54C96850e413A6d6aC139B6AEBa7D6D7f1"; // token to stake
 const tokenName = "Receipt Token v2";
