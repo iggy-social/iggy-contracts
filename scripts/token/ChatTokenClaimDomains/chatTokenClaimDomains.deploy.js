@@ -6,7 +6,7 @@ const contractName = "ChatTokenClaimDomains";
 
 const chatTokenMinterAddress = "0x2C6A9F47a2B1BA7976ACd14CDd8f6f35d27C1e28";
 const tldAddress = "0x2582EC420195Fefb091B098da6FAdEE49f490740";
-const chatReward = 1_000; // 1 domain = 1,000 CHAT
+const chatReward = ethers.utils.parseEther("1337"); // 1 domain = 1337 CHAT tokens
 const maxIdEligible = 15; // The first X number of domains (by ID) are eligible for claiming
 
 async function main() {

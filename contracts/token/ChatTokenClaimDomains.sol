@@ -23,7 +23,7 @@ contract ChatTokenClaimDomains is Ownable {
 
   bool public paused = false;
 
-  uint256 public chatReward; // how many tokens a domain gets
+  uint256 public chatReward; // how many tokens a domain gets (in wei)
   uint256 public maxIdEligible; // max domain ID eligible for claiming (aka snapshot)
   
   mapping(string => bool) public hasClaimed; // domain names that have already claimed
