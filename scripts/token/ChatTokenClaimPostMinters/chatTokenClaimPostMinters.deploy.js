@@ -1,12 +1,12 @@
-// npx hardhat run scripts/token/ChatTokenClaimPostMinters/chatTokenClaimPostMinters.deploy.js --network polygonMumbai
+// npx hardhat run scripts/token/ChatTokenClaimPostMinters/chatTokenClaimPostMinters.deploy.js --network songbird
 // This script deploys the ChatTokenClaimPostMinters contract and sets it as a minter in the ChatTokenMinter contract.
 // If setting the minter address fails, do it manually by calling the addMinter function in the ChatTokenMinter contract.
 
 const contractName = "ChatTokenClaimPostMinters";
 
-const chatTokenMinterAddress = "0x2C6A9F47a2B1BA7976ACd14CDd8f6f35d27C1e28";
-const iggyPostEnumAddress = "0xF558E00fc446252293Cf894cAF45F477aD66646A";
-const chatEthRatio = 10_000_000; // 1 ETH = 10,000,000 CHAT
+const chatTokenMinterAddress = "0x31CfDF366dd9753b8443B6fc3c59598415697131"; // TODO
+const iggyPostEnumAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee"; // TODO
+const chatEthRatio = 1_000; // TODO: 1 ETH/SGB spent for post minting fees = 1,000 CHAT (80 ETH/SGB = 80,000 CHAT)
 
 async function main() {
   const [deployer] = await ethers.getSigners();

@@ -23,7 +23,7 @@ contract ChatTokenMinter is Ownable {
 
   function mint(address _to, uint256 _amount) external {
     require(!paused, "ChatTokenMinter: minting is paused");
-    require(isMinter[_msgSender()], "ChatTokenMinter: only minters can mint");
+    require(isMinter[msg.sender], "ChatTokenMinter: only minters can mint");
 
     IChatToken(chatToken).mint(_to, _amount);
   }

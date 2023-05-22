@@ -1,9 +1,9 @@
-// npx hardhat run scripts/token/ChatToken/chatToken.deploy.js --network polygonMumbai
+// npx hardhat run scripts/token/ChatToken/chatToken.deploy.js --network songbird
 
 const contractName = "ChatToken";
 
-const tokenName = "CHAT Souvenir Token";
-const symbol = "CHAT";
+const tokenName = "CHIRP";
+const symbol = "CHIRP";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

@@ -113,12 +113,14 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
 
     // store some stats in the enumeration contract
     if (enumEnabled && enumAddress != address(0)) {
-      price = price - ((price * referrerFee) / MAX_BPS) - ((price * devFee) / MAX_BPS) - ((price * daoFee) / MAX_BPS);
-
       // feel free to comment out the stats that you don't need to track
-      IIggyPostEnumeration(enumAddress).addMintedPostId(_nftReceiver, tokenId);
       IIggyPostEnumeration(enumAddress).addMintedWei(_nftReceiver, price);
+
+      // exclude fees from the price
+      price = price - ((price * referrerFee) / MAX_BPS) - ((price * devFee) / MAX_BPS) - ((price * daoFee) / MAX_BPS);
       IIggyPostEnumeration(enumAddress).addWeiEarnedByAuthorPerPostId(tokenId, price);
+      
+      IIggyPostEnumeration(enumAddress).addMintedPostId(_nftReceiver, tokenId);
     }
   }
 

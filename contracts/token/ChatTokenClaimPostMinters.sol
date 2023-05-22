@@ -54,13 +54,13 @@ contract ChatTokenClaimPostMinters is Ownable {
 
   function claim() external {
     require(!paused, "ChatTokenClaimPostMinters: claiming is paused");
-    require(!hasClaimed[_msgSender()], "ChatTokenClaimPostMinters: user already claimed");
+    require(!hasClaimed[msg.sender], "ChatTokenClaimPostMinters: user already claimed");
 
-    uint256 _claimAmount = claimPreview(_msgSender());
+    uint256 _claimAmount = claimPreview(msg.sender);
     require(_claimAmount > 0, "ChatTokenClaimPostMinters: no tokens to claim");
 
-    hasClaimed[_msgSender()] = true; // mark as claimed
-    IChatTokenMinter(chatTokenMinter).mint(_msgSender(), _claimAmount);
+    hasClaimed[msg.sender] = true; // mark as claimed
+    IChatTokenMinter(chatTokenMinter).mint(msg.sender, _claimAmount);
   }
 
   // OWNER

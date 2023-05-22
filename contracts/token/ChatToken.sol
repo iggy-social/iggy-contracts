@@ -17,7 +17,7 @@ contract ChatToken is ERC20Burnable, Ownable, ERC20Permit {
   // MINTER
 
   function mint(address _to, uint256 _amount) external {
-    require(_msgSender() == minter, "ChatToken: only minter can mint");
+    require(msg.sender == minter, "ChatToken: only minter can mint");
     _mint(_to, _amount);
   }
 
@@ -25,7 +25,7 @@ contract ChatToken is ERC20Burnable, Ownable, ERC20Permit {
 
   function setMinter(address _minter) external onlyOwner {
     minter = _minter;
-    emit MinterAddressChanged(_msgSender(), _minter);
+    emit MinterAddressChanged(msg.sender, _minter);
   }
 
 }

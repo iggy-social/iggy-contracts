@@ -91,8 +91,9 @@ describe("IggyPostMinterV2", function () {
     const IggyMinter = await ethers.getContractFactory("IggyPostMinterV2");
     minterContract = await IggyMinter.deploy(
       chatTokenMinterContract.address,
-      dao.address, 
-      dev.address,
+      dao.address,  // dao address
+      dev.address, // dev address
+      dev.address, // dev fee updater
       iggyPostContract.address, 
       chatEthRatio,
       chatRewardsDuration
