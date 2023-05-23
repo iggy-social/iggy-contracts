@@ -1,17 +1,17 @@
 // Deploy minter V2 contract
-// npx hardhat run scripts/post/IggyPostNft1155/minterV2.deploy.js --network polygonMumbai
+// npx hardhat run scripts/post/IggyPostNft1155/minterV2.deploy.js --network songbird
 // It will automatically set different fees (if needed) and set the staking contract address (if needed).
 // It will also automatically add the minter to the ChatTokenMinter contract and change the minter address in the post contract.
 // If any of these actions fail, you must do them manually.
 
 const contractName = "IggyPostMinterV2";
 
-const chatTokenMinterAddress = "0x2C6A9F47a2B1BA7976ACd14CDd8f6f35d27C1e28";
+const chatTokenMinterAddress = "0x31CfDF366dd9753b8443B6fc3c59598415697131";
 const daoAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // DAO or web3 community which owns the frontend
 const devAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // person or entity that is doing the development
 const devFeeUpdaterAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // the address that can change dev fee (can be a multisig)
-const postAddress = "0x9f48c192561f3A6f0efeeE5Fce00Fd9788675eF8";
-const chatEthRatio = 10000000; // 1 ETH = 10,000,000 CHAT
+const postAddress = "0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A";
+const chatEthRatio = 1000; // 1 ETH/SGB = 1,000 CHAT
 const chatRewardsDuration = 60 * 60 * 24 * 30 * 12; // 30 days * 12 months = 1 year
 
 // set fees separately (only set if needed)
@@ -82,6 +82,8 @@ async function main() {
     const tx3 = await instance.changeStakingAddress(stakingContractAddress);
     //await tx3.wait();
     console.log("Staking contract address set!");
+  } else {
+    console.log("Staking contract address not set. Please set it manually.");
   }
 
   // set dao fee
