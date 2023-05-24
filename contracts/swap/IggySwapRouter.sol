@@ -115,11 +115,17 @@ contract IggySwapRouter is Ownable {
   /// @notice Calculate the amount of ETH needed to add/remove liquidity
   /// @dev This is useful to calculate min amount of ETH, but consider reducing it by slippage on your frontend
   function calculateETHForLiquidity(address addressToken, uint256 amountToken) external view returns (uint256) {
-    // get factory address from router
     address factoryAddress = IUniswapV2Router02(routerAddress).factory();
 
-    // get reserves for both tokens (reserve is a token total amount in a pool)
-    (uint reserveToken, uint reserveETH) = _getReserves(factoryAddress, addressToken, wethAddress);
+    address pair = IUniswapV2Factory(factoryAddress).getPair(addressToken, wethAddress);
+    
+    if (pair == address(0)) {
+      return 0;
+    }
+
+    (address token0,) = _sortTokens(addressToken, wethAddress);
+    (uint reserve0, uint reserve1,) = IUniswapV2Pair(pair).getReserves();
+    (uint256 reserveToken, uint256 reserveETH) = addressToken == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
 
     return (amountToken * reserveETH) / reserveToken; // return amount of ETH needed to add/remove liquidity
   }
