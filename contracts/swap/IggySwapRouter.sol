@@ -14,6 +14,7 @@ interface IUniswapV2Pair {
 }
 
 interface IUniswapV2Router02 {
+  function WETH() external pure returns (address);
   function factory() external pure returns (address);
   function getAmountsOut(uint amountIn, address[] memory path) external view returns (uint[] memory amounts);
 
@@ -97,20 +98,31 @@ contract IggySwapRouter is Ownable {
   constructor(
     address _frontendAddress,
     address _iggyAddress,
-    address _routerAddress,
-    address _wethAddress
+    address _routerAddress
   ) {
     frontendAddress = _frontendAddress;
     iggyAddress = _iggyAddress;
     routerAddress = _routerAddress;
     feeChangerAddress = msg.sender;
-    wethAddress = _wethAddress;
+    wethAddress = IUniswapV2Router02(_routerAddress).WETH();
   }
 
   // RECEIVE
   receive() external payable {}
 
   // READ PUBLIC/EXTERNAL
+
+  /// @notice Calculate the amount of ETH needed to add/remove liquidity
+  /// @dev This is useful to calculate min amount of ETH, but consider reducing it by slippage on your frontend
+  function calculateETHForLiquidity(address addressToken, uint256 amountToken) external view returns (uint256) {
+    // get factory address from router
+    address factoryAddress = IUniswapV2Router02(routerAddress).factory();
+
+    // get reserves for both tokens (reserve is a token total amount in a pool)
+    (uint reserveToken, uint reserveETH) = _getReserves(factoryAddress, addressToken, wethAddress);
+
+    return (amountToken * reserveETH) / reserveToken; // return amount of ETH needed to add/remove liquidity
+  }
 
   /// @notice Preview the amount of tokens that would be received for a given swap
   function getAmountsOut(
@@ -410,7 +422,29 @@ contract IggySwapRouter is Ownable {
     swapFee = _newSwapFee;
   }
 
+  // FRONTEND OWNER
+
+  /// @notice Change frontend address
+  function changeFrontendAddress(address _newFrontendAddress) external {
+    require(msg.sender == frontendAddress, "IggySwap: Sender is not the frontend owner");
+    frontendAddress = _newFrontendAddress;
+  }
+
+  // IGGY
+
+  /// @notice Change Iggy address
+  function changeIggyAddress(address _newIggyAddress) external {
+    require(msg.sender == iggyAddress, "IggySwap: Sender is not Iggy");
+    iggyAddress = _newIggyAddress;
+  }
+
   // OWNER
+
+  /// @notice Change router address
+  function changeRouterAddress(address _newRouterAddress) external onlyOwner {
+    routerAddress = _newRouterAddress;
+  }
+
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
   function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyOwner {
     IERC20(tokenAddress_).safeTransfer(recipient_, tokenAmount_);

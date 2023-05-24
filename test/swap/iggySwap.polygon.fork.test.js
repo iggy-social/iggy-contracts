@@ -43,8 +43,7 @@ xdescribe("Iggy Swap tests (on a forked mainnet)", function () {
     iggySwapRouterContract = await IggySwapRouter.deploy(
       frontend.address,
       iggy.address,
-      routerAddress,
-      wethAddress
+      routerAddress
     );
     await iggySwapRouterContract.deployed();
   });
