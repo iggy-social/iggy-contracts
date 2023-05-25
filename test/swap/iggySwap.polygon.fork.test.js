@@ -1,5 +1,5 @@
 // test on a forked mainnet (polygon)
-// 1. First run the forked localhost node: npx hardhat node --fork https://poly-rpc.gateway.pokt.network
+// 1. First run the forked localhost node: npx hardhat node --fork https://poly-rpc.gateway.pokt.network // https://rpc.ankr.com/polygon_mumbai
 // 2. Then run the tests in a different tab: npx hardhat test test/swap/iggySwap.polygon.fork.test.js --network localhost
 
 const { expect } = require("chai");
@@ -314,6 +314,10 @@ xdescribe("Iggy Swap tests (on a forked mainnet)", function () {
 
     console.log("------ REMOVING LIQUIDITY ------ ");
 
+    // calculate amount of DAI and ETH to receive
+    const amountEthDai = await iggySwapRouterContract.calculateETHAndTokensToReceive(lpTokenContract.address, lpTokenBalanceAfter);
+    console.log("Amount of ETH and DAI to receive:", ethers.utils.formatEther(amountEthDai[0]), "ETH,", ethers.utils.formatEther(amountEthDai[1]), "DAI");
+
     // give LP token allowance to the iggySwapRouterContract
     await lpTokenContract.approve(iggySwapRouterContract.address, lpTokenBalanceAfter);
 
@@ -337,6 +341,7 @@ xdescribe("Iggy Swap tests (on a forked mainnet)", function () {
     const ownerDaiBalanceAfter2 = await daiContract.balanceOf(owner.address);
     console.log("Owner's DAI balance after removing liquidity:", ethers.utils.formatUnits(ownerDaiBalanceAfter2, "ether"), "DAI");
     expect(ownerDaiBalanceAfter2).to.be.gt(ownerDaiBalanceAfter);
+    console.log("Difference:", ethers.utils.formatEther(ownerDaiBalanceAfter2.sub(ownerDaiBalanceAfter)), "DAI");
 
     // check LP token balance after removing liquidity
     const lpTokenBalanceAfter2 = await lpTokenContract.balanceOf(owner.address);
