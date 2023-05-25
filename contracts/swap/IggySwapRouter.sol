@@ -115,14 +115,20 @@ contract IggySwapRouter is Ownable {
   /// @notice Get the amount of tokens and ETH to receive when removing liquidity
   /// @dev This is useful to calculate min amount of tokens and ETH, but consider reducing it by slippage on your frontend
   function calculateETHAndTokensToReceive(
-    address _lpToken, 
-    uint256 _lpAmount
+    address _token, // token to receive after removing liquidity 
+    uint256 _liquidity
   ) external view returns (uint256 amountToken, uint256 amountETH) {
-    (uint reserve0, uint reserve1,) = IUniswapV2Pair(_lpToken).getReserves();
-    uint256 lpTotalSupply = IERC20(_lpToken).totalSupply();
+    address factoryAddress = IUniswapV2Router02(routerAddress).factory();
 
-    amountToken = (reserve0 * _lpAmount) / lpTotalSupply;
-    amountETH = (reserve1 * _lpAmount) / lpTotalSupply;
+    address pair = IUniswapV2Factory(factoryAddress).getPair(_token, wethAddress);
+
+    (address token0,) = _sortTokens(_token, wethAddress);
+    (uint reserve0, uint reserve1,) = IUniswapV2Pair(pair).getReserves();
+    (uint256 reserveToken, uint256 reserveETH) = _token == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
+    uint256 lpTotalSupply = IERC20(pair).totalSupply();
+
+    amountToken = (reserveToken * _liquidity) / lpTotalSupply;
+    amountETH = (reserveETH * _liquidity) / lpTotalSupply;
   }
 
   /// @notice Calculate the amount of ETH needed to add liquidity
