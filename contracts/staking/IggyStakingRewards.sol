@@ -10,14 +10,17 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuar
 /** 
 @title Staking contract with periodic ETH rewards (with voting and permit)
 @author Tempe Techie
-@notice The contract issues a receipt token for any staked token in 1:1 ratio. Receipt token holders can 
-claim ETH rewards periodically. Receipt token holders can also vote in governance (ERC20Votes) or have tokens 
-transferred using the erc-2612 permit() function (ERC20Permit).
+@notice Adapted from the PeriodicEthRewardsVotes.sol contract. The contract issues a receipt token for any 
+staked token in 1:1 ratio. Receipt token holders can claim ETH rewards periodically. Receipt token holders 
+can also vote in governance (ERC20Votes) or have tokens transferred using the erc-2612 permit() function (ERC20Permit).
 */
-contract PeriodicEthRewardsVotes is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
+contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
   using SafeERC20 for IERC20;
 
   address public immutable asset; // staked token address (rebase tokens and tokens with fee-on-transfer are NOT supported!)
+
+  bool public withdrawalsDisabled = false; // owner/governance can turn this on or off
+  bool public withdrawalsDisabledForever = false; // once withdrawals are disabled forever, they can't be re-enabled
   
   uint256 public claimRewardsTotal; // total ETH rewards that can be claimed for the previous period
   uint256 public claimRewardsMinimum; // if minimum not reached, no one can claim (all ETH rewards go to next period)
@@ -41,6 +44,9 @@ contract PeriodicEthRewardsVotes is ERC20, Ownable, ReentrancyGuard, ERC20Votes 
   event OwnerMaxDepositSet(address indexed owner, uint256 maxDeposit_);
   event OwnerMinDepositSet(address indexed owner, uint256 minDeposit_);
   event OwnerRecoverErc20(address indexed owner, address indexed token, uint256 amount);
+  event OwnerWithdrawalsDisabled(address indexed owner);
+  event OwnerWithdrawalsEnabled(address indexed owner);
+  event OwnerWithdrawalsDisabledForever(address indexed owner);
   event Withdraw(address indexed user, uint256 assets);
 
   // CONSTRUCTOR
@@ -163,6 +169,9 @@ contract PeriodicEthRewardsVotes is ERC20, Ownable, ReentrancyGuard, ERC20Votes 
 
   /// @notice Withdraw assets and burn receipt tokens.
   function withdraw(uint256 _assets) external nonReentrant returns (uint256) {
+    require(!withdrawalsDisabledForever, "PeriodicEthRewards: withdrawals are disabled forever");
+    require(!withdrawalsDisabled, "PeriodicEthRewards: withdrawals are disabled");
+
     uint _balance = balanceOf(msg.sender);
 
     require(_assets > 0, "PeriodicEthRewards: cannot withdraw 0");
@@ -190,6 +199,12 @@ contract PeriodicEthRewardsVotes is ERC20, Ownable, ReentrancyGuard, ERC20Votes 
   }
 
   // OWNER
+
+  /// @notice Disable withdrawals forever.
+  function disableWithdrawalsForever() external onlyOwner {
+    withdrawalsDisabledForever = true;
+    emit OwnerWithdrawalsDisabledForever(msg.sender);
+  }
 
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address (except the staking and receipt tokens)
   function recoverERC20(address _tokenAddress, uint256 _tokenAmount, address _recipient) external onlyOwner {
@@ -221,6 +236,17 @@ contract PeriodicEthRewardsVotes is ERC20, Ownable, ReentrancyGuard, ERC20Votes 
   function setMinDeposit(uint256 _minDeposit) external onlyOwner {
     minDeposit = _minDeposit;
     emit OwnerMinDepositSet(msg.sender, _minDeposit);
+  }
+
+  /// @notice Toggle withdrawals on/off
+  function toggleWithdrawals() external onlyOwner {
+    withdrawalsDisabled = !withdrawalsDisabled;
+    
+    if (withdrawalsDisabled) {
+      emit OwnerWithdrawalsDisabled(msg.sender);
+    } else {
+      emit OwnerWithdrawalsEnabled(msg.sender);
+    }
   }
 
   // INTERNAL

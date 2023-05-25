@@ -1,11 +1,11 @@
-// npx hardhat run scripts/token/periodicEthRewards.deploy.js --network polygonMumbai
-const contractName = "PeriodicEthRewardsVotes";
+// npx hardhat run scripts/staking/iggyStakingRewards.deploy.js --network polygonMumbai
+const contractName = "IggyStakingRewards";
 
-const assetAddress = "0xF3B3ea54C96850e413A6d6aC139B6AEBa7D6D7f1"; // token to stake
-const tokenName = "Receipt Token v2";
-const symbol = "RPTV2";
-const claimRewardsMinimum = ethers.utils.parseEther("0.0001");
-const minDeposit = ethers.utils.parseEther("1");
+const assetAddress = "0xF874f79eBfB8FEe898a289C4cAa5dc4383873431"; // token to stake
+const tokenName = "Iggy Chat Go";
+const symbol = "ICG";
+const claimRewardsMinimum = ethers.utils.parseEther("0.000001");
+const minDeposit = ethers.utils.parseEther("0.00000001");
 const periodLength = 3500; // almost 1 hour // 604800; // 7 days
 
 async function main() {
