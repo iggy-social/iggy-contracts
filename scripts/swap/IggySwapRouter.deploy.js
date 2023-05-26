@@ -1,10 +1,10 @@
-// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network polygonMumbai
+// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network songbird
 
 const contractName = "IggySwapRouter";
 
 const frontendAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2";
 const iggyAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2";
-const routerAddress = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
+const routerAddress = "0x73E93D9657E6f32203f900fe1BD81179a5bf6Ce4";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

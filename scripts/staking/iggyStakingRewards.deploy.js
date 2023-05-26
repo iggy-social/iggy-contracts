@@ -1,12 +1,12 @@
-// npx hardhat run scripts/staking/iggyStakingRewards.deploy.js --network polygonMumbai
+// npx hardhat run scripts/staking/iggyStakingRewards.deploy.js --network songbird
 const contractName = "IggyStakingRewards";
 
-const assetAddress = "0xF874f79eBfB8FEe898a289C4cAa5dc4383873431"; // token to stake
-const tokenName = "Iggy Chat Go";
-const symbol = "ICG";
-const claimRewardsMinimum = ethers.utils.parseEther("0.000001");
-const minDeposit = ethers.utils.parseEther("0.00000001");
-const periodLength = 3500; // almost 1 hour // 604800; // 7 days
+const assetAddress = "0xdE533DE5e9A73934B380c70f3611B116b8DF7D0d"; // token to stake
+const tokenName = "SGB Chat Governance Token";
+const symbol = "SCG";
+const claimRewardsMinimum = ethers.utils.parseEther("10"); // 10 SGB/ETH minimum total reward for a given week (if not met, rewards are rolled over to the next week)
+const minDeposit = ethers.utils.parseEther("0.001"); // 0.001 LP tokens minimum deposit to stake
+const periodLength = 604800; // 7 days
 
 async function main() {
   const [deployer] = await ethers.getSigners();
