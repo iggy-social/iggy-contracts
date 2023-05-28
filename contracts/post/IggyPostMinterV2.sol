@@ -27,8 +27,6 @@ interface IIggyPostNft {
 
 interface IIggyPostEnumeration {
   function addMintedPostId(address _user, uint256 _postId) external;
-  function addMintedWei(address _user, uint256 _wei) external;
-  function addWeiEarnedByAuthorPerPostId(uint256 _postId, uint256 _wei) external;
 }
 
 /**
@@ -151,16 +149,13 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
 
     // store some stats in the enumeration contract
     if (enumEnabled && enumAddress != address(0)) {
-      price = price - ((price * referrerFee) / MAX_BPS) - ((price * devFee) / MAX_BPS) - ((price * daoFee) / MAX_BPS);
-
       // feel free to comment out the stats that you don't need to track
       IIggyPostEnumeration(enumAddress).addMintedPostId(_nftReceiver, tokenId);
-      IIggyPostEnumeration(enumAddress).addWeiEarnedByAuthorPerPostId(tokenId, price);
     }
 
     // mint chat tokens for the NFT receiver (use only the fees to calculate the share of chat tokens, not the whole price)
     if (chatTokenMinterAddress != address(0) && block.timestamp <= chatRewardsEnd) {
-      uint256 fees = (price * (devFee + daoFee)) / MAX_BPS; // exclude the referrer fee because msg sender could include their own address as a referrer
+      uint256 fees = (price * (devFee + daoFee + stakingFee + referrerFee)) / MAX_BPS;
       IChatTokenMinter(chatTokenMinterAddress).mint(_nftReceiver, fees*getCurrentChatEthRatio());
     }
   }

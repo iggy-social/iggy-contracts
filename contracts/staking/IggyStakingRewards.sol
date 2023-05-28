@@ -33,6 +33,10 @@ contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
 
   uint256 public immutable periodLength; // length of the claim period (in seconds), the most common is 1 week (604800s)
 
+  // analytics
+  uint256 immutable stakingStartTimestamp; // timestamp of the start of staking
+  uint256 totalEthReceived; // total ETH received by the contract (usable for analytics)
+
   mapping (address => uint256) public lastClaimed; // timestamp of the last claim for each user
   mapping (address => uint256) public lastDeposit; // timestamp of the last deposit for each user
 
@@ -74,6 +78,7 @@ contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
     periodLength = _periodLength;
 
     lastClaimPeriod = block.timestamp;
+    stakingStartTimestamp = block.timestamp;
   }
 
   // RECEIVE (receive ETH)
@@ -81,6 +86,7 @@ contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
     // futureRewards update must happen before _updateLastClaimPeriod() 
     // because claimRewardsTotal is then set to current balance
     futureRewards += msg.value;
+    totalEthReceived += msg.value;
 
     _updateLastClaimPeriod();
   }
