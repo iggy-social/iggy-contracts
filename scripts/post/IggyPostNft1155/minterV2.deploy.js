@@ -11,7 +11,7 @@ const daoAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // DAO or web3 
 const devAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // person or entity that is doing the development
 const devFeeUpdaterAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // the address that can change dev fee (can be a multisig)
 const postAddress = "0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A";
-const chatEthRatio = 1000; // 1 ETH/SGB = 1,000 CHAT
+const chatEthRatio = 100; // 1 ETH/SGB = 100 CHAT
 const chatRewardsDuration = 60 * 60 * 24 * 30 * 12; // 30 days * 12 months = 1 year
 
 // enumeration contract

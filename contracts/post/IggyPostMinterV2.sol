@@ -46,7 +46,7 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   bool public enumEnabled = false;
   bool public paused = false;
 
-  uint256 public immutable chatEthRatio; // e.g. 1_000, which means 1 ETH (or payment token) = 1,000 CHAT
+  uint256 public chatEthRatio; // e.g. 1_000, which means 1 ETH (or payment token) = 1,000 CHAT
   uint256 public immutable chatRewardsDuration; // CHAT rewards duration in seconds
   uint256 public immutable chatRewardsEnd; // timestamp when CHAT rewards end
 
@@ -161,6 +161,11 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   }
 
   // OWNER
+
+  // change chat token ratio
+  function changeChatEthRatio(uint256 _chatEthRatio) external onlyOwner {
+    chatEthRatio = _chatEthRatio;
+  }
 
   /// @notice This changes the DAO address in the minter contract
   function changeDaoAddress(address _daoAddress) external onlyOwner {
