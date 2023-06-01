@@ -2,6 +2,7 @@
 const contractName = "IggyStakingRewards";
 
 const assetAddress = "0xdE533DE5e9A73934B380c70f3611B116b8DF7D0d"; // token to stake
+const wethAddress = ""; // wrapped native coin (WETH, WSGB, WBNB, etc.)
 const tokenName = "SGB Chat Governance Token";
 const symbol = "SCG";
 const claimRewardsMinimum = ethers.utils.parseEther("10"); // 10 SGB/ETH minimum total reward for a given week (if not met, rewards are rolled over to the next week)
@@ -17,13 +18,13 @@ async function main() {
   // deploy contract
   const contract = await ethers.getContractFactory(contractName);
   const instance = await contract.deploy(
-    assetAddress, tokenName, symbol, claimRewardsMinimum, minDeposit, periodLength
+    assetAddress, wethAddress, tokenName, symbol, claimRewardsMinimum, minDeposit, periodLength
   );
   
   console.log(contractName + " contract address:", instance.address);
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + assetAddress + ' "' + tokenName + '" "' + symbol + '" "' + claimRewardsMinimum + '" "' + minDeposit + '" "' + periodLength + '"');
+  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + assetAddress + " " + wethAddress + ' "' + tokenName + '" "' + symbol + '" "' + claimRewardsMinimum + '" "' + minDeposit + '" "' + periodLength + '"');
 }
 
 main()

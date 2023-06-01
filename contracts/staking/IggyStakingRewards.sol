@@ -18,6 +18,7 @@ contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
   using SafeERC20 for IERC20;
 
   address public immutable asset; // staked token address (rebase tokens and tokens with fee-on-transfer are NOT supported!)
+  address public immutable weth; // WETH address (for calculating APY)
 
   bool public withdrawalsDisabled = false; // owner/governance can turn this on or off
   bool public withdrawalsDisabledForever = false; // once withdrawals are disabled forever, they can't be re-enabled
@@ -56,6 +57,7 @@ contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
   // CONSTRUCTOR
   constructor(
     address _asset,
+    address _weth,
     string memory _receiptTokenName,
     string memory _receiptTokenSymbol,
     uint256 _claimRewardsMinimum,
@@ -63,11 +65,13 @@ contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
     uint256 _periodLength
   ) ERC20(_receiptTokenName, _receiptTokenSymbol) ERC20Permit(_receiptTokenName) {
     require(_asset != address(0), "PeriodicEthRewards: asset is the zero address");
+    require(_weth != address(0), "PeriodicEthRewards: weth is the zero address");
     require(_periodLength > 0, "PeriodicEthRewards: period length is zero");
     require(bytes(_receiptTokenName).length > 0, "PeriodicEthRewards: receipt token name is empty");
     require(bytes(_receiptTokenSymbol).length > 0, "PeriodicEthRewards: receipt token symbol is empty");
 
     asset = _asset;
+    weth = _weth;
     
     claimRewardsMinimum = _claimRewardsMinimum;
     emit OwnerClaimRewardsMinimumSet(msg.sender, _claimRewardsMinimum);
@@ -101,6 +105,28 @@ contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
   // Overrides IERC6372 functions to make the token & governor timestamp-based
   function CLOCK_MODE() public pure override returns (string memory) { // solhint-disable-line func-name-mixedcase
     return "mode=timestamp";
+  }
+
+  /// @notice Returns the APY based on previous ETH rewards and current liquidity.
+  function getApy() external view returns (uint256) {
+    if (totalEthReceived == 0) {
+      return 0;
+    }
+
+    // get asset contract's balance of WETH and multiply it by 2 (asset is LP pool, so 2x means the whole liquidity)
+    uint256 lpLiquidityEth = IERC20(weth).balanceOf(asset) * 2;
+
+    // get asset total supply from the asset contract
+    uint256 lpTotalSupply = IERC20(asset).totalSupply();
+
+    // calculate the amount of liquidity that is staked (in WETH)
+    uint256 stakedLiqudityEth = totalSupply() * lpLiquidityEth / lpTotalSupply;
+
+    // get total amount ETH received per second and extrapolate it to 1 year (31536000 seconds)
+    uint256 ethReceivedPerYear = totalEthReceived * 31_536_000 / (block.timestamp - stakingStartTimestamp);
+
+    // calculate APY by dividing the amount of ETH received per year by the amount of liquidity that is staked (in WETH) and multiplying by 100
+    return ethReceivedPerYear * 100 / stakedLiqudityEth;
   }
 
   /// @notice Returns the amount of time left (in seconds) until the user can withdraw their assets.
