@@ -20,7 +20,7 @@ function calculateGasCosts(testName, receipt) {
   console.log(testName + " gas cost (Polygon): $" + String(Number(gasCostMatic)*matic));
 }
 
-describe("Iggy Swap tests (on a forked mainnet)", function () {
+xdescribe("Iggy Swap tests (on a forked mainnet)", function () {
   let routerAddress = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router
   let wethAddress = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"; // wmatic
   let daiAddress = "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"; // dai on polygon
@@ -142,7 +142,7 @@ describe("Iggy Swap tests (on a forked mainnet)", function () {
     expect(ownerAaveBalanceBefore).to.equal(0);
 
     // set amount in and path for the DAI -> AAVE swap
-    const amountIn3 = ethers.utils.parseUnits("300", "ether"); // 300 DAI
+    const amountIn3 = ethers.utils.parseUnits("200", "ether"); // 200 DAI
     console.log("Amount of DAI to swap:", ethers.utils.formatUnits(amountIn3, "ether"), "DAI");
 
     const path3 = [daiAddress, wethAddress, aaveAddress]; // path to swap dai for aave

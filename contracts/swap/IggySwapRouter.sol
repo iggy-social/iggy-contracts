@@ -545,6 +545,8 @@ contract IggySwapRouter is Ownable {
 
     // transfer tokens to the recipient (deduct the fee)
     if (convertToNative && tokenOut == wethAddress) {
+      // if: tokenOut is the native coin (ETH)
+
       IWETH(tokenOut).withdraw(_amountOut); // convert WETH to ETH
 
       (bool sentWeth, ) = payable(to).call{value: (_amountOut - _feeAmount)}("");
@@ -570,6 +572,8 @@ contract IggySwapRouter is Ownable {
       (bool sentWethIggy, ) = payable(iggyAddress).call{value: iggyShareAmountNative}("");
       require(sentWethIggy, "Failed to send native coins to Iggy");
     } else {
+      // else: tokenOut is NOT the native coin
+
       IERC20(tokenOut).safeTransfer(to, (_amountOut - _feeAmount));
 
         // if there's a referrer, send them a share of the fee
