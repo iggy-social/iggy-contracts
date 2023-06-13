@@ -545,26 +545,48 @@ contract IggySwapRouter is Ownable {
 
     // transfer tokens to the recipient (deduct the fee)
     if (convertToNative && tokenOut == wethAddress) {
-      IWETH(tokenOut).withdraw(_amountOut - _feeAmount);
+      IWETH(tokenOut).withdraw(_amountOut); // convert WETH to ETH
+
       (bool sentWeth, ) = payable(to).call{value: (_amountOut - _feeAmount)}("");
       require(sentWeth, "Failed to send native coins to the recipient");
+
+      // if there's a referrer, send them a share of the fee
+      if (referrer != address(0) && referrerShare > 0) {
+        uint256 referrerShareAmountNative = (_feeAmount * referrerShare) / MAX_BPS;
+
+        (bool sentWethReferrer, ) = payable(referrer).call{value: referrerShareAmountNative}("");
+        require(sentWethReferrer, "Failed to send native coins to the referrer");
+
+        _feeAmount -= referrerShareAmountNative; // deduct referrer's share from the fee
+      }
+
+      // send a share of the fee to the frontend operator
+      uint256 frontendShareAmountNative = (_feeAmount * frontendShare) / MAX_BPS;
+      (bool sentWethFrontend, ) = payable(frontendAddress).call{value: frontendShareAmountNative}("");
+      require(sentWethFrontend, "Failed to send native coins to the frontend operator");
+
+      // send a share of the fee to Iggy
+      uint256 iggyShareAmountNative = (_feeAmount * (MAX_BPS - frontendShare)) / MAX_BPS;
+      (bool sentWethIggy, ) = payable(iggyAddress).call{value: iggyShareAmountNative}("");
+      require(sentWethIggy, "Failed to send native coins to Iggy");
     } else {
       IERC20(tokenOut).safeTransfer(to, (_amountOut - _feeAmount));
+
+        // if there's a referrer, send them a share of the fee
+      if (referrer != address(0) && referrerShare > 0) {
+        uint256 referrerShareAmount = (_feeAmount * referrerShare) / MAX_BPS;
+        IERC20(tokenOut).safeTransfer(referrer, referrerShareAmount);
+        _feeAmount -= referrerShareAmount; // deduct referrer's share from the fee
+      }
+
+      // calculate frontend and iggy fee share amounts
+      uint256 frontendShareAmount = (_feeAmount * frontendShare) / MAX_BPS;
+      uint256 iggyShareAmount = (_feeAmount * (MAX_BPS - frontendShare)) / MAX_BPS;
+
+      // transfer tokens to fee receivers
+      IERC20(tokenOut).safeTransfer(frontendAddress, frontendShareAmount); // send part of the fee to the frontend operator
+      IERC20(tokenOut).safeTransfer(iggyAddress, iggyShareAmount); // send part of the fee to iggy
     }
-
-    // if there's a referrer, send them a share of the fee
-    if (referrer != address(0) && referrerShare > 0) {
-      uint256 referrerShareAmount = (_feeAmount * referrerShare) / MAX_BPS;
-      IERC20(tokenOut).safeTransfer(referrer, referrerShareAmount);
-      _feeAmount -= referrerShareAmount; // deduct referrer's share from the fee
-    }
-
-    // calculate frontend and iggy fee share amounts
-    uint256 frontendShareAmount = (_feeAmount * frontendShare) / MAX_BPS;
-    uint256 iggyShareAmount = (_feeAmount * (MAX_BPS - frontendShare)) / MAX_BPS;
-
-    // transfer tokens to fee receivers
-    IERC20(tokenOut).safeTransfer(frontendAddress, frontendShareAmount); // send part of the fee to the frontend operator
-    IERC20(tokenOut).safeTransfer(iggyAddress, iggyShareAmount); // send part of the fee to iggy
+    
   }
 }

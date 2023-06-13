@@ -1,7 +1,7 @@
 // npx hardhat run scripts/post/IggyPostNft1155/calls.js --network songbird
 
 const postAddress = "";
-const minterAddress = "";
+const minterAddress = "0x11608f93Ec226E173754262c04F98Df3Bfaad7Db";
 const metadataAddress = "";
 
 async function main() {
@@ -21,6 +21,8 @@ async function main() {
   ]);
 
   const minterInterface = new ethers.utils.Interface([
+    "function getCurrentChatEthRatio() public view returns(uint256)", // v2 specific function
+    "function changeChatEthRatio(uint256 _chatEthRatio) external", // v2 specific function
     "function transferOwnership(address newOwner) external"
   ]);
 
@@ -28,7 +30,16 @@ async function main() {
   const metadataContract = new ethers.Contract(metadataAddress, metadataInterface, deployer);
   const minterContract = new ethers.Contract(minterAddress, minterInterface, deployer);
 
+  // GET CURRENT CHAT ETH RATIO
+  const currentChatEthRatio = await minterContract.getCurrentChatEthRatio();
+  console.log("Current chat eth ratio: " + currentChatEthRatio);
+
+  // CHANGE CHAT ETH RATIO
+  //await minterContract.changeChatEthRatio(10);
+
   // CHANGE MINTER
+
+  /*
 
   const minterBefore = await postContract.minterAddress();
   console.log("Minter before: " + minterBefore);
@@ -51,6 +62,8 @@ async function main() {
   const mintReceipt = await mintTx.wait();
   console.log("Mint receipt: ");
   console.log(mintReceipt);
+
+  */
 
   // CHANGE METADATA DESCRIPTION
   /*
