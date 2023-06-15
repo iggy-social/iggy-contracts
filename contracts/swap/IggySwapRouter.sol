@@ -77,16 +77,20 @@ interface IWETH {
 contract IggySwapRouter is Ownable {
   using SafeERC20 for IERC20;
 
+  address public feeChangerAddress; // a special role that is allowed to change fees and share amounts
   address public frontendAddress; // address of a DAO/community which runs the frontend
   address public iggyAddress;
   address public routerAddress; // DEX router address
-  address public feeChangerAddress; // a special role that is allowed to change fees and share amounts
+  address public stakingAddress; // staking contract address
   address public immutable wethAddress;
 
   uint256 public constant MAX_BPS = 10_000;
   uint256 public swapFee = 80; // 0.8% default fee
-  uint256 public referrerShare = 1000; // 10% share of the swap fee
-  uint256 public frontendShare = 5000; // 50% share of the swap fee (after referrer share is deducted)
+  uint256 public referrerShare = 1000; // 10% share of the swap fee (in bips)
+  uint256 public stakingShare = 8000; // in bips
+
+  // after referrer & staking shares are deducted, the rest goes to the frontend operator and iggy based on the following frontendShare:
+  uint256 public frontendShare = 5000; // 50% share of the swap fee in bips (after referrer & staking shares are deducted)
 
   // MODIFIERS
   modifier onlyFeeChanger() {
@@ -98,11 +102,21 @@ contract IggySwapRouter is Ownable {
   constructor(
     address _frontendAddress,
     address _iggyAddress,
-    address _routerAddress
+    address _routerAddress,
+    address _stakingAddress,
+    uint256 _swapFee,
+    uint256 _stakingShare,
+    uint256 _frontendShare
   ) {
     frontendAddress = _frontendAddress;
     iggyAddress = _iggyAddress;
     routerAddress = _routerAddress;
+    stakingAddress = _stakingAddress;
+
+    swapFee = _swapFee;
+    stakingShare = _stakingShare;
+    frontendShare = _frontendShare;
+
     feeChangerAddress = msg.sender;
     wethAddress = IUniswapV2Router02(_routerAddress).WETH();
   }
@@ -432,14 +446,19 @@ contract IggySwapRouter is Ownable {
     feeChangerAddress = _newFeeChangerAddress;
   }
 
+  function changeFrontendShare(uint256 _newFrontendShare) external onlyFeeChanger {
+    require(_newFrontendShare <= MAX_BPS, "IggySwap: Frontend share is greater than MAX_BPS");
+    frontendShare = _newFrontendShare;
+  }
+
   function changeReferrerShare(uint256 _newReferrerShare) external onlyFeeChanger {
     require(_newReferrerShare <= MAX_BPS, "IggySwap: Referrer share is greater than MAX_BPS");
     referrerShare = _newReferrerShare;
   }
 
-  function changeFrontendShare(uint256 _newFrontendShare) external onlyFeeChanger {
-    require(_newFrontendShare <= MAX_BPS, "IggySwap: Frontend share is greater than MAX_BPS");
-    frontendShare = _newFrontendShare;
+  function changeStakingShare(uint256 _newStakingShare) external onlyFeeChanger {
+    require(_newStakingShare <= MAX_BPS, "IggySwap: Staking share is greater than MAX_BPS");
+    stakingShare = _newStakingShare;
   }
 
   function changeSwapFee(uint256 _newSwapFee) external onlyFeeChanger {
@@ -468,6 +487,11 @@ contract IggySwapRouter is Ownable {
   /// @notice Change router address
   function changeRouterAddress(address _newRouterAddress) external onlyOwner {
     routerAddress = _newRouterAddress;
+  }
+
+  /// @notice Change staking address
+  function changeStakingAddress(address _newStakingAddress) external onlyOwner {
+    stakingAddress = _newStakingAddress;
   }
 
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
@@ -562,14 +586,23 @@ contract IggySwapRouter is Ownable {
         _feeAmount -= referrerShareAmountNative; // deduct referrer's share from the fee
       }
 
+      // if there's a staking contract, send them a share of the fee
+      if (stakingAddress != address(0) && stakingShare > 0) {
+        uint256 stakingShareAmountNative = (_feeAmount * stakingShare) / MAX_BPS;
+
+        (bool sentWethStaking, ) = payable(stakingAddress).call{value: stakingShareAmountNative}("");
+        require(sentWethStaking, "Failed to send native coins to the staking contract");
+
+        _feeAmount -= stakingShareAmountNative; // deduct staking contract's share from the fee
+      }
+
       // send a share of the fee to the frontend operator
       uint256 frontendShareAmountNative = (_feeAmount * frontendShare) / MAX_BPS;
       (bool sentWethFrontend, ) = payable(frontendAddress).call{value: frontendShareAmountNative}("");
       require(sentWethFrontend, "Failed to send native coins to the frontend operator");
 
-      // send a share of the fee to Iggy
-      uint256 iggyShareAmountNative = (_feeAmount * (MAX_BPS - frontendShare)) / MAX_BPS;
-      (bool sentWethIggy, ) = payable(iggyAddress).call{value: iggyShareAmountNative}("");
+      // send the rest to Iggy
+      (bool sentWethIggy, ) = payable(iggyAddress).call{value: address(this).balance}("");
       require(sentWethIggy, "Failed to send native coins to Iggy");
     } else {
       // else: tokenOut is NOT the native coin
@@ -583,13 +616,19 @@ contract IggySwapRouter is Ownable {
         _feeAmount -= referrerShareAmount; // deduct referrer's share from the fee
       }
 
+      // note that staking share is not taken here, because staking contract only accepts native coins (ETH)
+
       // calculate frontend and iggy fee share amounts
       uint256 frontendShareAmount = (_feeAmount * frontendShare) / MAX_BPS;
-      uint256 iggyShareAmount = (_feeAmount * (MAX_BPS - frontendShare)) / MAX_BPS;
 
       // transfer tokens to fee receivers
       IERC20(tokenOut).safeTransfer(frontendAddress, frontendShareAmount); // send part of the fee to the frontend operator
-      IERC20(tokenOut).safeTransfer(iggyAddress, iggyShareAmount); // send part of the fee to iggy
+
+      // find the remaining balance of tokenOut (to avoid leaving dust in the contract)
+      uint256 tokenOutRemainingBalance = IERC20(tokenOut).balanceOf(address(this));
+
+      // send the rest of the fee to iggy
+      IERC20(tokenOut).safeTransfer(iggyAddress, tokenOutRemainingBalance);
     }
     
   }

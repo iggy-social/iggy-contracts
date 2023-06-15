@@ -34,16 +34,25 @@ xdescribe("Iggy Swap tests (on a forked mainnet)", function () {
   let user1;
   let user2;
   let referrer;
+  let staking; // staking contract address
+
+  let swapFee = 80; // 0.8%
+  let stakingShare = 0; // 0%
+  let frontendShare = 5000; // 50% (after referral fee and staking fee are deducted)
 
   beforeEach(async function () {
-    [owner, frontend, iggy, user1, user2, referrer] = await ethers.getSigners();
+    [owner, frontend, iggy, user1, user2, referrer, staking] = await ethers.getSigners();
 
     // deploy IggySwapRouter
     const IggySwapRouter = await ethers.getContractFactory("IggySwapRouter");
     iggySwapRouterContract = await IggySwapRouter.deploy(
       frontend.address,
       iggy.address,
-      routerAddress
+      routerAddress,
+      staking.address,
+      swapFee,
+      stakingShare,
+      frontendShare
     );
     await iggySwapRouterContract.deployed();
   });
