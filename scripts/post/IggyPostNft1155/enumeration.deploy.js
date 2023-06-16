@@ -1,9 +1,9 @@
 // 4. Deploy enumeration contract
-// npx hardhat run scripts/post/IggyPostNft1155/enumeration.deploy.js --network songbird
+// npx hardhat run scripts/post/IggyPostNft1155/enumeration.deploy.js --network optimisticGoerli
 
 const contractName = "IggyPostEnumeration";
 
-const minterAddress = "0xabf9960132818049340253C3Ca0551F92Db856d7";
+const minterAddress = "0x5e54CebB2612744cB56547bC7CC41466ad7ac557";
 const shouldEnumBeEnabled = true;
 
 const minterInterface = new ethers.utils.Interface([
@@ -22,13 +22,19 @@ async function main() {
   const contract = await ethers.getContractFactory(contractName);
   const instance = await contract.deploy(minterAddress);
 
-  console.log(contractName + " contract address:", instance.address);
-
   await instance.deployed();
+
+  console.log(contractName + " contract deployed to:", instance.address);
+
+  console.log("Changing enumeration address in minter contract...");
 
   // add enumeration address to minter contract
   const minterContract = new ethers.Contract(minterAddress, minterInterface, deployer);
   await minterContract.changeEnumAddress(instance.address);
+
+  console.log("Done!");
+
+  console.log("Changing enumEnabled in minter contract...");
 
   // enable/disable enumeration
   const isEnumEnabled = await minterContract.enumEnabled();
@@ -38,6 +44,8 @@ async function main() {
   } else if (!isEnumEnabled && shouldEnumBeEnabled) {
     await minterContract.toggleEnumEnabled();
   }
+
+  console.log("Done!");
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
   console.log("npx hardhat verify --network " + network.name + " " + instance.address + ' ' + minterAddress);

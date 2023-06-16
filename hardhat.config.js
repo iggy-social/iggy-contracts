@@ -95,6 +95,13 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 1000000000, // 1 gwei
     },
+    optimisticGoerli: {
+      url: 'https://goerli.optimism.io',
+      chainId: 420,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1000000000, // 1 gwei
+    },
     polygon: {
       //url: 'https://polygon-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_POLYGON,
       url: "https://poly-rpc.gateway.pokt.network",
@@ -147,6 +154,7 @@ module.exports = {
       ftmTestnet: process.env.FTMSCAN_API_KEY,
       opera: process.env.FTMSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISTIC_ETHERSCAN_API_KEY,
+      optimisticGoerli: process.env.OPTIMISTIC_ETHERSCAN_API_KEY,
       polygon: process.env.POLYGONSCAN_API_KEY,
       polygonMumbai: process.env.POLYGONSCAN_API_KEY, 
       sokol: "randomstring",
@@ -176,6 +184,14 @@ module.exports = {
         urls: {
           apiURL: "https://coston-explorer.flare.network/api",
           browserURL: "https://coston-explorer.flare.network"
+        }
+      },
+      {
+        network: "optimisticGoerli",
+        chainId: 420,
+        urls: {
+          apiURL: "https://api-goerli-optimism.etherscan.io/api",
+          browserURL: "https://goerli-optimism.etherscan.io/"
         }
       },
       {
