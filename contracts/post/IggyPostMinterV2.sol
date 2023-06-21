@@ -9,7 +9,7 @@ interface IChatTokenMinter {
   function mint(address to, uint256 amount) external;
 }
 
-interface IIggyPostNft {
+interface IIggyPostNftV2 {
 
   function getPostPrice (string memory _postId, address _author) external view returns (uint256);
 
@@ -20,6 +20,7 @@ interface IIggyPostNft {
     address _author, 
     address _nftReceiver, 
     string memory _textPreview,
+    string memory _image,
     uint256 _quantity
   ) external returns(uint256);
 
@@ -103,12 +104,13 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
     address _nftReceiver, 
     address _referrer,
     string memory _textPreview,
+    string memory _image,
     uint256 _quantity
   ) external nonReentrant payable returns(uint256 tokenId) {
     require(!paused, "Minting paused");
 
     // find price
-    uint256 price = IIggyPostNft(postAddress).getPostPrice(_postId, _author) * _quantity;
+    uint256 price = IIggyPostNftV2(postAddress).getPostPrice(_postId, _author) * _quantity;
 
     require(msg.value >= price, "Value below price");
 
@@ -145,7 +147,7 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
     require(sent, "Failed to send payment to the post author");
 
     // mint the post as NFT
-    tokenId = IIggyPostNft(postAddress).mint(_postId, _author, _nftReceiver, _textPreview, _quantity);
+    tokenId = IIggyPostNftV2(postAddress).mint(_postId, _author, _nftReceiver, _textPreview, _image, _quantity);
 
     // store some stats in the enumeration contract
     if (enumEnabled && enumAddress != address(0)) {
