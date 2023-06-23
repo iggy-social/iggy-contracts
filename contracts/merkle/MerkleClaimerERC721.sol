@@ -13,7 +13,7 @@ interface INFT is IERC721 {
 contract MerkleClaimerERC721 is Ownable {
   address public immutable nftAddress;
   bool public paused = false;
-  bytes32 private immutable root; // merkle root
+  bytes32 public immutable root; // merkle root
 
   // CONSTRUCTOR
   constructor(address nftAddress_, bytes32 root_) {

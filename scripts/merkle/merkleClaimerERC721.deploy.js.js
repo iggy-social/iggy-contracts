@@ -1,14 +1,15 @@
-// npx hardhat run scripts/merkle/merkleClaimerERC721.deploy.js.js --network flareCoston
+// npx hardhat run scripts/merkle/merkleClaimerERC721.deploy.js.js --network polygonMumbai
 
 const data = require("./claimers.json");
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 
 const contractName = "MerkleClaimerERC721";
+const nftContractName = "MockErc721WithMinter"; // TODO: Update this contract name
 
-const nftAddress = "0x..."; // address of deployed nft contract
+const nftAddress = "0x468E2c9ED4510Bdc3cF210efF70ad7AF94152A68"; // TODO: address of deployed nft contract
 
 // create merkle tree
-tree = StandardMerkleTree.of(data.claimers, ["address", "uint256"]);
+tree = StandardMerkleTree.of(data.claimers, ["address", "uint256"]); // TODO: Make sure you have the right data in claimers.json
 const merkleRoot = String(tree.root);
 
 console.log("Merkle root: " + merkleRoot);
@@ -27,6 +28,12 @@ async function main() {
   );
   
   console.log(contractName + " contract address:", instance.address);
+
+  // add minter address to nft contract
+  const nftContract = await ethers.getContractFactory(nftContractName);
+  const nftInstance = await nftContract.attach(nftAddress);
+
+  await nftInstance.setMinterAddress(instance.address);
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
   console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + nftAddress + " " + merkleRoot);
