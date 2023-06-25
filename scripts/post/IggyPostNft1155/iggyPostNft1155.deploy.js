@@ -4,7 +4,7 @@
 const contractName = "IggyPostNft1155";
 
 const defaultPrice = ethers.utils.parseEther("0.0001");
-const metadataAddress = "0x633Ae857445cF0cd02B21C6a3033C7CE74fB32c2";
+const metadataAddress = "0x13D201c5A3C30894aD52C05283530366B9c2C179";
 const collectionName = "Opti Social Posts";
 const collectionSymbol = "OPSO";
 

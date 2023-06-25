@@ -151,6 +151,7 @@ describe("IggyPostNft1155", function () {
       user1.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityOne, // quantity
       { 
         value: defaultPrice 
@@ -221,6 +222,7 @@ describe("IggyPostNft1155", function () {
         author.address, // post author
         user1.address, // NFT receiver
         textPreview, // text preview
+        "", // image
         quantityOne // quantity
       )
     ).to.be.revertedWith("IggyPost: Only minter can mint");
@@ -267,6 +269,7 @@ describe("IggyPostNft1155", function () {
       user1.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityMultiple, // quantity
       {
         value: defaultPrice.mul(quantityMultiple)
@@ -320,6 +323,7 @@ describe("IggyPostNft1155", function () {
       user1.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityOne, // quantity
       {
         value: defaultPrice
@@ -352,6 +356,7 @@ describe("IggyPostNft1155", function () {
       user2.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityOne, // quantity
       {
         value: defaultPrice
@@ -407,6 +412,7 @@ describe("IggyPostNft1155", function () {
       user1.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityOne, // quantity
       {
         value: authorDefaultPrice
@@ -462,6 +468,7 @@ describe("IggyPostNft1155", function () {
       user1.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityMultiple, // quantity
       {
         value: authorDefaultPrice.mul(quantityMultiple)
@@ -517,6 +524,7 @@ describe("IggyPostNft1155", function () {
       user1.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityOne, // quantity
       {
         value: postPrice
@@ -572,6 +580,7 @@ describe("IggyPostNft1155", function () {
       user1.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityMultiple, // quantity
       {
         value: postPrice.mul(quantityMultiple)
@@ -627,6 +636,7 @@ describe("IggyPostNft1155", function () {
       user1.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityOne, // quantity
       {
         value: defaultPrice
@@ -682,6 +692,7 @@ describe("IggyPostNft1155", function () {
       user1.address, // NFT receiver
       referrer.address, // referrer
       textPreview, // text preview
+      "", // image
       quantityOne, // quantity
       {
         value: defaultPrice
@@ -699,6 +710,7 @@ describe("IggyPostNft1155", function () {
         user1.address, // NFT receiver
         referrer.address, // referrer
         textPreview, // text preview
+        "", // image
         quantityOne, // quantity
         {
           value: defaultPrice
@@ -752,6 +764,7 @@ describe("IggyPostNft1155", function () {
         user1.address, // NFT receiver
         referrer.address, // referrer
         textPreview, // text preview
+        "", // image
         quantityOne, // quantity
         {
           value: defaultPrice
@@ -804,6 +817,7 @@ describe("IggyPostNft1155", function () {
         user1.address, // NFT receiver
         referrer.address, // referrer
         textPreviewLong, // text preview
+        "", // image
         quantityOne, // quantity
         {
           value: defaultPrice

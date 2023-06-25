@@ -16,6 +16,7 @@ interface IIggyPostNft {
     address _author, 
     address _nftReceiver, 
     string memory _textPreview,
+    string memory _image,
     uint256 _quantity
   ) external returns(uint256);
 
@@ -74,6 +75,7 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     address _nftReceiver, 
     address _referrer,
     string memory _textPreview,
+    string memory _image,
     uint256 _quantity
   ) external nonReentrant payable returns(uint256 tokenId) {
     require(!paused, "Minting paused");
@@ -109,7 +111,7 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     require(sent, "Failed to send payment to the post author");
 
     // mint the post as NFT
-    tokenId = IIggyPostNft(postAddress).mint(_postId, _author, _nftReceiver, _textPreview, _quantity);
+    tokenId = IIggyPostNft(postAddress).mint(_postId, _author, _nftReceiver, _textPreview, _image, _quantity);
 
     // store some stats in the enumeration contract
     if (enumEnabled && enumAddress != address(0)) {

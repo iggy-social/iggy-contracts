@@ -4,7 +4,7 @@
 const contractName = "IggyPostMetadata";
 
 const mdName = "Opti Social Post";
-const description = "Opti Social is the first decentralized social network on Optimism Goerli.";
+const description = "Opti Social - The first decentralized social network on Optimism Goerli.";
 const url = "https://opti.social/post/";
 const tldAddress = "0x320881Fff17c9a2189226c61ad1157DFF80b18B5";
 

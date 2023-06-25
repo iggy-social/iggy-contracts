@@ -6,7 +6,14 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface IIggyPostNftMetadata {
-  function getMetadata(uint256 _tokenId, string memory _postId, address _author, string memory _textPreview, uint256 _timestamp) external view returns (string memory);
+  function getMetadata(
+    uint256 _tokenId, 
+    string memory _postId, 
+    address _author, 
+    string memory _textPreview, 
+    string memory _image, 
+    uint256 _timestamp
+  ) external view returns (string memory);
 }
 
 /// @title Iggy Social Post NFT
@@ -14,7 +21,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   address public metadataAddress; // address of the metadata contract
   address public minterAddress; // address of the minter contract
 
-  bool public textPreviewChangingDisabledForever = false; // if true, owner can no longer change text preview of a post
+  bool public postChangingDisabledForever = false; // if true, owner can no longer change text preview or image of a post
 
   uint256 public counter = 1; // id counter, starts with 1
   uint256 public defaultPrice; // default price for minting a post
@@ -27,7 +34,8 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
     uint256 tokenId;
     string postId; // post id on Ceramic network
     address author;
-    string textPreview;
+    string textPreview; // usually a post has text, unless it's just an image
+    string image; // image URL (optional)
     uint256 timestamp;
   }
 
@@ -82,7 +90,15 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
     require(_tokenId < counter, "IggyPost: Token id does not exist");
 
     Post memory post = getPost[_tokenId];
-    return IIggyPostNftMetadata(metadataAddress).getMetadata(_tokenId, post.postId, post.author, post.textPreview, post.timestamp);
+
+    return IIggyPostNftMetadata(metadataAddress).getMetadata(
+      _tokenId, 
+      post.postId, 
+      post.author, 
+      post.textPreview, 
+      post.image, 
+      post.timestamp
+    );
   }
 
   // WRITE
@@ -105,6 +121,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
     address _author, 
     address _nftReceiver, 
     string memory _textPreview,
+    string memory _image,
     uint256 _quantity
   ) nonReentrant external returns(uint256 tokenId) {
     require(_msgSender() == minterAddress, "IggyPost: Only minter can mint");
@@ -117,7 +134,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
       counter++;
 
       getPostTokenId[_postId][_author] = tokenId;
-      getPost[tokenId] = Post(tokenId, _postId, _author, _textPreview, block.timestamp);
+      getPost[tokenId] = Post(tokenId, _postId, _author, _textPreview, _image, block.timestamp);
     }
 
     // check if author has set up a mint time
@@ -139,6 +156,13 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
     defaultPrice = _newDefaultPrice;
   }
 
+  // owner can change image (if inappropiate)
+  function ownerChangeImage(uint256 _tokenId, string memory _newImage) external onlyOwner {
+    require(_tokenId < counter, "IggyPost: Token id does not exist");
+    require(!postChangingDisabledForever, "IggyPost: Post changing is disabled forever");
+    getPost[_tokenId].image = _newImage;
+  }
+
   // change metadata address
   function ownerChangeMetadataAddress(address _newMetadataAddress) external onlyOwner {
     metadataAddress = _newMetadataAddress;
@@ -152,7 +176,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   // owner can change text preview of a post
   function ownerChangeTextPreview(uint256 _tokenId, string memory _newTextPreview) external onlyOwner {
     require(_tokenId < counter, "IggyPost: Token id does not exist");
-    require(!textPreviewChangingDisabledForever, "IggyPost: Text preview changing is disabled forever");
+    require(!postChangingDisabledForever, "IggyPost: Post changing is disabled forever");
     require(bytes(_newTextPreview).length <= maxTextPreviewLength, "IggyPost: Text preview is too long");
     getPost[_tokenId].textPreview = _newTextPreview;
   }
@@ -162,9 +186,9 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
     maxTextPreviewLength = _newMaxTextPreviewLength;
   }
 
-  // owner disable text preview changing forever (this action is irreversible!)
-  function ownerDisableTextPreviewChangingForever() external onlyOwner {
-    textPreviewChangingDisabledForever = true;
+  // owner disable post changing forever (this action is irreversible!)
+  function ownerDisablePostChangingForever() external onlyOwner {
+    postChangingDisabledForever = true;
   }
 
 }

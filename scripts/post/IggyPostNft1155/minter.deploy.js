@@ -5,7 +5,7 @@ const contractName = "IggyPostMinter";
 
 const daoAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2";
 const devAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2";
-const postAddress = "0x06A7Ab7Bb68b0ad6eB7688C5781E60BE6AFc658d";
+const postAddress = "0xeC5Af9F794B9f26bB62Cd951088445c95EAF428D";
 
 const daoFee = 1000; // 10%
 const devFee = 1000; // 10%

@@ -51,13 +51,20 @@ contract IggyPostMetadata is Ownable {
     string calldata _postId, 
     address _author,
     string calldata _textPreview,
+    string memory _image, 
     uint256 _timestamp
   ) public view returns(string memory) {
+    if (bytes(_textPreview).length > 0) {
+      // if there's text preview, always generate a new SVG image
+      // if there's no text preview, use the provided _image
+      _image = _getImage(_tokenId, _textPreview, _author);
+    }
+
     return string(
       abi.encodePacked("data:application/json;base64,", Base64.encode(bytes(abi.encodePacked(
         _getInitialData(_tokenId, _postId),
         _getAttributes(_postId, _author, _timestamp),
-        '"image": "', _getImage(_tokenId, _textPreview, _author), '"}'))))
+        '"image": "', _image, '"}'))))
     );
   }
 

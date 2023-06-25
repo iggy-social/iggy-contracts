@@ -3,7 +3,7 @@
 
 const contractName = "IggyPostEnumeration";
 
-const minterAddress = "0x5e54CebB2612744cB56547bC7CC41466ad7ac557";
+const minterAddress = "0x20eD4822b53896d768cAF10Eb64DCa16fA7a00dE";
 const shouldEnumBeEnabled = true;
 
 const minterInterface = new ethers.utils.Interface([
