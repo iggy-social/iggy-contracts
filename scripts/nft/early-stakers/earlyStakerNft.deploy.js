@@ -10,8 +10,9 @@ const claimerContractName = "MerkleClaimerERC721";
 // metadata
 const description = "Commemorative NFT for early SGB Chat stakers.";
 const externalUrl = "https://sgb.chat";
-const name = "Early SGB Chat Staker";
-const video = "https://bafybeibajqsxbuihg4jxsmlnees2gytagp4gqwxr2sielhe2bcbgrjbi2y.ipfs.w3s.link/early-staker-nft-sgb-chat-2.mp4";
+const image = "ipfs://bafybeic3fpbvtqj6kqpu77vy56efkasgbaviguc3qm4jgy3dy7fuk7fire/early-staker-nft-sgb-chat.png";
+const mdName = "Early SGB Chat Staker";
+const video = "ipfs://bafybeibajqsxbuihg4jxsmlnees2gytagp4gqwxr2sielhe2bcbgrjbi2y/early-staker-nft-sgb-chat-2.mp4";
 
 const nftName = "SGB Chat Early Staker";
 const nftSymbol = "SCES";
@@ -34,7 +35,8 @@ async function main() {
   const metadataInstance = await metadataContract.deploy(
     description,
     externalUrl,
-    name,
+    image,
+    mdName,
     video
   );
   await metadataInstance.deployed();
@@ -42,7 +44,7 @@ async function main() {
   console.log(metadataContractName + " contract address:", metadataInstance.address);
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + metadataInstance.address + ' "' + description + '" "' + externalUrl + '" "' + name + '" "' + video + '"');
+  console.log("npx hardhat verify --network " + network.name + " " + metadataInstance.address + ' "' + description + '" "' + externalUrl + '" "' + image + '" "' + mdName + '" "' + video + '"');
 
   // deploy NFT contract
   console.log("Deploying " + nftContractName + " contract");
