@@ -1,8 +1,8 @@
 // npx hardhat run scripts/post/IggyPostNft1155/calls.js --network songbird
 
-const postAddress = "";
-const minterAddress = "0x11608f93Ec226E173754262c04F98Df3Bfaad7Db";
-const metadataAddress = "";
+const postAddress = "0xE33F27496A9cE75313f6d1FA2BA95657Fc904387";
+const minterAddress = "0x1C8666e706C03EDB1c0D04a48b0B7762fc645cD4";
+const metadataAddress = "0xdADFC61225BC17785E185FD6F88619e42D996472";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -11,6 +11,7 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const postInterface = new ethers.utils.Interface([
+    "function ownerChangeDefaultPrice(uint256 _newDefaultPrice) external",
     "function ownerChangeMinterAddress(address _newMinterAddress) external",
     "function minterAddress() view external returns(address)",
     "function mint(string memory, address, address, string memory, uint256) external returns(uint256)"
@@ -23,6 +24,8 @@ async function main() {
   const minterInterface = new ethers.utils.Interface([
     "function getCurrentChatEthRatio() public view returns(uint256)", // v2 specific function
     "function changeChatEthRatio(uint256 _chatEthRatio) external", // v2 specific function
+    "function paused() public view returns(bool)",
+    "function togglePaused() external",
     "function transferOwnership(address newOwner) external"
   ]);
 
@@ -31,11 +34,21 @@ async function main() {
   const minterContract = new ethers.Contract(minterAddress, minterInterface, deployer);
 
   // GET CURRENT CHAT ETH RATIO
-  const currentChatEthRatio = await minterContract.getCurrentChatEthRatio();
-  console.log("Current chat eth ratio: " + currentChatEthRatio);
+  //const currentChatEthRatio = await minterContract.getCurrentChatEthRatio();
+  //console.log("Current chat eth ratio: " + currentChatEthRatio);
 
   // CHANGE CHAT ETH RATIO
   //await minterContract.changeChatEthRatio(10);
+
+  // CHANGE DEFAULT PRICE
+  //await postContract.ownerChangeDefaultPrice(ethers.utils.parseEther("99"));
+
+  // MINTER: TOGGLE PAUSED
+  //await minterContract.togglePaused();
+
+  // check if paused
+  const paused = await minterContract.paused();
+  console.log("Paused: " + paused);
 
   // CHANGE MINTER
 

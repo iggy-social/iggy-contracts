@@ -10,13 +10,13 @@ const chatTokenMinterAddress = "0x31CfDF366dd9753b8443B6fc3c59598415697131";
 const daoAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // DAO or web3 community which owns the frontend
 const devAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // person or entity that is doing the development
 const devFeeUpdaterAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // the address that can change dev fee (can be a multisig)
-const postAddress = "0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A";
-const chatEthRatio = 100; // 1 ETH/SGB = 100 CHAT
-const chatRewardsDuration = 60 * 60 * 24 * 30 * 12; // 30 days * 12 months = 1 year
+const postAddress = "0xE33F27496A9cE75313f6d1FA2BA95657Fc904387";
+const chatEthRatio = 10; // 1 ETH/SGB = 10 CHAT
+const chatRewardsDuration = 60 * 60 * 24 * 30 * 11; // 30 days * 12 months = 1 year
 
 // enumeration contract
 const enumEnabled = true; // have it enabled by default so that users can see minted posts on their profile
-const enumAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee";
+const enumAddress = "";
 
 // set fees separately (only set if needed)
 let daoFee = 0; // = 450; // 4.5%

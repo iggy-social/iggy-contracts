@@ -1,12 +1,12 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/metadata.deploy.js --network optimisticGoerli
+// npx hardhat run scripts/post/IggyPostNft1155/metadata.deploy.js --network songbird
 
 const contractName = "IggyPostMetadata";
 
-const mdName = "Opti Social Post";
-const description = "Opti Social - The first decentralized social network on Optimism Goerli.";
-const url = "https://opti.social/post/";
-const tldAddress = "0x320881Fff17c9a2189226c61ad1157DFF80b18B5";
+const mdName = "SGB Chat Post";
+const description = "SGB Chat, the first decentralized social network on Songbird. Link: https://sgb.chat/";
+const url = "https://sgb.chat/post/";
+const tldAddress = "0xBDACF94dDCAB51c39c2dD50BffEe60Bb8021949a";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

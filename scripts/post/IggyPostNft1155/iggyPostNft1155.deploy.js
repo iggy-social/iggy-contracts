@@ -1,12 +1,12 @@
 // 2. Deploy NFT contract
-// npx hardhat run scripts/post/IggyPostNft1155/iggyPostNft1155.deploy.js --network optimisticGoerli
+// npx hardhat run scripts/post/IggyPostNft1155/iggyPostNft1155.deploy.js --network songbird
 
 const contractName = "IggyPostNft1155";
 
 const defaultPrice = ethers.utils.parseEther("0.0001");
-const metadataAddress = "0x13D201c5A3C30894aD52C05283530366B9c2C179";
-const collectionName = "Opti Social Posts";
-const collectionSymbol = "OPSO";
+const metadataAddress = "0xdADFC61225BC17785E185FD6F88619e42D996472";
+const collectionName = "SGB Chat Posts (New)";
+const collectionSymbol = "SGBPOST";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
