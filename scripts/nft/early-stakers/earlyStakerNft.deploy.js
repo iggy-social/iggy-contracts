@@ -1,4 +1,4 @@
-// npx hardhat run scripts/nft/early-stakers/earlyStakerNft.deploy.js --network polygonMumbai
+// npx hardhat run scripts/nft/early-stakers/earlyStakerNft.deploy.js --network songbird
 
 const data = require("./claimers.json");
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
@@ -8,14 +8,14 @@ const nftContractName = "EarlyStakerNft";
 const claimerContractName = "MerkleClaimerERC721";
 
 // metadata
-const description = "Commemorative NFT for early SGB Chat stakers.";
+const description = "Commemorative NFT for early CHIRP stakers on SGB Chat.";
 const externalUrl = "https://sgb.chat";
 const image = "ipfs://bafybeic3fpbvtqj6kqpu77vy56efkasgbaviguc3qm4jgy3dy7fuk7fire/early-staker-nft-sgb-chat.png";
-const mdName = "Early SGB Chat Staker";
+const mdName = "Early CHIRP Staker";
 const video = "ipfs://bafybeibajqsxbuihg4jxsmlnees2gytagp4gqwxr2sielhe2bcbgrjbi2y/early-staker-nft-sgb-chat-2.mp4";
 
-const nftName = "SGB Chat Early Staker";
-const nftSymbol = "SCES";
+const nftName = "Early CHIRP Staker";
+const nftSymbol = "earlyCHIRP";
 
 // create merkle tree
 tree = StandardMerkleTree.of(data.claimers, ["address", "uint256"]); // TODO: Make sure you have the right data in claimers.json
