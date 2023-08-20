@@ -46,6 +46,22 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 1000000000, // 1 gwei
     },
+    base: {
+      //url: 'https://mainnet.base.org',
+      //url: 'https://rpc.notadegen.com/base',
+      url: 'https://base-mainnet.public.blastapi.io',
+      chainId: 8453,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1000000000, // 1 gwei
+    },
+    baseTestnet: {
+      url: 'https://base-goerli.public.blastapi.io',
+      chainId: 84531,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1000000000, // 1 gwei
+    },
     bsc: { // BNB Smart Chain mainnet
       url: 'https://bscrpc.com',
       chainId: 56,
@@ -80,6 +96,13 @@ module.exports = {
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
       gasPrice: 45000000000, // 10 gwei
+    },
+    mantleTestnet: { // Mantle testnet
+      url: 'https://rpc.testnet.mantle.xyz', 
+      chainId: 5001,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1, // 1 wei
     },
     opera: { // Fantom mainnet
       url: 'https://rpc.ftm.tools', // "https://rpcapi.fantom.network", 
@@ -147,10 +170,13 @@ module.exports = {
       arbitrumGoerli: process.env.ARBISCAN_API_KEY,
       aurora: process.env.AURORASCAN_API_KEY,
       auroraTestnet: process.env.AURORASCAN_API_KEY,
+      base: process.env.BASESCAN_API_KEY,
+      baseTestnet: process.env.BASESCAN_API_KEY,
       bsc: process.env.BSC_API_KEY,
       flare: "randomstring",
       flareCoston: "randomstring",
       mainnet: process.env.ETHERSCAN_API_KEY,
+      mantleTestnet: "randomstring",
       ftmTestnet: process.env.FTMSCAN_API_KEY,
       opera: process.env.FTMSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISTIC_ETHERSCAN_API_KEY,
@@ -170,6 +196,35 @@ module.exports = {
           browserURL: "https://goerli.arbiscan.io"
         }
       },
+      /* */
+      {
+        network: "base", // BaseScan (Etherscan)
+        chainId: 8453,
+        urls: {
+          apiURL: "https://api.basescan.org/api",
+          browserURL: "https://basescan.org"
+        }
+      },
+      
+      
+      /* 
+      {
+        network: "base", // Blockscout
+        chainId: 8453,
+        urls: {
+          apiURL: "https://base.blockscout.com/api",
+          browserURL: "https://base.blockscout.com"
+        }
+      },
+      */
+      {
+        network: "baseTestnet",
+        chainId: 84531,
+        urls: {
+          apiURL: "https://base-goerli.blockscout.com/api", // "https://api-goerli.basescan.org/api",
+          browserURL: "https://base-goerli.blockscout.com" // "https://goerli.basescan.org" 
+        }
+      },
       {
         network: "flare",
         chainId: 14,
@@ -184,6 +239,14 @@ module.exports = {
         urls: {
           apiURL: "https://coston-explorer.flare.network/api",
           browserURL: "https://coston-explorer.flare.network"
+        }
+      },
+      {
+        network: "mantleTestnet",
+        chainId: 5001,
+        urls: {
+          apiURL: "https://explorer.testnet.mantle.xyz/api",
+          browserURL: "https://explorer.testnet.mantle.xyz"
         }
       },
       {
