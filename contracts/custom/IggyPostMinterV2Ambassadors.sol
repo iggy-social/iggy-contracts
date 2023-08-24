@@ -47,7 +47,7 @@ contract IggyPostMinterV2Ambassadors is Ownable, ReentrancyGuard {
   address public ambassador1;
   address public ambassador2;
 
-  bool public enumEnabled = false;
+  bool public enumEnabled = true; // so that users see minted posts in their profile
   bool public paused = false;
 
   uint256 public chatEthRatio = 5; // e.g. 1_000, which means 1 ETH (or payment token) = 1,000 CHAT

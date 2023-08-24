@@ -15,6 +15,10 @@ const stakingContractAddress = "0xCA9749778327CD67700d3a777731a712330beB9A"; // 
 const ambassador1 = "0x17a2063e1f5C6034F4c94cfb0F4970483647a2E5"; // ambassador 1 address
 const ambassador2 = "0x772bA1Faf2a2b49B452A5b287B2165cba89EfAE2"; // ambassador 2 address
 
+// enumeration contract
+const enumEnabled = true; // have it enabled by default so that users can see minted posts on their profile
+const enumAddress = "";
+
 async function main() {
   const [deployer] = await ethers.getSigners();
 
@@ -63,6 +67,32 @@ async function main() {
     await tx2.wait();
   } else {
     console.log("Post contract is not owned by this deployer. Please change the minter address manually.");
+  }
+
+  // change post minter address in enum contract
+  if (enumEnabled && enumAddress) {
+    console.log("Change post minter address in enum contract");
+
+    const enumContract = await ethers.getContractFactory("IggyPostEnumeration");
+    const enumContractInstance = await enumContract.attach(enumAddress);
+
+    // setMinterAddress
+    const tx2b = await enumContractInstance.setMinterAddress(instance.address);
+    await tx2b.wait();
+
+    // check if enumEnabled in smart contract is true
+    const enumEnabledInContract = await instance.enumEnabled();
+
+    if (!enumEnabledInContract) {
+      console.log("Enum enabled in contract is false. Enabling it now...");
+      const tx2c = await instance.toggleEnumEnabled();
+      await tx2c.wait();
+    }
+
+    // change enum address in post minter contract
+    console.log("Change enum address in post minter contract");
+    const tx2d = await instance.changeEnumAddress(enumAddress);
+    await tx2d.wait();
   }
   
   // verify contract
