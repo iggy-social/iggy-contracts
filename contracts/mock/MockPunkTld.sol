@@ -4,6 +4,10 @@ pragma solidity ^0.8.17;
 contract MockPunkTld {
   mapping(string => address) public domainHolders;
 
+  constructor(address domainHolder_, string memory domainName_) {
+    domainHolders[domainName_] = domainHolder_;
+  }
+
   function defaultNames(address) external pure returns(string memory) {
     return "mockname";
   }

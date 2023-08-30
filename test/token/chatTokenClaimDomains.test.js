@@ -54,7 +54,7 @@ describe("ChatTokenClaimDomains", function () {
 
     // deploy MockPunkTld
     const MockPunkTld = await ethers.getContractFactory("MockPunkTld");
-    mockPunkTldContract = await MockPunkTld.deploy();
+    mockPunkTldContract = await MockPunkTld.deploy(user3.address, "user3");
     await mockPunkTldContract.deployed();
 
     // deploy ChatTokenClaimDomains

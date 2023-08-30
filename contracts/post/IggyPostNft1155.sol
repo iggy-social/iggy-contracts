@@ -25,7 +25,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
 
   uint256 public counter = 1; // id counter, starts with 1
   uint256 public defaultPrice; // default price for minting a post
-  uint256 public maxTextPreviewLength = 100; // max length of the text preview
+  uint256 public maxTextPreviewLength = 135; // max length of the text preview
 
   string public name;
   string public symbol;

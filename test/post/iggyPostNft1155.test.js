@@ -55,7 +55,7 @@ describe("IggyPostNft1155", function () {
     [owner, dao, author, user1, user2, dev, referrer] = await ethers.getSigners();
 
     const MockPunkTld = await ethers.getContractFactory("MockPunkTld");
-    mockPunkTldContract = await MockPunkTld.deploy();
+    mockPunkTldContract = await MockPunkTld.deploy(referrer.address, "referrer");
     await mockPunkTldContract.deployed();
 
     const IggyMetadata = await ethers.getContractFactory("IggyPostMetadata");

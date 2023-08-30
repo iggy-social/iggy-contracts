@@ -36,8 +36,6 @@ describe("IggyPostMinterV2", function () {
   let devFeeUpdaterAddress;
   let referrer;
 
-  const defaultAddressBalance = ethers.utils.parseEther("10000");
-
   const chatEthRatio = 1000;
   const chatRewardsDuration = 60 * 60 * 24 * 7 * 52; // 52 weeks (1 year)
 
@@ -63,7 +61,7 @@ describe("IggyPostMinterV2", function () {
     [owner, dao, author, user1, user2, dev, devFeeUpdaterAddress, referrer] = await ethers.getSigners();
 
     const MockPunkTld = await ethers.getContractFactory("MockPunkTld");
-    mockPunkTldContract = await MockPunkTld.deploy();
+    mockPunkTldContract = await MockPunkTld.deploy(referrer.address, "referrer");
     await mockPunkTldContract.deployed();
 
     const IggyMetadata = await ethers.getContractFactory("IggyPostMetadata");
@@ -161,6 +159,8 @@ describe("IggyPostMinterV2", function () {
   it("can mint 1 nft at default price", async function () {
     const tokenId = 1;
 
+    console.log("CHECKPOINT 1");
+
     // check user1 balance before
     const user1BalanceBefore = await iggyPostContract.balanceOf(user1.address, tokenId);
     expect(user1BalanceBefore).to.equal(0);
@@ -170,11 +170,11 @@ describe("IggyPostMinterV2", function () {
 
     // check dao ETH balance before
     const daoEthBalanceBefore = await dao.getBalance();
-    expect(daoEthBalanceBefore).to.equal(defaultAddressBalance);
+
+    console.log("CHECKPOINT 2");
 
     // check dev ETH balance before
     const devEthBalanceBefore = await dev.getBalance();
-    expect(devEthBalanceBefore).to.equal(defaultAddressBalance);
 
     // mint through the minter contract
     const tx = await minterContract.connect(user1).mint(
@@ -203,11 +203,11 @@ describe("IggyPostMinterV2", function () {
 
     // check dao ETH balance after
     const daoEthBalanceAfter = await dao.getBalance();
-    expect(daoEthBalanceAfter).to.equal(defaultAddressBalance.add(defaultPrice.mul(daoFee).div(10000)));
+    expect(daoEthBalanceAfter).to.equal(daoEthBalanceBefore.add(defaultPrice.mul(daoFee).div(10000)));
 
     // check dev ETH balance after
     const devEthBalanceAfter = await dev.getBalance();
-    expect(devEthBalanceAfter).to.equal(defaultAddressBalance.add(defaultPrice.mul(devFee).div(10000)));
+    expect(devEthBalanceAfter).to.equal(devEthBalanceBefore.add(defaultPrice.mul(devFee).div(10000)));
 
     // get NFT metadata
     const nftMetadata = await iggyPostContract.uri(tokenId);
