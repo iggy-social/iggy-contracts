@@ -501,7 +501,7 @@ contract IggySwapRouter is Ownable {
 
   /// @notice Recover native coins from contract
   function recoverETH() external onlyOwner {
-    (bool success, ) = payable(owner()).call{value: address(this).balance}("");
+    (bool success, ) = owner().call{value: address(this).balance}("");
     require(success, "Failed to recover native coins from contract");
   }
 
@@ -548,7 +548,7 @@ contract IggySwapRouter is Ownable {
     uint deadline,
     address referrer,
     bool convertToNative
-  ) internal  returns (uint[] memory amounts) {
+  ) internal returns (uint[] memory amounts) {
     IERC20(path[0]).approve(routerAddress, amountIn); // approve router to spend tokens
 
     // make the swap via router
@@ -573,14 +573,14 @@ contract IggySwapRouter is Ownable {
 
       IWETH(tokenOut).withdraw(_amountOut); // convert WETH to ETH
 
-      (bool sentWeth, ) = payable(to).call{value: (_amountOut - _feeAmount)}("");
+      (bool sentWeth, ) = to.call{value: (_amountOut - _feeAmount)}("");
       require(sentWeth, "Failed to send native coins to the recipient");
 
       // if there's a referrer, send them a share of the fee
       if (referrer != address(0) && referrerShare > 0) {
         uint256 referrerShareAmountNative = (_feeAmount * referrerShare) / MAX_BPS;
 
-        (bool sentWethReferrer, ) = payable(referrer).call{value: referrerShareAmountNative}("");
+        (bool sentWethReferrer, ) = referrer.call{value: referrerShareAmountNative}("");
         require(sentWethReferrer, "Failed to send native coins to the referrer");
 
         _feeAmount -= referrerShareAmountNative; // deduct referrer's share from the fee
@@ -590,19 +590,21 @@ contract IggySwapRouter is Ownable {
       if (stakingAddress != address(0) && stakingShare > 0) {
         uint256 stakingShareAmountNative = (_feeAmount * stakingShare) / MAX_BPS;
 
-        (bool sentWethStaking, ) = payable(stakingAddress).call{value: stakingShareAmountNative}("");
+        (bool sentWethStaking, ) = stakingAddress.call{value: stakingShareAmountNative}("");
         require(sentWethStaking, "Failed to send native coins to the staking contract");
 
         _feeAmount -= stakingShareAmountNative; // deduct staking contract's share from the fee
       }
 
       // send a share of the fee to the frontend operator
-      uint256 frontendShareAmountNative = (_feeAmount * frontendShare) / MAX_BPS;
-      (bool sentWethFrontend, ) = payable(frontendAddress).call{value: frontendShareAmountNative}("");
-      require(sentWethFrontend, "Failed to send native coins to the frontend operator");
-
+      if (frontendAddress != address(0) && frontendShare > 0) {
+        uint256 frontendShareAmountNative = (_feeAmount * frontendShare) / MAX_BPS;
+        (bool sentWethFrontend, ) = frontendAddress.call{value: frontendShareAmountNative}("");
+        require(sentWethFrontend, "Failed to send native coins to the frontend operator");
+      }
+      
       // send the rest to Iggy
-      (bool sentWethIggy, ) = payable(iggyAddress).call{value: address(this).balance}("");
+      (bool sentWethIggy, ) = iggyAddress.call{value: address(this).balance}("");
       require(sentWethIggy, "Failed to send native coins to Iggy");
     } else {
       // else: tokenOut is NOT the native coin
@@ -618,11 +620,13 @@ contract IggySwapRouter is Ownable {
 
       // note that staking share is not taken here, because staking contract only accepts native coins (ETH)
 
-      // calculate frontend and iggy fee share amounts
-      uint256 frontendShareAmount = (_feeAmount * frontendShare) / MAX_BPS;
-
-      // transfer tokens to fee receivers
-      IERC20(tokenOut).safeTransfer(frontendAddress, frontendShareAmount); // send part of the fee to the frontend operator
+      if (frontendAddress != address(0) && frontendShare > 0) {
+        // calculate frontend and iggy fee share amounts
+        uint256 frontendShareAmount = (_feeAmount * frontendShare) / MAX_BPS;
+        
+        // transfer tokens to fee receivers
+        IERC20(tokenOut).safeTransfer(frontendAddress, frontendShareAmount); // send part of the fee to the frontend operator
+      }
 
       // find the remaining balance of tokenOut (to avoid leaving dust in the contract)
       uint256 tokenOutRemainingBalance = IERC20(tokenOut).balanceOf(address(this));
