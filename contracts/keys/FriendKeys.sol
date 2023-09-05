@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IPunkTLD } from "../interfaces/IPunkTLD.sol";
 import { IKeyStats } from "../interfaces/IKeyStats.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract FriendKeys is Ownable {
+contract FriendKeys is Ownable, ReentrancyGuard {
   address public feeReceiver; // protocol fee receiver
   address public keyStats;
   address public immutable tldAddress;
@@ -111,7 +112,7 @@ contract FriendKeys is Ownable {
 
   // WRITE
 
-  function buyKeys(string memory domainName, uint256 amount) external payable {
+  function buyKeys(string memory domainName, uint256 amount) external payable nonReentrant {
     address domainOwner = IPunkTLD(tldAddress).getDomainHolder(domainName);
     require(domainOwner != address(0), "Domain does not exist");
 
@@ -128,7 +129,7 @@ contract FriendKeys is Ownable {
     uint256 protocolFee = price * protocolFeePercent / 1 ether;
     uint256 subjectFee = price * domainHolderFeePercent / 1 ether;
 
-    require(msg.value >= price + protocolFee + subjectFee, "Insufficient payment");
+    require(msg.value == price + protocolFee + subjectFee, "Insufficient payment");
     
     keysBalance[domainName][msg.sender] += amount;
     keysSupply[domainName] += amount;
@@ -147,7 +148,7 @@ contract FriendKeys is Ownable {
     require(success1 && success2, "Unable to send funds");
   }
 
-  function sellKeys(string memory domainName, uint256 amount) external payable {
+  function sellKeys(string memory domainName, uint256 amount) external payable nonReentrant {
     uint256 supply = keysSupply[domainName];
     require(supply > amount, "Cannot sell the last key");
 
