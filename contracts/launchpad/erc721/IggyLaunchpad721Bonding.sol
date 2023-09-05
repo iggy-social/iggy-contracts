@@ -4,16 +4,16 @@ pragma solidity ^0.8.17;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import "./Nft721Bonding.sol";
 
-interface IStatsContract {
-  function addWeiSpent(address user_, uint256 weiSpent_) external;
-  function addWriterByWriter(address writer_) external;
-}
-
 interface INftMetadata {
   function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external;
   function setDescription(address nftAddress_, string memory description_) external;
   function setImage(address nftAddress_, string memory image_) external;
   function setName(address nftAddress_, string memory name_) external;
+}
+
+interface IStatsContract {
+  function addWeiSpent(address user_, uint256 weiSpent_) external;
+  function addWriterByWriter(address writer_) external;
 }
 
 /** 
@@ -22,8 +22,7 @@ interface INftMetadata {
 */
 contract IggyLaunchpad721Bonding is Ownable {
   address public metadataAddress;
-  address public mintingFeeReceiver;
-  address public paymentReceiver; // the address that receives the ETH paid for launching a new NFT contract
+  address public mintingFeeReceiver; // the address that receives the ETH paid for launching a new NFT contract & minting fees from NFT contracts
   address public statsAddress; // usually the stats middleware address
 
   address[] public allNftContracts; // array of all NFT contracts launched by this contract
@@ -45,16 +44,16 @@ contract IggyLaunchpad721Bonding is Ownable {
   constructor(
     address _metadataAddress,
     address _mintingFeeReceiver,
-    address _paymentReceiver,
     address _statsAddress,
     uint256 _mintingFeePercentage,
+    uint256 _price,
     uint256 _ratio
   ) {
     metadataAddress = _metadataAddress;
     mintingFeeReceiver = _mintingFeeReceiver;
-    paymentReceiver = _paymentReceiver;
     statsAddress = _statsAddress;
     mintingFeePercentage = _mintingFeePercentage;
+    price = _price;
     ratio = _ratio;
   }
 
@@ -119,12 +118,12 @@ contract IggyLaunchpad721Bonding is Ownable {
     require(isUniqueIdAvailable(uniqueId_), "Unique ID is not available");
     require(bytes(name_).length <= maxNftNameLength, "Unique ID must be 32 characters or less");
 
-    (bool sent, ) = paymentReceiver.call{value: address(this).balance}("");
+    (bool sent, ) = mintingFeeReceiver.call{value: address(this).balance}("");
     require(sent, "Failed to send launch payment to the payment receiver");
 
     // create new NFT contract
     Nft721Bonding nftContract = new Nft721Bonding(
-      address(this), contractOwner_, metadataAddress, mintingFeeReceiver, name_, symbol_, mintingFeePercentage, ratio
+      address(this), metadataAddress, mintingFeeReceiver, name_, symbol_, mintingFeePercentage, ratio
     );
 
     // update nftContracts mapping and allNftContracts array
@@ -136,6 +135,8 @@ contract IggyLaunchpad721Bonding is Ownable {
     INftMetadata(metadataAddress).setDescription(address(nftContract), mdDescription_);
     INftMetadata(metadataAddress).setImage(address(nftContract), mdImage_);
     INftMetadata(metadataAddress).setName(address(nftContract), mdName_);
+
+    nftContract.transferOwnership(contractOwner_);
 
     // update stats
     IStatsContract(statsAddress).addWeiSpent(msg.sender, msg.value);
@@ -189,11 +190,6 @@ contract IggyLaunchpad721Bonding is Ownable {
   /// @notice Set royalty fee percentage in wei
   function setMintingFeePercentage(uint256 _mintingFeePercentage) external onlyOwner {
     mintingFeePercentage = _mintingFeePercentage;
-  }
-
-  /// @notice Set payment receiver
-  function setPaymentReceiver(address _paymentReceiver) external onlyOwner {
-    paymentReceiver = _paymentReceiver;
   }
 
   /// @notice Set price for creating new NFT contract

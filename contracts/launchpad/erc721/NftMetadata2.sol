@@ -9,7 +9,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 @title Metadata contract for a single ERC-721 NFT made with Iggy Launchpad
 @author Tempe Techie
 */
-contract NftMetadata is Ownable {
+contract NftMetadata2 is Ownable {
   using Strings for uint256;
 
   string public description;

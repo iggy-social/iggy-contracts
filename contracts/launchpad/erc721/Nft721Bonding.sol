@@ -35,7 +35,6 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
   // CONSTRUCTOR
   constructor(
     address factoryAddress_,
-    address contractOwner_,
     address metadataAddress_,
     address mintingFeeReceiver_,
     string memory name_,
@@ -49,19 +48,17 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     
     mintingFeePercentage = mintingFeePercentage_;
     ratio = ratio_;
-
-    transferOwnership(contractOwner_);
   }
 
   // READ PUBLIC
-  function getBurnPrice(uint256 amount) public view returns (uint256) {
+  function getBurnPrice() public view returns (uint256) {
     uint256 tSupply = totalSupply();
 
-    if (tSupply == 0) { // TODO: change to < 2 ?
+    if (tSupply < 2) {
       return 0;
     }
 
-    uint256 price = _getBurnPriceBeforeFees(amount, tSupply);
+    uint256 price = _getBurnPriceBeforeFees(tSupply);
 
     uint256 protocolFee = price * mintingFeePercentage / 1 ether;
     uint256 ownerFee = price * mintingFeePercentage / 1 ether;
@@ -69,8 +66,8 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     return price - protocolFee - ownerFee;
   }
 
-  function getMintPrice(uint256 amount) public view returns (uint256) {
-    uint256 price = _getMintPriceBeforeFees(amount, totalSupply());
+  function getMintPrice() public view returns (uint256) {
+    uint256 price = _getMintPriceBeforeFees(totalSupply());
 
     uint256 protocolFee = price * mintingFeePercentage / 1 ether;
     uint256 ownerFee = price * mintingFeePercentage / 1 ether;
@@ -94,28 +91,40 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     super._beforeTokenTransfer(from, to, tokenId, batchSize);
   }
 
-  function _getBurnPriceBeforeFees(uint256 amount_, uint256 totalSupply_) private view returns (uint256) {
-    if (totalSupply_ == 0) { // TODO: change to < 2 ?
+  function _getBurnPriceBeforeFees(uint256 totalSupply_) private view returns (uint256) {
+    if (totalSupply_ < 2) {
       return 0;
     }
 
-    return _getPrice(totalSupply_ - amount_, amount_);
+    return _getPrice(totalSupply_ - 1);
   }
 
-  function _getMintPriceBeforeFees(uint256 amount_, uint256 totalSupply_) private view returns (uint256) {
+  function _getMintPriceBeforeFees(uint256 totalSupply_) private view returns (uint256) {
     if (totalSupply_ == 0) {
-      return ratio / 16000;
+      return _getPrice(1);
     } 
     
-    return _getPrice(totalSupply_, amount_);
+    return _getPrice(totalSupply_);
   }
 
-  function _getPrice(uint256 supply, uint256 amount) private view returns (uint256) {
-    uint256 sum1 = supply == 0 ? 0 : (supply - 1 )* (supply) * (2 * (supply - 1) + 1) / 6;
-    uint256 sum2 = supply == 0 && amount == 1 ? 0 : (supply - 1 + amount) * (supply + amount) * (2 * (supply - 1 + amount) + 1) / 6;
-    uint256 summation = sum2 - sum1;
-    return summation * ratio / 16000;
+  // get price for 1 NFT via bonding curve (supply is always > 1)
+
+  // quadratic bonding curve
+  function _getPrice(uint256 supply) private view returns (uint256) {
+    uint256 interimPriceBefore = (supply - 1) * supply * (2 * (supply - 1) + 1) / 6;
+    uint256 interimPriceAfter = supply * (supply + 1) * (2 * supply + 1) / 6;
+    return (interimPriceAfter - interimPriceBefore) * ratio / 16000;
   }
+  
+  /* 
+  // alternative: negative exponential bonding curve
+  function _getPrice(uint256 supply) internal view returns (uint256) {
+    uint256 shape = 3;
+    uint256 numerator = supply * ratio / 10000;
+    uint256 denominator = supply + shape;
+    return numerator / denominator;
+  }
+  */
 
   // WRITE
 
@@ -125,7 +134,7 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     require(tSupply > 1, "Cannot sell the last NFT");
     require(_isApprovedOrOwner(msg.sender, tokenId), "Nft721Bonding: caller is not owner nor approved");
 
-    uint256 price = _getBurnPriceBeforeFees(1, tSupply);
+    uint256 price = _getBurnPriceBeforeFees(tSupply);
 
     uint256 protocolFee = price * mintingFeePercentage / 1 ether;
     uint256 ownerFee = price * mintingFeePercentage / 1 ether;
@@ -155,7 +164,7 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
       ++tSupply;
     }
 
-    uint256 price = _getMintPriceBeforeFees(1, tSupply);
+    uint256 price = _getMintPriceBeforeFees(tSupply);
     uint256 protocolFee = price * mintingFeePercentage / 1 ether;
     uint256 ownerFee = price * mintingFeePercentage / 1 ether;
 
