@@ -33,9 +33,8 @@ contract IggyLaunchpad721Bonding is Ownable {
   uint256 public maxNftNameLength = 32;
   uint256 public mintingFeePercentage; // in wei
   uint256 public price; // price for creating new NFT contract
-  uint256 public ratio; // ratio for the bonding curve
 
-  mapping (string => address) public nftContracts; // mapping of nft contract addresses to their unique IDs
+  mapping (string => address) public nftContracts; // mapping(uniqueID => NFT contract address) to easily find the NFT contract address
 
   // EVENTS
   event CollectionLaunch(address indexed contractOwner_, address indexed msgSender_, string name_, string uniqueId_, address indexed nftContract_);
@@ -46,15 +45,13 @@ contract IggyLaunchpad721Bonding is Ownable {
     address _mintingFeeReceiver,
     address _statsAddress,
     uint256 _mintingFeePercentage,
-    uint256 _price,
-    uint256 _ratio
+    uint256 _price
   ) {
     metadataAddress = _metadataAddress;
     mintingFeeReceiver = _mintingFeeReceiver;
     statsAddress = _statsAddress;
     mintingFeePercentage = _mintingFeePercentage;
     price = _price;
-    ratio = _ratio;
   }
 
   // READ
@@ -111,10 +108,14 @@ contract IggyLaunchpad721Bonding is Ownable {
     string memory mdName_,
     string memory name_,
     string memory symbol_,
-    string calldata uniqueId_
+    string calldata uniqueId_, // to easily find the NFT contract address
+    uint256 ratio // ratio of price increase per token minted for bonding curve (in wei)
   ) external payable {
     require(!paused, "Launching new collections is paused");
     require(msg.value >= price, "Not enough ETH sent to cover price");
+    
+    require(ratio >= 1e16 && ratio <= 9_000_000 ether, "Ratio out of bounds");
+
     require(isUniqueIdAvailable(uniqueId_), "Unique ID is not available");
     require(bytes(name_).length <= maxNftNameLength, "Unique ID must be 32 characters or less");
 
@@ -195,11 +196,6 @@ contract IggyLaunchpad721Bonding is Ownable {
   /// @notice Set price for creating new NFT contract
   function setPrice(uint256 _price) external onlyOwner {
     price = _price;
-  }
-
-  /// @notice Set ratio for the bonding curve
-  function setRatio(uint256 _ratio) external onlyOwner {
-    ratio = _ratio;
   }
 
   /// @notice Set stats contract address

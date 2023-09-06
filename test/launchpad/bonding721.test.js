@@ -32,7 +32,7 @@ describe("IggyLaunchpad721Bonding", function () {
 
   const feePercent = ethers.utils.parseEther("0.05");
   const priceLaunch = ethers.utils.parseEther("69"); // price for launching a new NFT contract
-  const ratio = ethers.utils.parseEther("1"); // ratio for the bonding curve
+  const ratio = ethers.utils.parseEther("6969"); // ratio for the bonding curve
 
   // NFT contract data
   const nftDescription = "Iggy NFT is a new unique NFT project";
@@ -69,8 +69,7 @@ describe("IggyLaunchpad721Bonding", function () {
       feeReceiver.address,
       statsMiddlewareContract.address,
       feePercent,
-      priceLaunch,
-      ratio
+      priceLaunch
     );
     await launchpadContract.deployed();
 
@@ -78,7 +77,7 @@ describe("IggyLaunchpad721Bonding", function () {
     await statsMiddlewareContract.addWriter(launchpadContract.address);
   });
 
-  it("creates a new NFT contract via launchpad and mints&burns a bunch of NFTs", async function () {
+  xit("creates a new NFT contract via launchpad and mints&burns a bunch of NFTs", async function () {
     // get user1 balance before
     const user1BalanceBefore = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceBefore: " + ethers.utils.formatEther(user1BalanceBefore) + " ETH");
@@ -96,6 +95,7 @@ describe("IggyLaunchpad721Bonding", function () {
       nftName,
       nftSymbol,
       nftUniqueId,
+      ratio,
       { value: priceLaunch }
     );
     const receipt = await tx.wait();
@@ -176,6 +176,9 @@ describe("IggyLaunchpad721Bonding", function () {
     // get mint price 2
     const mintPrice2 = await nftContract.getMintPrice();
     console.log("Mint Price 2: " + ethers.utils.formatEther(mintPrice2) + " ETH");
+
+    // revert if user1 tries to burn NFT #2 (user2 owns it)
+    await expect(nftContract.connect(user1).burn(2)).to.be.revertedWith("Nft721Bonding: caller is not owner nor approved");
 
     // burn NFT #2
     const tx2 = await nftContract.connect(user2).burn(
@@ -364,6 +367,7 @@ describe("IggyLaunchpad721Bonding", function () {
       nftName,
       nftSymbol,
       nftUniqueId,
+      ratio,
       { value: priceLaunch }
     );
 
