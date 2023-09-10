@@ -34,7 +34,7 @@ contract IggyLaunchpad721Bonding is Ownable {
   uint256 public mintingFeePercentage; // in wei
   uint256 public price; // price for creating new NFT contract
 
-  mapping (string => address) public nftContracts; // mapping(uniqueID => NFT contract address) to easily find the NFT contract address
+  mapping (string => address) public nftAddressById; // mapping(uniqueID => NFT contract address) to easily find the NFT contract address
 
   // EVENTS
   event CollectionLaunch(address indexed contractOwner_, address indexed msgSender_, string name_, string uniqueId_, address indexed nftContract_);
@@ -60,30 +60,18 @@ contract IggyLaunchpad721Bonding is Ownable {
     return allNftContracts;
   }
 
-  /// @notice Get the last 5 NFT contract addresses launched by this factory contract
-  function getLastFiveNftContracts() external view returns(address[] memory) {
-    uint256 length = allNftContracts.length;
-    
-    if (length <= 5) {
-      return allNftContracts; // Return the whole array if it has 5 or fewer items
-    } else {
-      address[] memory lastFive = new address[](5);
-
-      for (uint256 i = 0; i < 5; i++) {
-        lastFive[i] = allNftContracts[length - 5 + i];
-      }
-
-      return lastFive;
-    }
-  }
-
   // function to get NFT contract address by unique ID
   function getNftContractAddress(string calldata _uniqueId) external view returns(address) {
-    return nftContracts[_uniqueId];
+    return nftAddressById[_uniqueId];
   }
 
   function getNftContracts(uint256 amount) external view returns(address[] memory) {
     uint256 length = allNftContracts.length;
+
+    if (length <= amount) {
+      return allNftContracts; // Return the whole array if it has the same or fewer items than the amount requested
+    }
+
     address[] memory nftContracts_ = new address[](amount);
 
     for (uint256 i = 0; i < amount; i++) {
@@ -95,7 +83,7 @@ contract IggyLaunchpad721Bonding is Ownable {
 
   // function to check if unique ID is available
   function isUniqueIdAvailable(string calldata _uniqueId) public view returns(bool) {
-    return nftContracts[_uniqueId] == address(0);
+    return nftAddressById[_uniqueId] == address(0);
   }
 
   // WRITE
@@ -127,8 +115,8 @@ contract IggyLaunchpad721Bonding is Ownable {
       address(this), metadataAddress, mintingFeeReceiver, name_, symbol_, mintingFeePercentage, ratio
     );
 
-    // update nftContracts mapping and allNftContracts array
-    nftContracts[uniqueId_] = address(nftContract);
+    // update nftAddressById mapping and allNftContracts array
+    nftAddressById[uniqueId_] = address(nftContract);
     allNftContracts.push(address(nftContract));
 
     // update metadata contract

@@ -77,7 +77,7 @@ describe("IggyLaunchpad721Bonding", function () {
     await statsMiddlewareContract.addWriter(launchpadContract.address);
   });
 
-  xit("creates a new NFT contract via launchpad and mints&burns a bunch of NFTs", async function () {
+  it("creates a new NFT contract via launchpad and mints&burns a bunch of NFTs", async function () {
     // get user1 balance before
     const user1BalanceBefore = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceBefore: " + ethers.utils.formatEther(user1BalanceBefore) + " ETH");
