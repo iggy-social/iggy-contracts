@@ -56,16 +56,31 @@ contract IggyLaunchpad721Bonding is Ownable {
 
   // READ
 
+  function getAllFeaturedNftContracts() external view returns(address[] memory) {
+    return featuredNftContracts;
+  }
+
   function getAllNftContracts() external view returns(address[] memory) {
     return allNftContracts;
   }
 
-  // function to get NFT contract address by unique ID
-  function getNftContractAddress(string calldata _uniqueId) external view returns(address) {
-    return nftAddressById[_uniqueId];
+  function getFeaturedNftContracts(uint256 amount) external view returns(address[] memory) {
+    uint256 length = featuredNftContracts.length;
+
+    if (length <= amount) {
+      return featuredNftContracts; // Return the whole array if it has the same or fewer items than the amount requested
+    }
+
+    address[] memory nftContracts_ = new address[](amount);
+
+    for (uint256 i = 0; i < amount; i++) {
+      nftContracts_[i] = featuredNftContracts[length - amount + i];
+    }
+
+    return nftContracts_;
   }
 
-  function getNftContracts(uint256 amount) external view returns(address[] memory) {
+  function getLastNftContracts(uint256 amount) external view returns(address[] memory) {
     uint256 length = allNftContracts.length;
 
     if (length <= amount) {
@@ -79,6 +94,11 @@ contract IggyLaunchpad721Bonding is Ownable {
     }
 
     return nftContracts_;
+  }
+
+  // function to get NFT contract address by unique ID
+  function getNftContractAddress(string calldata _uniqueId) external view returns(address) {
+    return nftAddressById[_uniqueId];
   }
 
   // function to check if unique ID is available

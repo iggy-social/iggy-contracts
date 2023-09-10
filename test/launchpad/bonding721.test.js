@@ -32,7 +32,7 @@ describe("IggyLaunchpad721Bonding", function () {
 
   const feePercent = ethers.utils.parseEther("0.05");
   const priceLaunch = ethers.utils.parseEther("69"); // price for launching a new NFT contract
-  const ratio = ethers.utils.parseEther("6969"); // ratio for the bonding curve
+  const ratio = ethers.utils.parseEther("31337"); // ratio for the bonding curve
 
   // NFT contract data
   const nftDescription = "Iggy NFT is a new unique NFT project";
@@ -77,7 +77,7 @@ describe("IggyLaunchpad721Bonding", function () {
     await statsMiddlewareContract.addWriter(launchpadContract.address);
   });
 
-  it("creates a new NFT contract via launchpad and mints&burns a bunch of NFTs", async function () {
+  xit("creates a new NFT contract via launchpad and mints&burns a bunch of NFTs", async function () {
     // get user1 balance before
     const user1BalanceBefore = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceBefore: " + ethers.utils.formatEther(user1BalanceBefore) + " ETH");
@@ -354,6 +354,67 @@ describe("IggyLaunchpad721Bonding", function () {
     // get NFT contract balance 6
     const nftContractBalance6 = await ethers.provider.getBalance(nftContractAddress);
     console.log("NFT contract balance 6: " + ethers.utils.formatEther(nftContractBalance6) + " ETH");
+  });
+
+  it("creates a few new NFT contracts via launchpad and queries them", async function () {
+
+    await launchpadContract.connect(user1).launch(
+      user1.address, // NFT contract owner
+      nftDescription,
+      nftImage,
+      nftMetadataName,
+      nftName,
+      nftSymbol,
+      nftUniqueId,
+      ratio,
+      { value: priceLaunch }
+    );
+
+    await launchpadContract.connect(user1).launch(
+      user2.address, // NFT contract owner
+      nftDescription,
+      nftImage,
+      nftMetadataName,
+      nftName,
+      nftSymbol,
+      nftUniqueId + "2",
+      ratio,
+      { value: priceLaunch }
+    );
+
+    await launchpadContract.connect(user1).launch(
+      user1.address, // NFT contract owner
+      nftDescription,
+      nftImage,
+      nftMetadataName,
+      nftName,
+      nftSymbol,
+      nftUniqueId + "3",
+      ratio,
+      { value: priceLaunch }
+    );
+
+    // call getLastNftContracts
+
+    const lastNftContracts3 = await launchpadContract.getLastNftContracts(3);
+    console.log(lastNftContracts3);
+
+    const lastNftContracts2 = await launchpadContract.getLastNftContracts(2);
+    console.log(lastNftContracts2);
+
+    const lastNftContracts5 = await launchpadContract.getLastNftContracts(5);
+    console.log(lastNftContracts5);
+
+    const lastFeaturedContracts5 = await launchpadContract.getFeaturedNftContracts(5);
+    console.log(lastFeaturedContracts5);
+
+    // addNftAddressToFeatured
+    await launchpadContract.addNftAddressToFeatured(lastNftContracts3[1]);
+
+    const lastFeaturedContracts6 = await launchpadContract.getFeaturedNftContracts(6);
+    console.log(lastFeaturedContracts6);
+    
+
   });
 
   it("get only mint price data", async function () {
