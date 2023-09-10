@@ -111,9 +111,7 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
 
   // quadratic bonding curve
   function _getPrice(uint256 supply) private view returns (uint256) {
-    uint256 interimPriceBefore = (supply - 1) * supply * (2 * (supply - 1) + 1) / 6;
-    uint256 interimPriceAfter = supply * (supply + 1) * (2 * supply + 1) / 6;
-    return (interimPriceAfter - interimPriceBefore) * ratio / 16000;
+    return (((supply * (supply + 1) * (2 * supply + 1)) - ((supply - 1) * supply * (2 * (supply - 1) + 1))) * 10000 / 42069) * ratio / 31337;
   }
   
   /* 
