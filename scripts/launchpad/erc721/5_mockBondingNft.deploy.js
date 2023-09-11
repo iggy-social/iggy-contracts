@@ -3,7 +3,7 @@
 
 const contractName = "Nft721Bonding";
 
-const factoryAddress = "0x03d5A0a854A9738652A6164C8504B654D47cb334";
+const factoryAddress = "0x8793834eDd8aDD064066aB5afF84792FD70F5E29";
 const metadataAddress = "0x10DcC7E9b3bbAE6875DCa8616DFe4af4153E1382";
 const mintingFeeReceiver = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d";
 const collectionPreviewImage = "img.jpg";

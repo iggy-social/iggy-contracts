@@ -30,6 +30,8 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
   string public collectionPreview; // collection preview image
   string public constant pricingType = "bonding";
 
+  uint256 counter = 1; // counter for the tokenId
+
   uint256 public mintingFeePercentage; // in wei
   uint256 public immutable ratio; // ratio for the bonding curve
 
@@ -162,7 +164,8 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     uint256 tSupply = totalSupply();
 
     if (tSupply == 0) {
-      _mint(owner(), 1); // mint the first NFT to the owner
+      _mint(owner(), counter); // mint the first NFT to the owner
+      ++counter;
       ++tSupply;
     }
 
@@ -181,9 +184,10 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
 
     require(success1 && success2, "Unable to send funds");
 
-    _mint(to, tSupply + 1);
+    _mint(to, counter);
+    ++counter;
 
-    return tSupply + 1; // return the tokenId of the minted NFT for the to address
+    return counter - 1; // return the tokenId of the minted NFT for the to address
   }
 
   // OWNER
