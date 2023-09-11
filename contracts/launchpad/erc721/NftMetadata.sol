@@ -15,7 +15,6 @@ interface INFT {
 contract NftMetadata {
   using Strings for uint256;
 
-  mapping (address => string) public collectionPreviews; // collection preview images
   mapping (address => string) public descriptions;
   mapping (address => string) public externalUrls;
   mapping (address => string) public images;
@@ -52,11 +51,6 @@ contract NftMetadata {
   }
 
   // WRITE
-
-  function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external {
-    require(msg.sender == INFT(nftAddress_).owner(), "Not owner of NFT smart contract");
-    collectionPreviews[nftAddress_] = collectionPreview_;
-  }
 
   function setDescription(address nftAddress_, string memory description_) external {
     require(msg.sender == INFT(nftAddress_).owner(), "Not owner of NFT smart contract");

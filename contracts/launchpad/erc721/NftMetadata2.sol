@@ -41,6 +41,11 @@ contract NftMetadata2 is Ownable {
 
   // READ
 
+  // for compatibility with NftMetadata.sol
+  function descriptions(address nftAddress_) external view returns (string memory) {
+    return description;
+  }
+
   function getMetadata(uint256 tokenId_) public view returns (string memory) {
     if (mdType == 1) {
       return urlMetadata;

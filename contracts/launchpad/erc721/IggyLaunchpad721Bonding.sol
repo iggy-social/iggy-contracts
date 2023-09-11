@@ -5,7 +5,6 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import "./Nft721Bonding.sol";
 
 interface INftMetadata {
-  function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external;
   function setDescription(address nftAddress_, string memory description_) external;
   function setImage(address nftAddress_, string memory image_) external;
   function setName(address nftAddress_, string memory name_) external;
@@ -132,7 +131,7 @@ contract IggyLaunchpad721Bonding is Ownable {
 
     // create new NFT contract
     Nft721Bonding nftContract = new Nft721Bonding(
-      address(this), metadataAddress, mintingFeeReceiver, name_, symbol_, mintingFeePercentage, ratio
+      address(this), metadataAddress, mintingFeeReceiver, mdImage_, name_, symbol_, mintingFeePercentage, ratio
     );
 
     // update nftAddressById mapping and allNftContracts array
@@ -140,7 +139,6 @@ contract IggyLaunchpad721Bonding is Ownable {
     allNftContracts.push(address(nftContract));
 
     // update metadata contract
-    INftMetadata(metadataAddress).setCollectionPreview(address(nftContract), mdImage_);
     INftMetadata(metadataAddress).setDescription(address(nftContract), mdDescription_);
     INftMetadata(metadataAddress).setImage(address(nftContract), mdImage_);
     INftMetadata(metadataAddress).setName(address(nftContract), mdName_);

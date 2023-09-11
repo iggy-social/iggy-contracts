@@ -27,6 +27,7 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
   address public metadataAddress;
   address public mintingFeeReceiver;
 
+  string public collectionPreview; // collection preview image
   string public constant pricingType = "bonding";
 
   uint256 public mintingFeePercentage; // in wei
@@ -37,6 +38,7 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     address factoryAddress_,
     address metadataAddress_,
     address mintingFeeReceiver_,
+    string memory collectionPreview_,
     string memory name_,
     string memory symbol_,
     uint256 mintingFeePercentage_,
@@ -45,6 +47,8 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     factoryAddress = factoryAddress_;
     metadataAddress = metadataAddress_;
     mintingFeeReceiver = mintingFeeReceiver_;
+
+    collectionPreview = collectionPreview_;
     
     mintingFeePercentage = mintingFeePercentage_;
     ratio = ratio_;
@@ -183,6 +187,11 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
   }
 
   // OWNER
+
+  // set collection preview image
+  function setCollectionPreview(string memory collectionPreview_) external onlyOwner {
+    collectionPreview = collectionPreview_;
+  }
 
   // set metadata address
   function setMetadataAddress(address metadataAddress_) external onlyOwner {

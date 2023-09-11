@@ -3,9 +3,10 @@
 
 const contractName = "Nft721Bonding";
 
-const factoryAddress = "0xB30979406EBC8145141dEa9C07D56945B08131EB";
-const metadataAddress = "0xD09DaF03FEdDaD654a13ddE7De1990738a5a30d6";
+const factoryAddress = "0x03d5A0a854A9738652A6164C8504B654D47cb334";
+const metadataAddress = "0x10DcC7E9b3bbAE6875DCa8616DFe4af4153E1382";
 const mintingFeeReceiver = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d";
+const collectionPreviewImage = "img.jpg";
 const cName = "Test collection";
 const cSymbol = "TEST";
 const mintingFeePercentage = ethers.utils.parseEther("0.02");
@@ -23,6 +24,7 @@ async function main() {
     factoryAddress,
     metadataAddress,
     mintingFeeReceiver,
+    collectionPreviewImage,
     cName,
     cSymbol,
     mintingFeePercentage,
@@ -33,7 +35,7 @@ async function main() {
   console.log(contractName + " contract address:", instance.address);
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + factoryAddress + " " + metadataAddress + " " + mintingFeeReceiver + ' "' + cName + '" "' + cSymbol + '" "' + mintingFeePercentage + '" "' + ratio + '"');
+  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + factoryAddress + " " + metadataAddress + " " + mintingFeeReceiver + ' "' + collectionPreviewImage + '" "' + cName + '" "' + cSymbol + '" "' + mintingFeePercentage + '" "' + ratio + '"');
 }
 
 main()

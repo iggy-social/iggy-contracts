@@ -3,7 +3,7 @@
 
 const contractName = "IggyLaunchpad721Bonding";
 
-const metadataAddress = "0xD09DaF03FEdDaD654a13ddE7De1990738a5a30d6";
+const metadataAddress = "0x10DcC7E9b3bbAE6875DCa8616DFe4af4153E1382";
 const mintingFeeReceiver = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d";
 const statsMiddlewareAddress = "0x050A182a09cD0E2c0144b93B6368A01889EdeE8e";
 const mintingFeePercentage = ethers.utils.parseEther("0.02");
