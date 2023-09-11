@@ -125,7 +125,6 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
     require(percentageTotal <= 1 ether, "RevenueDistributor: percentage total must be less than or equal to 100%");
   }
 
-  // updateRecipientByIndex: update both address and percentage
   function updateRecipientByIndex(uint256 index_, address newAddr_, string calldata label_, uint256 newPercentage_) external onlyOwner {
     uint256 percentageTotal;
     uint256 length = recipients.length;
@@ -148,6 +147,7 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
     require(percentageTotal <= 1 ether, "RevenueDistributor: percentage total must be less than or equal to 100%");
   }
 
+  /// @dev Manual withdrawal in case there's an excess of ETH in the contract
   function withdrawEth() external onlyOwner {
     (bool success, ) = msg.sender.call{ value: address(this).balance }("");
     require(success, "RevenueDistributor: transfer failed");
