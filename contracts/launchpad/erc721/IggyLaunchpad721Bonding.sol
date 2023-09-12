@@ -126,7 +126,8 @@ contract IggyLaunchpad721Bonding is Ownable {
     require(sent, "Failed to send launch payment to the payment receiver");
 
     // create new NFT contract
-    Nft721Bonding nftContract = new Nft721Bonding(
+    bytes32 saltedHash = keccak256(abi.encodePacked(msg.sender, block.timestamp, uniqueId_));
+    Nft721Bonding nftContract = new Nft721Bonding{salt: saltedHash}(
       address(this), metadataAddress, mintingFeeReceiver, mdImage_, name_, symbol_, mintingFeePercentage, ratio
     );
 
