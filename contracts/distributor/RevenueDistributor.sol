@@ -105,7 +105,7 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
     recipients.pop();
   }
 
-  function removeRecipient(address recipient_) external onlyManager {
+  function removeRecipientByAddress(address recipient_) external onlyManager {
     uint256 length = recipients.length;
 
     for (uint256 i = 0; i < length;) {
@@ -121,7 +121,12 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
     }
   }
 
-  function updateRecipient(address recipient_, string calldata label_, uint256 newPercentage_) external onlyManager {
+  function removeRecipientByIndex(uint256 index_) external onlyManager {
+    recipients[index_] = recipients[recipients.length - 1];
+    recipients.pop();
+  }
+
+  function updateRecipientByAddress(address recipient_, string calldata label_, uint256 newPercentage_) external onlyManager {
     uint256 percentageTotal;
     uint256 length = recipients.length;
 
