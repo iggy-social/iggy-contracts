@@ -72,10 +72,16 @@ contract NftMetadata {
     mdTypes[nftAddress_] = mdType_;
   }
 
-  function setMdTypeAndUrl(address nftAddress_, uint256 mdType_, string memory mdUrl_) external {
+  function setMdTypeAndUrlOrImage(address nftAddress_, uint256 mdType_, string memory mdUrlOrImage_) external {
     require(msg.sender == INFT(nftAddress_).owner(), "Not owner of NFT smart contract");
+    
     mdTypes[nftAddress_] = mdType_;
-    mdUrls[nftAddress_] = mdUrl_;
+
+    if (mdType_ == 0) {
+      images[nftAddress_] = mdUrlOrImage_;
+    } else {
+      mdUrls[nftAddress_] = mdUrlOrImage_;
+    }
   }
 
   function setMdUrl(address nftAddress_, string memory mdUrl_) external {
