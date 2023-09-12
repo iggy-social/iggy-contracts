@@ -213,4 +213,36 @@ describe("RevenueDistributor", function () {
     expect(await ethers.provider.getBalance(distributorContract.address)).to.equal(0);
   });
 
+  it("adds user1 as manager", async function () {
+    // check if user 1 is a manager (isManager)
+    const isManagerBefore = await distributorContract.isManager(user1.address);
+    expect(isManagerBefore).to.equal(false);
+
+    // revert when user1 is trying to add a new recipient
+    await expect(
+      distributorContract.connect(user1).addRecipient(user2.address, "Recipient 7", ethers.utils.parseEther("0.01"))
+    ).to.be.revertedWith("RevenueDistributor: caller is not a manager");
+
+    // add user1 as manager via addManager
+    await distributorContract.addManager(user1.address);
+
+    // check if user 1 is a manager (isManager)
+    const isManagerAfter = await distributorContract.isManager(user1.address);
+    expect(isManagerAfter).to.equal(true);
+
+    // remove the last recipient via user1
+    await distributorContract.connect(user1).removeLastRecipient();
+
+    // add a new recipient via user1
+    await distributorContract.connect(user1).addRecipient(user2.address, "Recipient 7", ethers.utils.parseEther("0.01"));
+
+    // remove user1 as manager via removeManagerByAddress
+    await distributorContract.removeManagerByAddress(user1.address);
+
+    // check if user 1 is a manager (isManager)
+    const isManagerAfterRemove = await distributorContract.isManager(user1.address);
+    expect(isManagerAfterRemove).to.equal(false);
+
+  });
+
 });
