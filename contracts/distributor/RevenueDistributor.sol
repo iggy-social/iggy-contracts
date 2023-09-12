@@ -4,6 +4,10 @@ pragma solidity ^0.8.17;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+interface IERC20 {
+  function transfer(address to, uint256 amount) external returns (bool);
+}
+
 /// @title RevenueDistributor
 /// @author Tempe Techie
 /// @notice Automatically distribute revenue to multiple recipients
@@ -166,6 +170,11 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
     require(!isManager[manager_], "RevenueDistributor: manager already added");
     isManager[manager_] = true;
     managers.push(manager_);
+  }
+
+  /// @notice Recover any ERC-20 token mistakenly sent to this contract address
+  function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyOwner {
+    IERC20(tokenAddress_).transfer(recipient_, tokenAmount_);
   }
 
   function removeManagerByAddress(address manager_) external onlyOwner {
