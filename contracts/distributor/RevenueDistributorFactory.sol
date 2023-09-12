@@ -34,6 +34,8 @@ contract RevenueDistributorFactory {
 
     distributorAddressById[uniqueId_] = address(distributor);
 
+    distributor.transferOwnership(msg.sender);
+
     emit RevenueDistributorLaunch(msg.sender, uniqueId_, address(distributor));
 
     return address(distributor);
