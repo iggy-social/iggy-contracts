@@ -74,7 +74,7 @@ module.exports = {
       chainId: 14,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 25000000000, // 25 gwei
+      gasPrice: 125000000000, // 125 gwei
     },
     flareCoston: { // Flare Coston Testnet
       url: 'https://coston-api.flare.network/ext/bc/C/rpc',
@@ -95,7 +95,7 @@ module.exports = {
       chainId: 1,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 45000000000, // 10 gwei
+      gasPrice: 35000000000, // 30 gwei
     },
     mantleTestnet: { // Mantle testnet
       url: 'https://rpc.testnet.mantle.xyz', 
@@ -112,11 +112,11 @@ module.exports = {
       gasPrice: 70000000000, // 70 gwei
     },
     optimisticEthereum: {
-      url: 'https://opt-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_OPTIMISM,
+      url: 'https://rpc.ankr.com/optimism',
       chainId: 10,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 1000000000, // 1 gwei
+      gasPrice: 200000000, // 0.2 gwei
     },
     optimisticGoerli: {
       url: 'https://goerli.optimism.io',
@@ -140,6 +140,20 @@ module.exports = {
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
       gasPrice: 2000000000, // 2 gwei
+    },
+    polygonZkEvm: {
+      url: 'https://zkevm-rpc.com',
+      chainId: 1101,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 20000000000, // 20 gwei
+    },
+    polygonZkEvmTestnet: {
+      url: 'https://rpc.public.zkevm-test.net',
+      chainId: 1442,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 20000000000, // 20 gwei
     },
     sokol: { // Gnosis Chain testnet
       url: 'https://sokol.poa.network',
@@ -178,14 +192,16 @@ module.exports = {
       mainnet: process.env.ETHERSCAN_API_KEY,
       mantleTestnet: "randomstring",
       ftmTestnet: process.env.FTMSCAN_API_KEY,
-      opera: process.env.FTMSCAN_API_KEY,
+      opera: process.env.FTMSCAN_API_KEY, // fantom
       optimisticEthereum: process.env.OPTIMISTIC_ETHERSCAN_API_KEY,
       optimisticGoerli: process.env.OPTIMISTIC_ETHERSCAN_API_KEY,
       polygon: process.env.POLYGONSCAN_API_KEY,
       polygonMumbai: process.env.POLYGONSCAN_API_KEY, 
+      polygonZkEvm: process.env.POLYGONSCAN_ZKEVM_API_KEY, 
+      polygonZkEvmTestnet: process.env.POLYGONSCAN_ZKEVM_API_KEY, 
       sokol: "randomstring",
       songbird: "randomstring",
-      xdai: process.env.GNOSISSCAN_API_KEY
+      gnosis: process.env.GNOSISSCAN_API_KEY // xdai
     },
     customChains: [
       {
@@ -258,24 +274,30 @@ module.exports = {
         }
       },
       {
+        network: "polygonZkEvm",
+        chainId: 1101,
+        urls: {
+          apiURL: "https://api-zkevm.polygonscan.com",
+          browserURL: "https://zkevm.polygonscan.com"
+        }
+      },
+      {
+        network: "polygonZkEvmTestnet",
+        chainId: 1442,
+        urls: {
+          apiURL: "https://api-testnet-zkevm.polygonscan.com/api",
+          browserURL: "https://testnet-zkevm.polygonscan.com"
+        }
+      },
+      {
         network: "songbird",
         chainId: 19,
         urls: {
           apiURL: "https://songbird-explorer.flare.network/api",
           browserURL: "https://songbird-explorer.flare.network/"
         }
-      },
-      // Comment out the xdai object below to verify on Blockscout. Uncomment to verify on Gnosis Scan.
-      /*
-      {
-        network: "xdai",
-        chainId: 100,
-        urls: {
-          apiURL: "https://api.gnosisscan.io/api",
-          browserURL: "https://gnosisscan.io"
-        }
       }
-      */
+      
     ]
   },
 

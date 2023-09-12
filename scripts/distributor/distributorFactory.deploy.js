@@ -1,4 +1,4 @@
-// npx hardhat run scripts/distributor/distributorFactory.deploy.js --network songbird
+// npx hardhat run scripts/distributor/distributorFactory.deploy.js --network flare
 
 const contractName = "RevenueDistributorFactory";
 
