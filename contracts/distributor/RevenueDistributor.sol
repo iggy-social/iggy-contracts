@@ -12,6 +12,7 @@ interface IERC20 {
 /// @author Tempe Techie
 /// @notice Automatically distribute revenue to multiple recipients
 contract RevenueDistributor is Ownable, ReentrancyGuard {
+  uint256 private constant LABEL_MAX_LENGTH = 30;
 
   struct Recipient {
     address addr;
@@ -29,6 +30,15 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
     require(isManager[msg.sender] || msg.sender == owner(), "RevenueDistributor: caller is not a manager");
     _;
   }
+
+  // EVENTS
+  event ManagerAdd(address indexed owner_, address indexed manager_);
+  event ManagerRemove(address indexed owner_, address indexed manager_);
+  event RecipientAdd(address indexed adder_, address indexed recipient_, string label_, uint256 percentage_);
+  event RecipientRemove(address indexed remover_, address indexed recipient_);
+  event RecipientRemoveAll(address indexed remover_);
+  event RecipientUpdate(address indexed updater_, address indexed recipient_, address newAddr_, string label_, uint256 percentage_);
+  event WithdrawEth(address indexed owner_, uint256 amount_);
 
   // READ
 
@@ -79,6 +89,8 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
   // MANAGER
 
   function addRecipient(address addr_, string calldata label_, uint256 percentage_) external onlyManager {
+    require(bytes(label_).length < LABEL_MAX_LENGTH, "RevenueDistributor: label too long");
+
     uint256 percentageTotal;
     uint256 length = recipients.length;
 
@@ -95,13 +107,16 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
     require(percentageTotal + percentage_ <= 1 ether, "RevenueDistributor: percentage total must be less than or equal to 100%");
 
     recipients.push(Recipient(addr_, label_, percentage_));
+    emit RecipientAdd(msg.sender, addr_, label_, percentage_);
   }
 
   function removeAllRecipients() external onlyManager {
     delete recipients;
+    emit RecipientRemoveAll(msg.sender);
   }
 
   function removeLastRecipient() external onlyManager {
+    emit RecipientRemove(msg.sender, recipients[recipients.length - 1].addr);
     recipients.pop();
   }
 
@@ -112,6 +127,7 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
       if (recipients[i].addr == recipient_) {
         recipients[i] = recipients[length - 1];
         recipients.pop();
+        emit RecipientRemove(msg.sender, recipient_);
         return;
       }
 
@@ -122,19 +138,29 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
   }
 
   function removeRecipientByIndex(uint256 index_) external onlyManager {
+    emit RecipientRemove(msg.sender, recipients[index_].addr);
     recipients[index_] = recipients[recipients.length - 1];
     recipients.pop();
   }
 
-  function updateRecipientByAddress(address recipient_, string calldata label_, uint256 newPercentage_) external onlyManager {
+  function updateRecipientByAddress(
+    address recipient_, 
+    address newAddr_, 
+    string calldata label_, 
+    uint256 newPercentage_
+  ) external onlyManager {
+    require(bytes(label_).length < LABEL_MAX_LENGTH, "RevenueDistributor: label too long");
+
     uint256 percentageTotal;
     uint256 length = recipients.length;
 
     for (uint256 i = 0; i < length;) {
       if (recipients[i].addr == recipient_) {
+        recipients[i].addr = newAddr_;
         recipients[i].label = label_;
         recipients[i].percentage = newPercentage_;
         percentageTotal += newPercentage_;
+        emit RecipientUpdate(msg.sender, recipient_, newAddr_, label_, newPercentage_);
       } else {
         percentageTotal += recipients[i].percentage;
       }
@@ -147,16 +173,25 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
     require(percentageTotal <= 1 ether, "RevenueDistributor: percentage total must be less than or equal to 100%");
   }
 
-  function updateRecipientByIndex(uint256 index_, address newAddr_, string calldata label_, uint256 newPercentage_) external onlyManager {
+  function updateRecipientByIndex(
+    uint256 index_, 
+    address newAddr_, 
+    string calldata label_, 
+    uint256 newPercentage_
+  ) external onlyManager {
+    require(bytes(label_).length < LABEL_MAX_LENGTH, "RevenueDistributor: label too long");
+
     uint256 percentageTotal;
     uint256 length = recipients.length;
 
     for (uint256 i = 0; i < length;) {
       if (i == index_) {
+        emit RecipientUpdate(msg.sender, recipients[i].addr, newAddr_, label_, newPercentage_);
         recipients[i].addr = newAddr_;
         recipients[i].label = label_;
         recipients[i].percentage = newPercentage_;
         percentageTotal += newPercentage_;
+        
       } else {
         percentageTotal += recipients[i].percentage;
       }
@@ -175,6 +210,7 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
     require(!isManager[manager_], "RevenueDistributor: manager already added");
     isManager[manager_] = true;
     managers.push(manager_);
+    emit ManagerAdd(msg.sender, manager_);
   }
 
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
@@ -190,6 +226,7 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
       if (managers[i] == manager_) {
         managers[i] = managers[length - 1];
         managers.pop();
+        emit ManagerRemove(msg.sender, manager_);
         return;
       }
 
@@ -200,6 +237,7 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
   }
 
   function removeManagerByIndex(uint256 index_) external onlyOwner {
+    emit ManagerRemove(msg.sender, managers[index_]);
     isManager[managers[index_]] = false;
     managers[index_] = managers[managers.length - 1];
     managers.pop();
@@ -207,6 +245,7 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
 
   /// @dev Manual withdrawal in case there's an excess of ETH in the contract
   function withdrawEth() external onlyOwner {
+    emit WithdrawEth(msg.sender, address(this).balance);
     (bool success, ) = msg.sender.call{ value: address(this).balance }("");
     require(success, "RevenueDistributor: transfer failed");
   }

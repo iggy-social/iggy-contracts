@@ -7,6 +7,7 @@ import "./RevenueDistributor.sol";
 /// @author Tempe Techie
 /// @notice Factory that creates new RevenueDistributor contracts
 contract RevenueDistributorFactory {
+  uint256 private constant ID_MAX_LENGTH = 30;
 
   // mapping(uniqueID => RevenueDistributor contract address) to easily find a RevenueDistributor contract address
   mapping (string => address) private distributorAddressById; 
@@ -27,6 +28,7 @@ contract RevenueDistributorFactory {
   // WRITE
 
   function create(string calldata uniqueId_) external returns(address) {
+    require(bytes(uniqueId_).length <= ID_MAX_LENGTH, "Unique ID is too long");
     require(isUniqueIdAvailable(uniqueId_), "Unique ID is not available");
 
     bytes32 saltedHash = keccak256(abi.encodePacked(msg.sender, block.timestamp, uniqueId_));

@@ -125,11 +125,11 @@ describe("RevenueDistributor", function () {
 
     // fails at update for recipient 7 because the percentage is larger than 25%
     await expect(
-      distributorContract.updateRecipientByAddress(user1.address, "Recipient 7", ethers.utils.parseEther("0.26"))
+      distributorContract.updateRecipientByAddress(user1.address, user1.address, "Recipient 7", ethers.utils.parseEther("0.26"))
     ).to.be.revertedWith("RevenueDistributor: percentage total must be less than or equal to 100%");
 
     // succeeds at update for recipient 7 because the percentage is 25%
-    await distributorContract.updateRecipientByAddress(user1.address, "Recipient 7 new", ethers.utils.parseEther("0.25"));
+    await distributorContract.updateRecipientByAddress(user1.address, user1.address, "Recipient 7 new", ethers.utils.parseEther("0.25"));
 
     // check recipient's percentage and label via getRecipient
     const recipient7 = await distributorContract.getRecipient(user1.address);
