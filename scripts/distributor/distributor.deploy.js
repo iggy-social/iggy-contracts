@@ -2,6 +2,10 @@
 
 const contractName = "RevenueDistributor";
 
+const recipients = [];
+const managers = [];
+
+/*
 // recipients receive a percentage of the revenue that comes to the contract
 const recipients = [
   { address: "0xCA9749778327CD67700d3a777731a712330beB9A", label: "Staking contract", percentage: ethers.utils.parseEther("0.9") },
@@ -11,6 +15,7 @@ const recipients = [
 
 // managers are allowed to add/remove recipients
 const managers = ["0xb29050965a5ac70ab487aa47546cdcbc97dae45d", "0x5ffd23b1b0350debb17a2cb668929ac5f76d0e18"];
+*/
 
 async function main() {
   const [deployer] = await ethers.getSigners();
