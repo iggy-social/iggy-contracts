@@ -59,10 +59,6 @@ contract IggyLaunchpad721Bonding is Ownable {
     return featuredNftContracts;
   }
 
-  function getAllNftContracts() external view returns(address[] memory) {
-    return allNftContracts;
-  }
-
   function getFeaturedNftContracts(uint256 amount) external view returns(address[] memory) {
     uint256 length = featuredNftContracts.length;
 
