@@ -8,6 +8,10 @@ interface INFT {
   function owner() external view returns(address);
 }
 
+interface INft721Bonding {
+  function setCollectionPreview(string memory collectionPreview_) external;
+}
+
 /** 
 @title Default metadata contract for ERC-721 NFTs made with Iggy Launchpad
 @author Tempe Techie
@@ -72,15 +76,24 @@ contract NftMetadata {
     mdTypes[nftAddress_] = mdType_;
   }
 
-  function setMdTypeAndUrlOrImage(address nftAddress_, uint256 mdType_, string memory mdUrlOrImage_) external {
+  function setMdTypeAndUrlOrImage(
+    address nftAddress_, 
+    uint256 mdType_, 
+    string memory mdUrlOrImage_,
+    string memory collectionImage_
+  ) external {
     require(msg.sender == INFT(nftAddress_).owner(), "Not owner of NFT smart contract");
-    
+
     mdTypes[nftAddress_] = mdType_;
 
     if (mdType_ == 0) {
       images[nftAddress_] = mdUrlOrImage_;
     } else {
       mdUrls[nftAddress_] = mdUrlOrImage_;
+    }
+
+    if (bytes(collectionImage_).length > 0) {
+      INft721Bonding(nftAddress_).setCollectionPreview(collectionImage_);
     }
   }
 

@@ -3,8 +3,8 @@
 
 const contractName = "IggyLaunchpad721Bonding";
 
-const metadataAddress = "0x10DcC7E9b3bbAE6875DCa8616DFe4af4153E1382";
-const mintingFeeReceiver = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d";
+const metadataAddress = "0x03e7D3995858fB46377213Fbf2ce1Bfc830157a8";
+const mintingFeeReceiver = "0x97203DE4aB5f1064618C727D80f16840DB8F4d59"; // revenue distributor contract address
 const statsMiddlewareAddress = "0x050A182a09cD0E2c0144b93B6368A01889EdeE8e";
 const mintingFeePercentage = ethers.utils.parseEther("0.02");
 const price = ethers.utils.parseEther("299"); // price for creating a new NFT collection
