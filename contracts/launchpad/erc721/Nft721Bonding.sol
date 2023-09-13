@@ -192,11 +192,6 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
 
   // OWNER
 
-  // set collection preview image
-  function setCollectionPreview(string memory collectionPreview_) external onlyOwner {
-    collectionPreview = collectionPreview_;
-  }
-
   // set metadata address
   function setMetadataAddress(address metadataAddress_) external onlyOwner {
     metadataAddress = metadataAddress_;
@@ -205,6 +200,19 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
   // set minting fee percentage
   function setMintingFeePercentage(uint256 mintingFeePercentage_) external onlyOwner {
     mintingFeePercentage = mintingFeePercentage_;
+  }
+
+  // OWNER & METADATA ADDRESS
+
+  // set collection preview image
+  function setCollectionPreview(string memory collectionPreview_) external {
+    require(
+      msg.sender == owner() || 
+      (msg.sender == metadataAddress && tx.origin == owner()), 
+      "Nft721Bonding: Only owner or metadataAddress can set a new collectionPreview"
+    );
+
+    collectionPreview = collectionPreview_;
   }
 
   // MINT FEE RECEIVER

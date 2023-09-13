@@ -354,6 +354,14 @@ describe("IggyLaunchpad721Bonding", function () {
     // get NFT contract balance 6
     const nftContractBalance6 = await ethers.provider.getBalance(nftContractAddress);
     console.log("NFT contract balance 6: " + ethers.utils.formatEther(nftContractBalance6) + " ETH");
+
+    // change NFT & collection image via metadata contract (use setMdTypeAndUrlOrImage function)
+    await metadataContract.connect(user1).setMdTypeAndUrlOrImage(
+      nftContractAddress,
+      0, // mdType: 0 (static image URL)
+      "https://iggy.social/assets/img/preview.jpg",
+      "https://iggy.social/assets/img/preview.jpg"
+    );
   });
 
   it("creates a few new NFT contracts via launchpad and queries them", async function () {
