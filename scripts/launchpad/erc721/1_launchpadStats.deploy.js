@@ -1,5 +1,5 @@
 // 1. Deploy LaunchpadStats contract.
-// npx hardhat run scripts/launchpad/erc721/1_launchpadStats.deploy.js --network songbird
+// npx hardhat run scripts/launchpad/erc721/1_launchpadStats.deploy.js --network base
 
 const contractName = "LaunchpadStats";
 

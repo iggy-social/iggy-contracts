@@ -53,7 +53,7 @@ module.exports = {
       chainId: 8453,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 1000000000, // 1 gwei
+      gasPrice: 12000000, // 0.012 gwei
     },
     baseTestnet: {
       url: 'https://base-goerli.public.blastapi.io',
@@ -212,7 +212,7 @@ module.exports = {
           browserURL: "https://goerli.arbiscan.io"
         }
       },
-      /* 
+      /* */
       {
         network: "base", // BaseScan (Etherscan)
         chainId: 8453,
@@ -221,9 +221,9 @@ module.exports = {
           browserURL: "https://basescan.org"
         }
       },
-      */
       
-      /* */
+      
+      /* 
       {
         network: "base", // Blockscout
         chainId: 8453,
@@ -232,7 +232,7 @@ module.exports = {
           browserURL: "https://base.blockscout.com"
         }
       },
-      
+      */
       {
         network: "baseTestnet",
         chainId: 84531,
