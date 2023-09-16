@@ -152,11 +152,18 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     IStats(IFactory(factoryAddress).statsAddress()).addWeiSpent(_ownerOf(tokenId), protocolFee);
 
     // send fees
-    mintingFeeReceiver.call{value: protocolFee}("");
-    owner().call{value: ownerFee}("");
+    (bool successOwner, ) = owner().call{value: ownerFee}("");
+
+    if (!successOwner) {
+      protocolFee += ownerFee;
+    }
+
+    (bool successMfReceiver, ) = mintingFeeReceiver.call{value: protocolFee}("");
+    require(successMfReceiver, "Nft721Bonding: Failed to send protocol fee");
 
     // send payment to the burn caller
-    msg.sender.call{value: price - ownerFee - protocolFee}("");
+    (bool successMsgSender, ) = msg.sender.call{value: price - ownerFee - protocolFee}("");
+    require(successMsgSender, "Nft721Bonding: Failed to send payment");
 
     return price - ownerFee - protocolFee; // return the amount of ETH sent to the caller
   }
@@ -180,8 +187,14 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     IStats(IFactory(factoryAddress).statsAddress()).addWeiSpent(msg.sender, protocolFee);
 
     // send fees
-    mintingFeeReceiver.call{value: protocolFee}("");
-    owner().call{value: ownerFee}("");
+    (bool successOwner, ) = owner().call{value: ownerFee}("");
+
+    if (!successOwner) {
+      protocolFee += ownerFee;
+    }
+
+    (bool successMfReceiver, ) = mintingFeeReceiver.call{value: protocolFee}("");
+    require(successMfReceiver, "Nft721Bonding: Failed to send protocol fee");
 
     _mint(to, counter);
     ++counter;
