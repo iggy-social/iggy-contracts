@@ -1,15 +1,15 @@
 // 2. Deploy FriendKeys contract and automatically add it's address to the KeyStats contract.
-// npx hardhat run scripts/keys/friendKeys.deploy.js --network base
+// npx hardhat run scripts/keys/friendKeys.deploy.js --network flare
 
 const contractName = "FriendKeys";
 
-const tldAddress = "";
-const feeReceiver = "";
-const keyStatsAddress = "";
+const tldAddress = "0xBDACF94dDCAB51c39c2dD50BffEe60Bb8021949a";
+const feeReceiver = "0xFbaf1D1fBC5a2Fe2e48858a8A4585d5e7C12fc4A"; // distributor contract address
+const keyStatsAddress = "0x50045895e1983F39FDC149C9a5AC29C39BEA18fe";
 
 const protocolFeePercent = ethers.utils.parseEther("0.05");
 const domainHolderFeePercent = ethers.utils.parseEther("0.05");
-const ratio = ethers.utils.parseEther("1"); // 1 ETH for 16000 keys
+const ratio = ethers.utils.parseEther("42069"); // 1 ETH for 16000 keys
 
 async function main() {
   const [deployer] = await ethers.getSigners();

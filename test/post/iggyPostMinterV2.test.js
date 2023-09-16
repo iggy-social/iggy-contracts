@@ -40,7 +40,6 @@ describe("IggyPostMinterV2", function () {
   const chatRewardsDuration = 60 * 60 * 24 * 7 * 52; // 52 weeks (1 year)
 
   const daoFee = 450; // 4.5%
-  const stakingFee = 450; // 4.5%
   const devFee = 900; // 9%
   const referrerFee = 200; // 2%
 

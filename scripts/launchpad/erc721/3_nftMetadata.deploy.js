@@ -1,5 +1,5 @@
 // 3. Deploy NftMetadata contract.
-// npx hardhat run scripts/launchpad/erc721/3_nftMetadata.deploy.js --network base
+// npx hardhat run scripts/launchpad/erc721/3_nftMetadata.deploy.js --network flare
 
 const contractName = "NftMetadata";
 

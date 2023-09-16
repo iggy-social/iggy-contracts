@@ -1,11 +1,11 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/metadata.deploy.js --network songbird
+// npx hardhat run scripts/post/IggyPostNft1155/metadata.deploy.js --network flare
 
 const contractName = "IggyPostMetadata";
 
-const mdName = "SGB Chat Post";
-const description = "SGB Chat, the first decentralized social network on Songbird. Link: https://sgb.chat/";
-const url = "https://sgb.chat/post/";
+const mdName = "FLR Chat Post";
+const description = "FLR Chat is the first decentralized social network on Flare. Go visit here: https://flr.chat/";
+const url = "https://flr.chat/post/";
 const tldAddress = "0xBDACF94dDCAB51c39c2dD50BffEe60Bb8021949a";
 
 async function main() {

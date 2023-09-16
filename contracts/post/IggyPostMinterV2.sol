@@ -37,12 +37,11 @@ interface IIggyPostEnumeration {
 */
 contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   address public immutable chatTokenMinterAddress;
-  address public daoAddress;
+  address public daoAddress; // can be a distributor contract that also sends ETH to staking contract
   address public devAddress;
   address public devFeeUpdaterAddress;
   address public enumAddress;
   address public immutable postAddress;
-  address public stakingAddress; // address of the staking contract
 
   bool public enumEnabled = false;
   bool public paused = false;
@@ -55,7 +54,6 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   uint256 public daoFee = 450; // share of each domain purchase (in bips) that goes to the DAO/community that owns the frontend
   uint256 public devFee = 900; // share of each domain purchase (in bips) that goes to the developer (Iggy team)
   uint256 public referrerFee = 200; // share of each domain purchase (in bips) that goes to the referrer
-  uint256 public stakingFee = 450; // share of each domain purchase (in bips) that goes to the staking contract
 
   // CONSTRUCTOR
   constructor(
@@ -135,13 +133,6 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
       require(sentDaoFee, "Failed to send dao fee");
     }
 
-    // send a staking fee
-    if (stakingFee > 0 && stakingAddress != address(0)) {
-      uint256 stakingFeePayment = (price * stakingFee) / MAX_BPS;
-      (bool sentStakingFee, ) = payable(stakingAddress).call{value: stakingFeePayment}("");
-      require(sentStakingFee, "Failed to send staking fee");
-    }
-
     // send the rest to post author
     (bool sent, ) = payable(_author).call{value: address(this).balance}("");
     require(sent, "Failed to send payment to the post author");
@@ -157,7 +148,7 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
 
     // mint chat tokens for the NFT receiver (use only the fees to calculate the share of chat tokens, not the whole price)
     if (chatTokenMinterAddress != address(0) && block.timestamp <= chatRewardsEnd) {
-      uint256 fees = (price * (devFee + daoFee + stakingFee + referrerFee)) / MAX_BPS;
+      uint256 fees = (price * (devFee + daoFee + referrerFee)) / MAX_BPS;
       IChatTokenMinter(chatTokenMinterAddress).mint(_nftReceiver, fees*getCurrentChatEthRatio());
     }
   }
@@ -176,7 +167,7 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
 
   // change dao fee
   function changeDaoFee(uint256 _daoFee) external onlyOwner {
-    require(_daoFee + devFee + referrerFee + stakingFee <= MAX_BPS, "Fees cannot be more than 100%");
+    require(_daoFee + devFee + referrerFee <= MAX_BPS, "Fees cannot be more than 100%");
     daoFee = _daoFee;
   }
 
@@ -187,18 +178,8 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
 
   // change referrer fee
   function changeReferrerFee(uint256 _referrerFee) external onlyOwner {
-    require(daoFee + devFee + _referrerFee + stakingFee <= MAX_BPS, "Fees cannot be more than 100%");
+    require(daoFee + devFee + _referrerFee <= MAX_BPS, "Fees cannot be more than 100%");
     referrerFee = _referrerFee;
-  }
-
-  function changeStakingAddress(address _stakingAddress) external onlyOwner {
-    stakingAddress = _stakingAddress;
-  }
-
-  // change staking fee
-  function changeStakingFee(uint256 _stakingFee) external onlyOwner {
-    require(daoFee + devFee + referrerFee + _stakingFee <= MAX_BPS, "Fees cannot be more than 100%");
-    stakingFee = _stakingFee;
   }
 
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
@@ -237,7 +218,7 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   // change dev fee (only dev fee updater can change it)
   function changeDevFee(uint256 _devFee) external {
     require(msg.sender == devFeeUpdaterAddress, "Sender is not the dev fee updater");
-    require(daoFee + _devFee + referrerFee + stakingFee <= MAX_BPS, "Fees cannot be more than 100%");
+    require(daoFee + _devFee + referrerFee <= MAX_BPS, "Fees cannot be more than 100%");
     devFee = _devFee;
   }
  

@@ -1,5 +1,5 @@
 // 1. Deploy KeyStats contract first.
-// npx hardhat run scripts/keys/keyStats.deploy.js --network base
+// npx hardhat run scripts/keys/keyStats.deploy.js --network flare
 
 const contractName = "KeyStats";
 

@@ -1,16 +1,16 @@
 // Deploy minter V2 contract
-// npx hardhat run scripts/post/IggyPostNft1155/minterV2.deploy.js --network songbird
-// It will automatically set different fees (if needed) and set the staking contract address (if needed).
+// npx hardhat run scripts/post/IggyPostNft1155/minterV2.deploy.js --network flare
+// It will automatically set different fees (if needed).
 // It will also automatically add the minter to the ChatTokenMinter contract and change the minter address in the post contract.
 // If any of these actions fail, you must do them manually.
 
 const contractName = "IggyPostMinterV2";
 
-const chatTokenMinterAddress = "0x31CfDF366dd9753b8443B6fc3c59598415697131";
-const daoAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // DAO or web3 community which owns the frontend
-const devAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // person or entity that is doing the development
-const devFeeUpdaterAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // the address that can change dev fee (can be a multisig)
-const postAddress = "0xE33F27496A9cE75313f6d1FA2BA95657Fc904387";
+const chatTokenMinterAddress = "";
+const daoAddress = ""; // DAO or web3 community which owns the frontend
+const devAddress = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d"; // person or entity that is doing the development
+const devFeeUpdaterAddress = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d"; // the address that can change dev fee (can be a multisig)
+const postAddress = "";
 const chatEthRatio = 10; // 1 ETH/SGB = 10 CHAT
 const chatRewardsDuration = 60 * 60 * 24 * 30 * 11; // 30 days * 12 months = 1 year
 
@@ -22,8 +22,6 @@ const enumAddress = "";
 let daoFee = 0; // = 450; // 4.5%
 let devFee = 0; // = 900; // 9%
 let referrerFee; // = 200; // = 200; // 2%
-let stakingFee = 1800; // = 450; // 4.5%
-const stakingContractAddress = "0xCA9749778327CD67700d3a777731a712330beB9A"; // if you don't have it yet, leave it blank (but you'll need to set it later)
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -100,16 +98,6 @@ async function main() {
     await tx2d.wait();
   }
 
-  // set staking contract address
-  if (stakingContractAddress) {
-    console.log("Setting staking contract address...");
-    const tx3 = await instance.changeStakingAddress(stakingContractAddress);
-    await tx3.wait();
-    console.log("Staking contract address set!");
-  } else {
-    console.log("Staking contract address not set. Please set it manually.");
-  }
-
   // set dao fee
   if (daoFee === 0 || daoFee > 0) {
     console.log("Setting DAO fee...");
@@ -132,14 +120,6 @@ async function main() {
     const tx6 = await instance.changeReferrerFee(referrerFee);
     await tx6.wait();
     console.log("Referrer fee set!");
-  }
-
-  // set staking fee
-  if (stakingFee === 0 || stakingFee > 0) {
-    console.log("Setting staking fee...");
-    const tx7 = await instance.changeStakingFee(stakingFee);
-    await tx7.wait();
-    console.log("Staking fee set!");
   }
   
   // verify contract

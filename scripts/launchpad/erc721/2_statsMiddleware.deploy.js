@@ -1,9 +1,9 @@
 // 2. Deploy StatsMiddleware contract.
-// npx hardhat run scripts/launchpad/erc721/2_statsMiddleware.deploy.js --network base
+// npx hardhat run scripts/launchpad/erc721/2_statsMiddleware.deploy.js --network flare
 
 const contractName = "StatsMiddleware";
 
-const launchpadStatsAddress = "0x8c54EAEA2DDAA8491a32F3A0D9B308d810aEA4fc";
+const launchpadStatsAddress = "0xc486B08Ed47fFe5c1b4b1A2ff5c671EA0083D9bA";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

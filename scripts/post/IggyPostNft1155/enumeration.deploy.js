@@ -1,9 +1,9 @@
 // 4. Deploy enumeration contract
-// npx hardhat run scripts/post/IggyPostNft1155/enumeration.deploy.js --network songbird
+// npx hardhat run scripts/post/IggyPostNft1155/enumeration.deploy.js --network flare
 
 const contractName = "IggyPostEnumeration";
 
-const minterAddress = "0x1C8666e706C03EDB1c0D04a48b0B7762fc645cD4";
+const minterAddress = "0x2F103ec022a1d99291077a082b2DC24C734E58A3";
 const shouldEnumBeEnabled = true;
 
 const minterInterface = new ethers.utils.Interface([
@@ -30,7 +30,8 @@ async function main() {
 
   // add enumeration address to minter contract
   const minterContract = new ethers.Contract(minterAddress, minterInterface, deployer);
-  await minterContract.changeEnumAddress(instance.address);
+  const changeEnumAddrTx = await minterContract.changeEnumAddress(instance.address);
+  await changeEnumAddrTx.wait();
 
   console.log("Done!");
 
