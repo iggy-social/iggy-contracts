@@ -77,7 +77,7 @@ describe("IggyLaunchpad721Bonding", function () {
     await statsMiddlewareContract.addWriter(launchpadContract.address);
   });
 
-  xit("creates a new NFT contract via launchpad and mints&burns a bunch of NFTs", async function () {
+  it("creates a new NFT contract via launchpad and mints&burns a bunch of NFTs", async function () {
     // get user1 balance before
     const user1BalanceBefore = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceBefore: " + ethers.utils.formatEther(user1BalanceBefore) + " ETH");
@@ -362,9 +362,26 @@ describe("IggyLaunchpad721Bonding", function () {
       "https://iggy.social/assets/img/preview.jpg",
       "https://iggy.social/assets/img/preview.jpg"
     );
+
+    // check minting fee before
+    const mintingFeePercentageBefore = await nftContract.mintingFeePercentage();
+    console.log("mintingFeePercentageBefore: " + Number(ethers.utils.formatEther(mintingFeePercentageBefore))*100 + "%");
+
+    // fail to change minting fee via setMintingFeePercentage function in the NFT contract if new fee is too high (over 5%)
+    await expect(nftContract.connect(user1).setMintingFeePercentage(ethers.utils.parseEther("0.06"))).to.be.revertedWith("Nft721Bonding: fee must be lower than 5%");
+
+    // set minting fee to 1% via setMintingFeePercentage function in the NFT contract
+    await nftContract.connect(user1).setMintingFeePercentage(ethers.utils.parseEther("0.01"));
+
+    // check minting fee after
+    const mintingFeePercentageAfter = await nftContract.mintingFeePercentage();
+    console.log("mintingFeePercentageAfter: " + Number(ethers.utils.formatEther(mintingFeePercentageAfter))*100 + "%");
+    expect(mintingFeePercentageAfter).to.equal(ethers.utils.parseEther("0.01"));
+    expect(mintingFeePercentageAfter).to.be.lt(mintingFeePercentageBefore);
+
   });
 
-  xit("creates a few new NFT contracts via launchpad and queries them", async function () {
+  it("creates a few new NFT contracts via launchpad and queries them", async function () {
 
     await launchpadContract.connect(user1).launch(
       user1.address, // NFT contract owner

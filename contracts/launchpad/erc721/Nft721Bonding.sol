@@ -11,6 +11,7 @@ interface IFactory {
 }
 
 interface INftMd {
+  function collectionPreviews(address nftAddress_) external view returns (string memory);
   function getMetadata(address nftAddress_, uint256 tokenId_) external view returns (string memory);
 }
 
@@ -27,7 +28,6 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
   address public metadataAddress;
   address public mintingFeeReceiver;
 
-  string public collectionPreview; // collection preview image
   string public constant pricingType = "bonding";
 
   uint256 counter = 1; // counter for the tokenId
@@ -40,7 +40,6 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     address factoryAddress_,
     address metadataAddress_,
     address mintingFeeReceiver_,
-    string memory collectionPreview_,
     string memory name_,
     string memory symbol_,
     uint256 mintingFeePercentage_,
@@ -49,14 +48,18 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     factoryAddress = factoryAddress_;
     metadataAddress = metadataAddress_;
     mintingFeeReceiver = mintingFeeReceiver_;
-
-    collectionPreview = collectionPreview_;
     
     mintingFeePercentage = mintingFeePercentage_;
     ratio = ratio_;
   }
 
   // READ PUBLIC
+
+  /// @notice Get collection preview image
+  function collectionPreview() public view returns (string memory) {
+    return INftMd(metadataAddress).collectionPreviews(address(this));
+  }
+
   function getBurnPrice() public view returns (uint256) {
     uint256 tSupply = totalSupply();
 
@@ -149,13 +152,11 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     IStats(IFactory(factoryAddress).statsAddress()).addWeiSpent(_ownerOf(tokenId), protocolFee);
 
     // send fees
-    (bool success1, ) = mintingFeeReceiver.call{value: protocolFee}("");
-    (bool success2, ) = owner().call{value: ownerFee}("");
+    mintingFeeReceiver.call{value: protocolFee}("");
+    owner().call{value: ownerFee}("");
 
     // send payment to the burn caller
-    (bool success3, ) = msg.sender.call{value: price - ownerFee - protocolFee}("");
-
-    require(success1 && success2 && success3, "Unable to send funds");
+    msg.sender.call{value: price - ownerFee - protocolFee}("");
 
     return price - ownerFee - protocolFee; // return the amount of ETH sent to the caller
   }
@@ -179,10 +180,8 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     IStats(IFactory(factoryAddress).statsAddress()).addWeiSpent(msg.sender, protocolFee);
 
     // send fees
-    (bool success1, ) = mintingFeeReceiver.call{value: protocolFee}("");
-    (bool success2, ) = owner().call{value: ownerFee}("");
-
-    require(success1 && success2, "Unable to send funds");
+    mintingFeeReceiver.call{value: protocolFee}("");
+    owner().call{value: ownerFee}("");
 
     _mint(to, counter);
     ++counter;
@@ -199,20 +198,8 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
 
   // set minting fee percentage
   function setMintingFeePercentage(uint256 mintingFeePercentage_) external onlyOwner {
+    require(mintingFeePercentage_ < (5 * 1e16), "Nft721Bonding: fee must be lower than 5%");
     mintingFeePercentage = mintingFeePercentage_;
-  }
-
-  // OWNER & METADATA ADDRESS
-
-  // set collection preview image
-  function setCollectionPreview(string memory collectionPreview_) external {
-    require(
-      msg.sender == owner() || 
-      (msg.sender == metadataAddress && tx.origin == owner()), 
-      "Nft721Bonding: Only owner or metadataAddress can set a new collectionPreview"
-    );
-
-    collectionPreview = collectionPreview_;
   }
 
   // MINT FEE RECEIVER
