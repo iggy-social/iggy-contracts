@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface IERC20 {
   function transfer(address to, uint256 amount) external returns (bool);
@@ -12,6 +13,7 @@ interface IERC20 {
 /// @author Tempe Techie
 /// @notice Automatically distribute revenue to multiple recipients
 contract RevenueDistributor is Ownable, ReentrancyGuard {
+  string public constant NAME = "RevenueDistributor";
   uint256 private constant LABEL_MAX_LENGTH = 30;
 
   struct Recipient {
@@ -216,6 +218,11 @@ contract RevenueDistributor is Ownable, ReentrancyGuard {
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
   function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyOwner {
     IERC20(tokenAddress_).transfer(recipient_, tokenAmount_);
+  }
+
+  /// @notice Recover any ERC-721 token mistakenly sent to this contract address
+  function recoverERC721(address tokenAddress_, uint256 tokenId_, address recipient_) external onlyOwner {
+    IERC721(tokenAddress_).transferFrom(address(this), recipient_, tokenId_);
   }
 
   function removeManagerByAddress(address manager_) external onlyOwner {

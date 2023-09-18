@@ -1,4 +1,4 @@
-// npx hardhat run scripts/distributor/distributorFactory.deploy.js --network flare
+// npx hardhat run scripts/distributor/distributorFactory.deploy.js --network bsc
 
 const contractName = "RevenueDistributorFactory";
 

@@ -1,4 +1,4 @@
-// npx hardhat run scripts/distributor/distributor.deploy.js --network songbird
+// npx hardhat run scripts/distributor/distributor.deploy.js --network bsc
 
 const contractName = "RevenueDistributor";
 

@@ -21,7 +21,7 @@ module.exports = {
       chainId: 42161,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 1000000000, // 1 gwei
+      gasPrice: 100000000, // 1 gwei
     },
     arbitrumGoerli: {
       url: 'https://goerli-rollup.arbitrum.io/rpc',
@@ -48,8 +48,8 @@ module.exports = {
     },
     base: {
       //url: 'https://mainnet.base.org',
-      //url: 'https://rpc.notadegen.com/base',
-      url: 'https://base-mainnet.public.blastapi.io',
+      url: 'https://rpc.notadegen.com/base',
+      //url: 'https://base-mainnet.public.blastapi.io',
       chainId: 8453,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
@@ -89,6 +89,13 @@ module.exports = {
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
       gasPrice: 2000000000, // 1 gwei
+    },
+    gnosis: { // Gnosis Chain mainnet (xdai)
+      url: 'https://gnosischain-rpc.gateway.pokt.network',
+      chainId: 100,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 20000000000, // 20 gwei
     },
     mainnet: { // Ethereum
       url: 'https://eth-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_ETHEREUM,
@@ -168,13 +175,6 @@ module.exports = {
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
       gasPrice: 125000000000, // 125 gwei
-    },
-    gnosis: { // Gnosis Chain mainnet (xdai)
-      url: 'https://gnosischain-rpc.gateway.pokt.network',
-      chainId: 100,
-      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
-      gas: "auto", // gas limit
-      gasPrice: 20000000000, // 20 gwei
     }
   },
 
@@ -212,7 +212,7 @@ module.exports = {
           browserURL: "https://goerli.arbiscan.io"
         }
       },
-      /* */
+      /* 
       {
         network: "base", // BaseScan (Etherscan)
         chainId: 8453,
@@ -221,9 +221,9 @@ module.exports = {
           browserURL: "https://basescan.org"
         }
       },
+      */
       
-      
-      /* 
+      /* */
       {
         network: "base", // Blockscout
         chainId: 8453,
@@ -232,7 +232,7 @@ module.exports = {
           browserURL: "https://base.blockscout.com"
         }
       },
-      */
+      
       {
         network: "baseTestnet",
         chainId: 84531,
