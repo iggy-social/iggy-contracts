@@ -74,7 +74,8 @@ contract NftMetadataOnchainMultipleImages is Ownable {
     return imageUrls;
   }
 
-  function getMetadata(uint256 tokenId_) public view returns (string memory) {
+  /// @dev nftAddress_ needed for compatibility with NftMetadata.sol
+  function getMetadata(address nftAddress_, uint256 tokenId_) public view returns (string memory) {
     if (mdType == 1) {
       return mdUrl;
     } else if (mdType == 2) {
