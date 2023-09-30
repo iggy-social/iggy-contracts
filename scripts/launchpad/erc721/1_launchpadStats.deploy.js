@@ -1,5 +1,5 @@
 // 1. Deploy LaunchpadStats contract.
-// npx hardhat run scripts/launchpad/erc721/1_launchpadStats.deploy.js --network flare
+// npx hardhat run scripts/launchpad/erc721/1_launchpadStats.deploy.js --network polygonMumbai
 
 const contractName = "LaunchpadStats";
 

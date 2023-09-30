@@ -47,13 +47,32 @@ contract NftMetadata {
 
   // READ
 
-  function collectionPreviews(address nftAddress_) external view returns (string memory) {
-    return mds[nftAddress_].collectionPreview;
+  function getCollectionDescription(address nftAddress_) external view returns (string memory) {
+    return mds[nftAddress_].description;
   }
 
-  /// @dev for compatibility with NftMetadata.sol
-  function descriptions(address nftAddress_) external view returns (string memory) {
-    return mds[nftAddress_].description;
+  function getCollectionExternalUrl(address nftAddress_) external view returns (string memory) {
+    return mds[nftAddress_].externalUrl;
+  }
+
+  function getCollectionImages(address nftAddress_) external view returns (string[] memory) {
+    return mds[nftAddress_].images;
+  }
+
+  function getCollectionMetadataType(address nftAddress_) external view returns (uint256) {
+    return mds[nftAddress_].mdType;
+  }
+
+  function getCollectionMetadataUrl(address nftAddress_) external view returns (string memory) {
+    return mds[nftAddress_].mdUrl;
+  }
+
+  function getCollectionName(address nftAddress_) external view returns (string memory) {
+    return mds[nftAddress_].name;
+  }
+
+  function getCollectionPreviewImage(address nftAddress_) external view returns (string memory) {
+    return mds[nftAddress_].collectionPreview;
   }
 
   function getMetadata(address nftAddress_, uint256 tokenId_) external view returns (string memory) {
@@ -74,11 +93,6 @@ contract NftMetadata {
         '"description": "', mds[nftAddress_].description, '"',
         '}'))))
     );
-  }
-
-  /// @dev for compatibility with NftMetadata.sol
-  function names(address nftAddress_) external view returns (string memory) {
-    return mds[nftAddress_].name;
   }
 
   // WRITE
@@ -131,13 +145,6 @@ contract NftMetadata {
   function setExternalUrl(address nftAddress_, string memory externalUrl_) external {
     require(msg.sender == INFT(nftAddress_).owner(), "Not owner of NFT smart contract");
     mds[nftAddress_].externalUrl = externalUrl_;
-  }
-
-  /// @dev for compatibility with the launchpad contract which sets the image URL right after creating the NFT contract.
-  /// @notice This function calls addImageToCollection() function. It is only for use by the launchpad contract.
-  /// @notice If you want to change an existing image, use the changeImage() function.
-  function setImage(address nftAddress_, string memory image_) external {
-    addImageToCollection(nftAddress_, image_);
   }
 
   function setMdType(address nftAddress_, uint256 mdType_) external {

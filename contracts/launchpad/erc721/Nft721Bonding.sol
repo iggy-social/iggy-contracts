@@ -11,7 +11,7 @@ interface IFactory {
 }
 
 interface INftMd {
-  function collectionPreviews(address nftAddress_) external view returns (string memory);
+  function getCollectionPreviewImage(address nftAddress_) external view returns (string memory);
   function getMetadata(address nftAddress_, uint256 tokenId_) external view returns (string memory);
 }
 
@@ -57,7 +57,7 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
 
   /// @notice Get collection preview image
   function collectionPreview() public view returns (string memory) {
-    return INftMd(metadataAddress).collectionPreviews(address(this));
+    return INftMd(metadataAddress).getCollectionPreviewImage(address(this));
   }
 
   function getBurnPrice() public view returns (uint256) {

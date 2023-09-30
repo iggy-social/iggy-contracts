@@ -9,6 +9,7 @@ interface INFT {
 }
 
 /** 
+ * DEPRECATED
 @title Default metadata contract for ERC-721 NFTs made with Iggy Launchpad
 @author Tempe Techie
 */

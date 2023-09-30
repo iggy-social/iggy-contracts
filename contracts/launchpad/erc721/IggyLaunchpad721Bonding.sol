@@ -5,9 +5,9 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import "./Nft721Bonding.sol";
 
 interface INftMetadata {
+  function addImageToCollection(address nftAddress_, string memory imageUrl_) external;
   function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external;
   function setDescription(address nftAddress_, string memory description_) external;
-  function setImage(address nftAddress_, string memory image_) external;
   function setName(address nftAddress_, string memory name_) external;
 }
 
@@ -97,6 +97,20 @@ contract IggyLaunchpad721Bonding is Ownable {
     return nftAddressById[_uniqueId];
   }
 
+  // get NFT contracts from index to index
+  function getNftContracts(uint256 fromIndex, uint256 toIndex) external view returns(address[] memory) {
+    require(fromIndex < toIndex, "fromIndex must be less than toIndex");
+    require(toIndex < allNftContracts.length, "toIndex out of bounds");
+
+    address[] memory nftContracts_ = new address[](toIndex - fromIndex + 1);
+
+    for (uint256 i = fromIndex; i <= toIndex; i++) {
+      nftContracts_[i - fromIndex] = allNftContracts[i];
+    }
+
+    return nftContracts_;
+  }
+
   // function to check if unique ID is available
   function isUniqueIdAvailable(string calldata _uniqueId) public view returns(bool) {
     return nftAddressById[_uniqueId] == address(0);
@@ -137,9 +151,9 @@ contract IggyLaunchpad721Bonding is Ownable {
     allNftContracts.push(address(nftContract));
 
     // update metadata contract
+    INftMetadata(metadataAddress).addImageToCollection(address(nftContract), mdImage_);
     INftMetadata(metadataAddress).setCollectionPreview(address(nftContract), mdImage_);
     INftMetadata(metadataAddress).setDescription(address(nftContract), mdDescription_);
-    INftMetadata(metadataAddress).setImage(address(nftContract), mdImage_);
     INftMetadata(metadataAddress).setName(address(nftContract), mdName_);
 
     nftContract.transferOwnership(contractOwner_);

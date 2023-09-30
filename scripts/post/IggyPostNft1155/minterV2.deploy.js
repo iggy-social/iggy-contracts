@@ -1,21 +1,21 @@
 // Deploy minter V2 contract
-// npx hardhat run scripts/post/IggyPostNft1155/minterV2.deploy.js --network flare
+// npx hardhat run scripts/post/IggyPostNft1155/minterV2.deploy.js --network polygonMumbai
 // It will automatically set different fees (if needed).
 // It will also automatically add the minter to the ChatTokenMinter contract and change the minter address in the post contract.
 // If any of these actions fail, you must do them manually.
 
 const contractName = "IggyPostMinterV2";
 
-const chatTokenMinterAddress = "";
-const daoAddress = ""; // DAO or web3 community which owns the frontend
+const chatTokenMinterAddress = "0x2C6A9F47a2B1BA7976ACd14CDd8f6f35d27C1e28";
+const daoAddress = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d"; // DAO or web3 community which owns the frontend
 const devAddress = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d"; // person or entity that is doing the development
 const devFeeUpdaterAddress = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d"; // the address that can change dev fee (can be a multisig)
-const postAddress = "";
+const postAddress = "0x63FE8216a66737CFE474DF3949F9081EbD4Bd800";
 const chatEthRatio = 10; // 1 ETH/SGB = 10 CHAT
 const chatRewardsDuration = 60 * 60 * 24 * 30 * 11; // 30 days * 12 months = 1 year
 
 // enumeration contract
-const enumEnabled = true; // have it enabled by default so that users can see minted posts on their profile
+const enumEnabled = false; // have it enabled by default so that users can see minted posts on their profile
 const enumAddress = "";
 
 // set fees separately (only set if needed)
@@ -99,7 +99,7 @@ async function main() {
   }
 
   // set dao fee
-  if (daoFee === 0 || daoFee > 0) {
+  if (daoFee > 0) {
     console.log("Setting DAO fee...");
     const tx4 = await instance.changeDaoFee(daoFee);
     await tx4.wait();
@@ -107,7 +107,7 @@ async function main() {
   }
 
   // set dev fee
-  if (devFee === 0 || devFee > 0) {
+  if (devFee > 0) {
     console.log("Setting dev fee...");
     const tx5 = await instance.changeDevFee(devFee);
     await tx5.wait();
@@ -115,7 +115,7 @@ async function main() {
   }
 
   // set referrer fee
-  if (referrerFee === 0 || referrerFee > 0) {
+  if (referrerFee > 0) {
     console.log("Setting referrer fee...");
     const tx6 = await instance.changeReferrerFee(referrerFee);
     await tx6.wait();

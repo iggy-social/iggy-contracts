@@ -141,8 +141,8 @@ module.exports = {
       gasPrice: 400000000000, // 400 gwei
     },
     polygonMumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_MUMBAI,
-      //url: 'https://rpc.ankr.com/polygon_mumbai', // https://matic-mumbai.chainstacklabs.com
+      //url: 'https://polygon-mumbai.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_MUMBAI,
+      url: 'https://rpc.ankr.com/polygon_mumbai', // https://matic-mumbai.chainstacklabs.com
       chainId: 80001,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit

@@ -1,10 +1,10 @@
 // 5. Deploy mock/test Nft721Bonding contract so that others created through factory can get auto-verified.
-// npx hardhat run scripts/launchpad/erc721/5_mockBondingNft.deploy.js --network flare
+// npx hardhat run scripts/launchpad/erc721/5_mockBondingNft.deploy.js --network polygonMumbai
 
 const contractName = "Nft721Bonding";
 
-const factoryAddress = "0xC3623737209Cc141592B20bcEBCA6052AFCcD183";
-const metadataAddress = "0x1EB2Adc19eB3Df26D84427Be11F1eB1887c6631c";
+const factoryAddress = "0x0Eb744549406eeBb135C0bc139Ad63ac56350b66";
+const metadataAddress = "0xcC2fE123b4d2F29f829636c9Df55F484Ad03a3cD";
 const mintingFeeReceiver = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d";
 const cName = "Test collection";
 const cSymbol = "TEST";
