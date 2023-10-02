@@ -135,7 +135,7 @@ contract IggyLaunchpad721Bonding is Ownable {
     require(ratio >= 1e16 && ratio <= 9_000_000 ether, "Ratio out of bounds");
 
     require(isUniqueIdAvailable(uniqueId_), "Unique ID is not available");
-    require(bytes(name_).length <= maxNftNameLength, "Unique ID must be 32 characters or less");
+    require(bytes(name_).length <= maxNftNameLength, "Name must be 32 characters or less");
 
     (bool sent, ) = mintingFeeReceiver.call{value: address(this).balance}("");
     require(sent, "Failed to send launch payment to the payment receiver");
@@ -167,6 +167,10 @@ contract IggyLaunchpad721Bonding is Ownable {
 
   // OWNER
 
+  function addNftAddressToAll(address _nftAddress) external onlyOwner {
+    allNftContracts.push(_nftAddress);
+  }
+
   function addNftAddressToFeatured(address _nftAddress) external onlyOwner {
     featuredNftContracts.push(_nftAddress);
   }
@@ -175,6 +179,11 @@ contract IggyLaunchpad721Bonding is Ownable {
   function recoverEth() external onlyOwner {
     (bool sent, ) = owner().call{value: address(this).balance}("");
     require(sent, "Failed to send ETH to TLD owner");
+  }
+
+  function removeNftAddressFromAllByIndex(uint256 _index) external onlyOwner {
+    allNftContracts[_index] = allNftContracts[allNftContracts.length - 1];
+    allNftContracts.pop();
   }
 
   function removeNftAddressFromFeatured(address _nftAddress) external onlyOwner {
@@ -187,7 +196,7 @@ contract IggyLaunchpad721Bonding is Ownable {
     }
   }
 
-  function removeNftAddressFromfeaturedByIndex(uint256 _index) external onlyOwner {
+  function removeNftAddressFromFeaturedByIndex(uint256 _index) external onlyOwner {
     featuredNftContracts[_index] = featuredNftContracts[featuredNftContracts.length - 1];
     featuredNftContracts.pop();
   }
