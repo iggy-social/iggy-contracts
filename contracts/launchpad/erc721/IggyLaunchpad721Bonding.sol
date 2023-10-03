@@ -60,6 +60,7 @@ contract IggyLaunchpad721Bonding is Ownable {
     return featuredNftContracts;
   }
 
+  /// @notice Get last X amount of featured NFT contract addresses
   function getFeaturedNftContracts(uint256 amount) external view returns(address[] memory) {
     uint256 length = featuredNftContracts.length;
 
@@ -76,6 +77,12 @@ contract IggyLaunchpad721Bonding is Ownable {
     return nftContracts_;
   }
 
+  /// @notice Get array length of featured NFT contracts
+  function getFeaturedNftContractsArrayLength() external view returns(uint256) {
+    return featuredNftContracts.length;
+  }
+
+  /// @notice Get last X amount of NFT contract addresses
   function getLastNftContracts(uint256 amount) external view returns(address[] memory) {
     uint256 length = allNftContracts.length;
 
@@ -92,12 +99,12 @@ contract IggyLaunchpad721Bonding is Ownable {
     return nftContracts_;
   }
 
-  // function to get NFT contract address by unique ID
+  /// @notice Get NFT contract address by unique ID
   function getNftContractAddress(string calldata _uniqueId) external view returns(address) {
     return nftAddressById[_uniqueId];
   }
 
-  // get NFT contracts from index to index
+  /// @notice Get NFT contract addresses between two indexes
   function getNftContracts(uint256 fromIndex, uint256 toIndex) external view returns(address[] memory) {
     require(fromIndex < toIndex, "fromIndex must be less than toIndex");
     require(toIndex < allNftContracts.length, "toIndex out of bounds");
@@ -111,7 +118,12 @@ contract IggyLaunchpad721Bonding is Ownable {
     return nftContracts_;
   }
 
-  // function to check if unique ID is available
+  /// @notice Get NFT the length of the allNftContracts array
+  function getNftContractsArrayLength() external view returns(uint256) {
+    return allNftContracts.length;
+  }
+
+  /// @notice Check if unique ID is available
   function isUniqueIdAvailable(string calldata _uniqueId) public view returns(bool) {
     return nftAddressById[_uniqueId] == address(0);
   }
