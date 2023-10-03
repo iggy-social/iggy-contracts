@@ -8,7 +8,7 @@ interface IChatTokenMinter is IERC20 {
   function mint(address to, uint256 amount) external;
 }
 
-interface IIggyPostEnumeration {
+interface IIggyPostStats {
   function getMintedWei(address _address) external view returns (uint256);
 }
 
@@ -18,7 +18,7 @@ interface IIggyPostEnumeration {
 */
 contract ChatTokenClaimPostMinters is Ownable {
   address public immutable chatTokenMinter;
-  address public immutable iggyPostEnumeration;
+  address public immutable iggyPostStats;
 
   bool public paused = false;
 
@@ -29,15 +29,15 @@ contract ChatTokenClaimPostMinters is Ownable {
   // CONSTRUCTOR
   constructor(
     address _chatTokenMinter, 
-    address _iggyPostEnumeration, 
+    address _iggyPostStats, 
     uint256 _chatEthRatio 
   ) {
     require(_chatEthRatio > 0, "ChatTokenClaimPostMinters: chatEthRatio must be greater than 0");
     require(_chatTokenMinter != address(0), "ChatTokenClaimPostMinters: chatTokenMinter cannot be zero address");
-    require(_iggyPostEnumeration != address(0), "ChatTokenClaimPostMinters: iggyPostEnumeration cannot be zero address");
+    require(_iggyPostStats != address(0), "ChatTokenClaimPostMinters: iggyPostStats cannot be zero address");
 
     chatTokenMinter = _chatTokenMinter;
-    iggyPostEnumeration = _iggyPostEnumeration;
+    iggyPostStats = _iggyPostStats;
     chatEthRatio = _chatEthRatio;
   }
 
@@ -46,7 +46,7 @@ contract ChatTokenClaimPostMinters is Ownable {
   function claimPreview(address _address) public view returns (uint256) {
     if (hasClaimed[_address]) return 0; // already claimed
 
-    uint256 _mintedWei = IIggyPostEnumeration(iggyPostEnumeration).getMintedWei(_address);
+    uint256 _mintedWei = IIggyPostStats(iggyPostStats).getMintedWei(_address);
     return _mintedWei * chatEthRatio;
   }
 

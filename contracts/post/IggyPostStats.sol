@@ -4,10 +4,10 @@ pragma solidity ^0.8.17;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-/// @title Iggy post enumeration contract
+/// @title Iggy post stats contract
 /// @author Tempe Techie
 /// @notice Contract that keeps track of who minted which Iggy Post IDs
-contract IggyPostEnumeration is Ownable {
+contract IggyPostStats is Ownable {
   address public minterAddress;
 
   mapping (address => uint256[]) public getMintedPostIds; // user => postIds; get a list of post IDs minted by a user
@@ -46,18 +46,18 @@ contract IggyPostEnumeration is Ownable {
   // WRITE
 
   function addMintedPostId(address _user, uint256 _postId) external {
-    require(_msgSender() == minterAddress, "IggyPostEnumeration: Only minter can add minted post ID");
+    require(_msgSender() == minterAddress, "IggyPostStats: Only minter can add minted post ID");
     getMintedPostIds[_user].push(_postId);
     postMintedCounter[_postId] += 1;
   }
 
   function addMintedWei(address _user, uint256 _wei) external {
-    require(_msgSender() == minterAddress, "IggyPostEnumeration: Only minter can add minted wei");
+    require(_msgSender() == minterAddress, "IggyPostStats: Only minter can add minted wei");
     getMintedWei[_user] += _wei;
   }
 
   function addWeiEarnedByAuthorPerPostId(uint256 _postId, uint256 _wei) external {
-    require(_msgSender() == minterAddress, "IggyPostEnumeration: Only minter can add wei earned by author per post ID");
+    require(_msgSender() == minterAddress, "IggyPostStats: Only minter can add wei earned by author per post ID");
     weiEarnedByAuthorPerPostId[_postId] += _wei;
   }
 

@@ -22,7 +22,7 @@ interface IIggyPostNft {
 
 }
 
-interface IIggyPostEnumeration {
+interface IIggyPostStats {
   function addMintedPostId(address _user, uint256 _postId) external;
   function addMintedWei(address _user, uint256 _wei) external;
   function addWeiEarnedByAuthorPerPostId(uint256 _postId, uint256 _wei) external;
@@ -38,9 +38,9 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
   address public devAddress;
   address public devFeeUpdaterAddress;
   address public immutable postAddress;
-  address public enumAddress;
+  address public statsAddress;
 
-  bool public enumEnabled = false;
+  bool public statsEnabled = false;
   bool public paused = false;
 
   uint256 public constant MAX_BPS = 10_000;
@@ -113,16 +113,16 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     // mint the post as NFT
     tokenId = IIggyPostNft(postAddress).mint(_postId, _author, _nftReceiver, _textPreview, _image, _quantity);
 
-    // store some stats in the enumeration contract
-    if (enumEnabled && enumAddress != address(0)) {
+    // store some stats in the stats contract
+    if (statsEnabled && statsAddress != address(0)) {
       // feel free to comment out the stats that you don't need to track
-      IIggyPostEnumeration(enumAddress).addMintedWei(_nftReceiver, price);
+      IIggyPostStats(statsAddress).addMintedWei(_nftReceiver, price);
 
       // exclude fees from the price
       price = price - ((price * referrerFee) / MAX_BPS) - ((price * devFee) / MAX_BPS) - ((price * daoFee) / MAX_BPS);
-      IIggyPostEnumeration(enumAddress).addWeiEarnedByAuthorPerPostId(tokenId, price);
+      IIggyPostStats(statsAddress).addWeiEarnedByAuthorPerPostId(tokenId, price);
       
-      IIggyPostEnumeration(enumAddress).addMintedPostId(_nftReceiver, tokenId);
+      IIggyPostStats(statsAddress).addMintedPostId(_nftReceiver, tokenId);
     }
   }
 
@@ -134,9 +134,9 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     daoFee = _daoFee;
   }
 
-  // change enum address
-  function changeEnumAddress(address _enumAddress) external onlyOwner {
-    enumAddress = _enumAddress;
+  // change stats address
+  function changeStatsAddress(address _statsAddress) external onlyOwner {
+    statsAddress = _statsAddress;
   }
 
   // change referrer fee
@@ -150,8 +150,8 @@ contract IggyPostMinter is Ownable, ReentrancyGuard {
     IERC20(tokenAddress_).transfer(recipient_, tokenAmount_);
   }
 
-  function toggleEnumEnabled() external onlyOwner {
-    enumEnabled = !enumEnabled;
+  function toggleStatsEnabled() external onlyOwner {
+    statsEnabled = !statsEnabled;
   }
 
   function togglePaused() external onlyOwner {

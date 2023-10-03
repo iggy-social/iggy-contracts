@@ -26,7 +26,7 @@ interface IIggyPostNft {
 
 }
 
-interface IIggyPostEnumeration {
+interface IIggyPostStats {
   function addMintedPostId(address _user, uint256 _postId) external;
 }
 
@@ -40,10 +40,10 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   address public daoAddress; // can be a distributor contract that also sends ETH to staking contract
   address public devAddress;
   address public devFeeUpdaterAddress;
-  address public enumAddress;
+  address public statsAddress;
   address public immutable postAddress;
 
-  bool public enumEnabled = false;
+  bool public statsEnabled = false;
   bool public paused = false;
 
   uint256 public chatEthRatio; // e.g. 1_000, which means 1 ETH (or payment token) = 1,000 CHAT
@@ -140,10 +140,10 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
     // mint the post as NFT
     tokenId = IIggyPostNft(postAddress).mint(_postId, _author, _nftReceiver, _textPreview, _image, _quantity);
 
-    // store some stats in the enumeration contract
-    if (enumEnabled && enumAddress != address(0)) {
+    // store some stats in the stats contract
+    if (statsEnabled && statsAddress != address(0)) {
       // feel free to comment out the stats that you don't need to track
-      IIggyPostEnumeration(enumAddress).addMintedPostId(_nftReceiver, tokenId);
+      IIggyPostStats(statsAddress).addMintedPostId(_nftReceiver, tokenId);
     }
 
     // mint chat tokens for the NFT receiver (use only the fees to calculate the share of chat tokens, not the whole price)
@@ -171,9 +171,9 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
     daoFee = _daoFee;
   }
 
-  // change enum address
-  function changeEnumAddress(address _enumAddress) external onlyOwner {
-    enumAddress = _enumAddress;
+  // change stats address
+  function changeStatsAddress(address _statsAddress) external onlyOwner {
+    statsAddress = _statsAddress;
   }
 
   // change referrer fee
@@ -187,8 +187,8 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
     IERC20(tokenAddress_).transfer(recipient_, tokenAmount_);
   }
 
-  function toggleEnumEnabled() external onlyOwner {
-    enumEnabled = !enumEnabled;
+  function toggleStatsEnabled() external onlyOwner {
+    statsEnabled = !statsEnabled;
   }
 
   function togglePaused() external onlyOwner {

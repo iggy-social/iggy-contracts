@@ -14,9 +14,9 @@ const postAddress = "0x63FE8216a66737CFE474DF3949F9081EbD4Bd800";
 const chatEthRatio = 10; // 1 ETH/SGB = 10 CHAT
 const chatRewardsDuration = 60 * 60 * 24 * 30 * 11; // 30 days * 12 months = 1 year
 
-// enumeration contract
-const enumEnabled = false; // have it enabled by default so that users can see minted posts on their profile
-const enumAddress = "";
+// stats contract
+const statsEnabled = false; // have it enabled by default so that users can see minted posts on their profile
+const statsAddress = "";
 
 // set fees separately (only set if needed)
 let daoFee = 0; // = 450; // 4.5%
@@ -72,29 +72,29 @@ async function main() {
     console.log("Post contract is not owned by this deployer. Please change the minter address manually.");
   }
 
-  // change post minter address in enum contract
-  if (enumEnabled && enumAddress) {
-    console.log("Change post minter address in enum contract");
+  // change post minter address in stats contract
+  if (statsEnabled && statsAddress) {
+    console.log("Change post minter address in stats contract");
 
-    const enumContract = await ethers.getContractFactory("IggyPostEnumeration");
-    const enumContractInstance = await enumContract.attach(enumAddress);
+    const statsContract = await ethers.getContractFactory("IggyPostStats");
+    const statsContractInstance = await statsContract.attach(statsAddress);
 
     // setMinterAddress
-    const tx2b = await enumContractInstance.setMinterAddress(instance.address);
+    const tx2b = await statsContractInstance.setMinterAddress(instance.address);
     await tx2b.wait();
 
-    // check if enumEnabled in smart contract is true
-    const enumEnabledInContract = await instance.enumEnabled();
+    // check if statsEnabled in smart contract is true
+    const statsEnabledInContract = await instance.statsEnabled();
 
-    if (!enumEnabledInContract) {
-      console.log("Enum enabled in contract is false. Enabling it now...");
-      const tx2c = await instance.toggleEnumEnabled();
+    if (!statsEnabledInContract) {
+      console.log("Stats enabled in contract is false. Enabling it now...");
+      const tx2c = await instance.toggleStatsEnabled();
       await tx2c.wait();
     }
 
-    // change enum address in post minter contract
-    console.log("Change enum address in post minter contract");
-    const tx2d = await instance.changeEnumAddress(enumAddress);
+    // change stats address in post minter contract
+    console.log("Change stats address in post minter contract");
+    const tx2d = await instance.changeStatsAddress(statsAddress);
     await tx2d.wait();
   }
 

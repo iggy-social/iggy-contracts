@@ -1,5 +1,5 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/metadata.deploy.js --network flare
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network flare
 
 const contractName = "IggyPostMetadata";
 

@@ -5,7 +5,7 @@
 const contractName = "ChatTokenClaimPostMinters";
 
 const chatTokenMinterAddress = "0x31CfDF366dd9753b8443B6fc3c59598415697131"; // TODO
-const iggyPostEnumAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee"; // TODO
+const iggyPostStatsAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee"; // TODO
 const chatEthRatio = 1_000; // TODO: 1 ETH/SGB spent for post minting fees = 1,000 CHAT (80 ETH/SGB = 80,000 CHAT)
 
 async function main() {
@@ -18,7 +18,7 @@ async function main() {
   const contract = await ethers.getContractFactory(contractName);
   const instance = await contract.deploy(
     chatTokenMinterAddress,
-    iggyPostEnumAddress,
+    iggyPostStatsAddress,
     chatEthRatio
   );
 
@@ -42,7 +42,7 @@ async function main() {
   console.log("Lastly, verify the Minter contract on block explorer");
 
   console.log("Wait a minute and then run this command to verify contract on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + chatTokenMinterAddress + " " + iggyPostEnumAddress + ' "' + chatEthRatio + '"');
+  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + chatTokenMinterAddress + " " + iggyPostStatsAddress + ' "' + chatEthRatio + '"');
 }
 
 main()

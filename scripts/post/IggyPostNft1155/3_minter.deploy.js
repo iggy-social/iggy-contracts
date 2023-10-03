@@ -1,11 +1,11 @@
 // 3. Deploy minter contract
-// npx hardhat run scripts/post/IggyPostNft1155/minter.deploy.js --network flare
+// npx hardhat run scripts/post/IggyPostNft1155/3_minter.deploy.js --network polygonMumbai
 
 const contractName = "IggyPostMinter";
 
-const daoAddress = "0xFbaf1D1fBC5a2Fe2e48858a8A4585d5e7C12fc4A"; // distributor contract
+const daoAddress = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d"; // distributor contract
 const devAddress = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d";
-const postAddress = "0x5e54CebB2612744cB56547bC7CC41466ad7ac557";
+const postAddress = "0x63FE8216a66737CFE474DF3949F9081EbD4Bd800";
 
 const daoFee = 2000; // 20%
 const devFee = 0; // 0%

@@ -21,7 +21,7 @@ function calculateGasCosts(testName, receipt) {
 describe("ChatTokenClaimPostMinters", function () {
   let chatTokenContract;
   let chatTokenMinterContract;
-  let iggyPostEnumerationContract;
+  let iggyPostStatsContract;
   let chatTokenClaimPostMinters;
 
   let owner;
@@ -50,28 +50,28 @@ describe("ChatTokenClaimPostMinters", function () {
     // add minter to ChatToken
     await chatTokenContract.setMinter(chatTokenMinterContract.address);
 
-    // deploy IggyPostEnumeration
-    const IggyPostEnumeration = await ethers.getContractFactory("IggyPostEnumeration");
-    iggyPostEnumerationContract = await IggyPostEnumeration.deploy(owner.address); // set owner as minter
-    await iggyPostEnumerationContract.deployed();
+    // deploy IggyPostStats
+    const IggyPostStats = await ethers.getContractFactory("IggyPostStats");
+    iggyPostStatsContract = await IggyPostStats.deploy(owner.address); // set owner as minter
+    await iggyPostStatsContract.deployed();
 
     // deploy ChatTokenClaimPostMinters
     const ChatTokenClaimPostMinters = await ethers.getContractFactory("ChatTokenClaimPostMinters");
     chatTokenClaimPostMinters = await ChatTokenClaimPostMinters.deploy(
       chatTokenMinterContract.address, // ChatTokenMinter address
-      iggyPostEnumerationContract.address, // IggyPostEnumeration address
+      iggyPostStatsContract.address, // IggyPostStats address
       chatEthRatio // how many tokens per ETH spent will user get (1000 CHAT per ETH)
     );
 
     // add ChatTokenClaimPostMinters address as minter in ChatTokenMinter
     await chatTokenMinterContract.addMinter(chatTokenClaimPostMinters.address);
 
-    // add some data in the enumeration contract (addMintedWei for user1 and user2)
-    await iggyPostEnumerationContract.addMintedWei(user1.address, user1mintedWei);
-    await iggyPostEnumerationContract.addMintedWei(user2.address, user2mintedWei);
+    // add some data in the stats contract (addMintedWei for user1 and user2)
+    await iggyPostStatsContract.addMintedWei(user1.address, user1mintedWei);
+    await iggyPostStatsContract.addMintedWei(user2.address, user2mintedWei);
   });
   
-  it("can claim CHAT tokens based on data from the enumeration contract", async function () {
+  it("can claim CHAT tokens based on data from the stats contract", async function () {
     // user1: check CHAT balance 1
     const user1ChatBalance1 = await chatTokenContract.balanceOf(user1.address);
     expect(user1ChatBalance1).to.equal(0);

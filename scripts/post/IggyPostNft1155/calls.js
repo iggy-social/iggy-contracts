@@ -3,7 +3,7 @@
 const postAddress = "0xE33F27496A9cE75313f6d1FA2BA95657Fc904387";
 const minterAddress = "0x9e9905FA405A5FC7Ee2DEB94CbAc089B4FE6f0Ef";
 const metadataAddress = "0xdADFC61225BC17785E185FD6F88619e42D996472";
-const enumAddress = "0xE2AfE33f16519e31c6FFE5eEb333A0887a44D2BC";
+const statsAddress = "0xE2AfE33f16519e31c6FFE5eEb333A0887a44D2BC";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -30,7 +30,7 @@ async function main() {
     "function transferOwnership(address newOwner) external"
   ]);
 
-  const enumInterface = new ethers.utils.Interface([
+  const statsInterface = new ethers.utils.Interface([
     "function minterAddress() view external returns(address)",
     "function setMinterAddress(address _minterAddress) external"
   ]);
@@ -38,7 +38,7 @@ async function main() {
   const postContract = new ethers.Contract(postAddress, postInterface, deployer);
   const metadataContract = new ethers.Contract(metadataAddress, metadataInterface, deployer);
   const minterContract = new ethers.Contract(minterAddress, minterInterface, deployer);
-  const enumContract = new ethers.Contract(enumAddress, enumInterface, deployer);
+  const statsContract = new ethers.Contract(statsAddress, statsInterface, deployer);
 
   // GET CURRENT CHAT ETH RATIO
   //const currentChatEthRatio = await minterContract.getCurrentChatEthRatio();
@@ -94,14 +94,14 @@ async function main() {
   );
   */
 
-  // CHANGE ENUM ADDRESS
-  const enumMinterAddressBefore = await enumContract.minterAddress();
-  console.log("Enum minter address before: " + enumMinterAddressBefore);
+  // CHANGE STATS ADDRESS
+  const statsMinterAddressBefore = await statsContract.minterAddress();
+  console.log("Stats minter address before: " + statsMinterAddressBefore);
 
-  //await enumContract.setMinterAddress(minterAddress);
+  //await statsContract.setMinterAddress(minterAddress);
   
-  const enumMinterAddressAfter = await enumContract.minterAddress();
-  console.log("Enum minter address after: " + enumMinterAddressAfter);
+  const statsMinterAddressAfter = await statsContract.minterAddress();
+  console.log("Stats minter address after: " + statsMinterAddressAfter);
 
 }
 

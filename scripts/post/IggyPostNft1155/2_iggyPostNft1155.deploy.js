@@ -1,5 +1,5 @@
 // 2. Deploy NFT contract
-// npx hardhat run scripts/post/IggyPostNft1155/iggyPostNft1155.deploy.js --network polygonMumbai
+// npx hardhat run scripts/post/IggyPostNft1155/2_iggyPostNft1155.deploy.js --network polygonMumbai
 
 const contractName = "IggyPostNft1155";
 
