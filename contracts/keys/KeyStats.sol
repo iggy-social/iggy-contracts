@@ -9,8 +9,8 @@ contract KeyStats is Ownable {
   mapping (address => uint256) public getFeesWei;
 
   // READ
-  function getFee(address _address) external view returns (uint256) {
-    return getFeesWei[_address];
+  function getWeiSpent(address _user) external view returns(uint256) {
+    return getFeesWei[_user];
   }
 
   // WRITE

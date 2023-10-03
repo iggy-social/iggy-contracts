@@ -39,6 +39,10 @@ contract IggyPostEnumeration is Ownable {
     return weiEarnedByAuthorPerPostId[_postId];
   }
 
+  function getWeiSpent(address user_) external view returns (uint256) {
+    return getMintedWei[user_];
+  }
+
   // WRITE
 
   function addMintedPostId(address _user, uint256 _postId) external {
