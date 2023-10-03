@@ -1,12 +1,12 @@
-// npx hardhat run scripts/token/ChatTokenClaimPostMinters/chatTokenClaimPostMinters.deploy.js --network songbird
-// This script deploys the ChatTokenClaimPostMinters contract and sets it as a minter in the ChatTokenMinter contract.
+// npx hardhat run scripts/token/ChatTokenClaimActivityPoints/chatTokenClaimActivityPoints.deploy.js --network polygonMumbai
+// This script deploys the ChatTokenClaimActivityPoints contract and sets it as a minter in the ChatTokenMinter contract.
 // If setting the minter address fails, do it manually by calling the addMinter function in the ChatTokenMinter contract.
 
-const contractName = "ChatTokenClaimPostMinters";
+const contractName = "ChatTokenClaimActivityPoints";
 
-const chatTokenMinterAddress = "0x31CfDF366dd9753b8443B6fc3c59598415697131"; // TODO
-const iggyPostStatsAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee"; // TODO
-const chatEthRatio = 1_000; // TODO: 1 ETH/SGB spent for post minting fees = 1,000 CHAT (80 ETH/SGB = 80,000 CHAT)
+const chatTokenMinterAddress = "0x2C6A9F47a2B1BA7976ACd14CDd8f6f35d27C1e28"; // TODO
+const activityPointsAddress = "0x7d20A0E75B1ac519f500a51351bcb01A07fE3D7d"; // TODO
+const chatEthRatio = 1_000; // TODO: 1 ETH = 1,000 CHAT
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -18,7 +18,7 @@ async function main() {
   const contract = await ethers.getContractFactory(contractName);
   const instance = await contract.deploy(
     chatTokenMinterAddress,
-    iggyPostStatsAddress,
+    activityPointsAddress,
     chatEthRatio
   );
 
@@ -30,7 +30,7 @@ async function main() {
 
   console.log("Deploy transaction mined!");
 
-  console.log("Add ChatTokenClaimPostMinters contract address as the Minter in the ChatTokenMinter contract");
+  console.log("Add ChatTokenClaimActivityPoints contract address as the Minter in the ChatTokenMinter contract");
 
   const chatTokenMinterContract = await ethers.getContractFactory("ChatTokenMinter");
   const chatTokenMinterInstance = await chatTokenMinterContract.attach(chatTokenMinterAddress);
@@ -42,7 +42,7 @@ async function main() {
   console.log("Lastly, verify the Minter contract on block explorer");
 
   console.log("Wait a minute and then run this command to verify contract on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + chatTokenMinterAddress + " " + iggyPostStatsAddress + ' "' + chatEthRatio + '"');
+  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + chatTokenMinterAddress + " " + activityPointsAddress + ' "' + chatEthRatio + '"');
 }
 
 main()
