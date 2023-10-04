@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../../access/OwnableWithManagers.sol";
 
 /** 
 @title Iggy Launchpad Stats
 @author Tempe Techie
 */
-contract LaunchpadStats is Ownable {
+contract LaunchpadStats is OwnableWithManagers {
   address public statsWriterAddress;
   uint256 public totalVolumeWei;
   mapping (address => uint256) public weiSpentPerAddress;
@@ -29,7 +29,7 @@ contract LaunchpadStats is Ownable {
   
   // OWNER
 
-  function setStatsWriterAddress(address statsWriterAddress_) external onlyOwner {
+  function setStatsWriterAddress(address statsWriterAddress_) external onlyManagerOrOwner {
     statsWriterAddress = statsWriterAddress_;
   }
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../../../access/OwnableWithManagers.sol";
 import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -9,7 +9,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 @title Metadata contract for a single ERC-721 NFT made with Iggy Launchpad
 @author Tempe Techie
 */
-contract NftMetadataSingleCollection is Ownable {
+contract NftMetadataSingleCollection is OwnableWithManagers {
   using Strings for uint256;
 
   string public collectionPreview;
@@ -101,27 +101,27 @@ contract NftMetadataSingleCollection is Ownable {
   // OWNER
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external onlyOwner {
+  function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external onlyManagerOrOwner {
     collectionPreview = collectionPreview_;
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setDescription(address nftAddress_, string memory description_) external onlyOwner {
+  function setDescription(address nftAddress_, string memory description_) external onlyManagerOrOwner {
     description = description_;
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setExternalUrl(address nftAddress_, string memory externalUrl_) external onlyOwner {
+  function setExternalUrl(address nftAddress_, string memory externalUrl_) external onlyManagerOrOwner {
     externalUrl = externalUrl_;
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setImage(address nftAddress_, string memory image_) external onlyOwner {
+  function setImage(address nftAddress_, string memory image_) external onlyManagerOrOwner {
     image = image_;
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setMdType(address nftAddress_, uint256 mdType_) external onlyOwner {
+  function setMdType(address nftAddress_, uint256 mdType_) external onlyManagerOrOwner {
     mdType = mdType_;
   }
 
@@ -131,7 +131,7 @@ contract NftMetadataSingleCollection is Ownable {
     uint256 mdType_, 
     string memory mdUrlOrImage_,
     string memory collectionImage_
-  ) external onlyOwner {
+  ) external onlyManagerOrOwner {
     mdType = mdType_;
 
     if (mdType_ == 0) {
@@ -147,12 +147,12 @@ contract NftMetadataSingleCollection is Ownable {
 
   /// @notice URL to metadata on IPFS or from a custom API (needed for mdType 1 and 2). Needs to end with slash /
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setMdUrl(address nftAddress_, string memory mdUrl_) external onlyOwner {
+  function setMdUrl(address nftAddress_, string memory mdUrl_) external onlyManagerOrOwner {
     mdUrl = mdUrl_;
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setName(address nftAddress_, string memory name_) external onlyOwner {
+  function setName(address nftAddress_, string memory name_) external onlyManagerOrOwner {
     name = name_;
   }
 

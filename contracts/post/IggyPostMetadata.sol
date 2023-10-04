@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -13,7 +13,7 @@ interface IBasePunkTLD {
 /// @title Metadata contract
 /// @author Tempe Techie
 /// @notice Contract that stores metadata for an Iggy Post NFT
-contract IggyPostMetadata is Ownable {
+contract IggyPostMetadata is OwnableWithManagers {
   using Strings for uint256;
 
   address public immutable tldAddress;
@@ -115,19 +115,19 @@ contract IggyPostMetadata is Ownable {
   // WRITE (OWNER)
 
   /// @notice Only metadata contract owner can call this function.
-  function changeName(string calldata _name) external onlyOwner {
+  function changeName(string calldata _name) external onlyManagerOrOwner {
     name = _name;
     emit NameChanged(msg.sender, _name);
   }
 
   /// @notice Only metadata contract owner can call this function.
-  function changeDescription(string calldata _description) external onlyOwner {
+  function changeDescription(string calldata _description) external onlyManagerOrOwner {
     description = _description;
     emit DescriptionChanged(msg.sender, _description);
   }
 
   /// @notice Only metadata contract owner can call this function.
-  function changeUrl(string calldata _url) external onlyOwner {
+  function changeUrl(string calldata _url) external onlyManagerOrOwner {
     url = _url;
   }
   

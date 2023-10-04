@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -35,7 +35,7 @@ interface IIggyPostStats {
 @notice This contract allows users to mint IggyPost NFTs and paying with ETH.
 @dev Use this contract when CHAT token is deployed.
 */
-contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
+contract IggyPostMinterV2 is OwnableWithManagers, ReentrancyGuard {
   address public immutable chatTokenMinterAddress;
   address public daoAddress; // can be a distributor contract that also sends ETH to staking contract
   address public devAddress;
@@ -161,42 +161,42 @@ contract IggyPostMinterV2 is Ownable, ReentrancyGuard {
   }
 
   /// @notice This changes the DAO address in the minter contract
-  function changeDaoAddress(address _daoAddress) external onlyOwner {
+  function changeDaoAddress(address _daoAddress) external onlyManagerOrOwner {
     daoAddress = _daoAddress;
   }
 
   // change dao fee
-  function changeDaoFee(uint256 _daoFee) external onlyOwner {
+  function changeDaoFee(uint256 _daoFee) external onlyManagerOrOwner {
     require(_daoFee + devFee + referrerFee <= MAX_BPS, "Fees cannot be more than 100%");
     daoFee = _daoFee;
   }
 
   // change stats address
-  function changeStatsAddress(address _statsAddress) external onlyOwner {
+  function changeStatsAddress(address _statsAddress) external onlyManagerOrOwner {
     statsAddress = _statsAddress;
   }
 
   // change referrer fee
-  function changeReferrerFee(uint256 _referrerFee) external onlyOwner {
+  function changeReferrerFee(uint256 _referrerFee) external onlyManagerOrOwner {
     require(daoFee + devFee + _referrerFee <= MAX_BPS, "Fees cannot be more than 100%");
     referrerFee = _referrerFee;
   }
 
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
-  function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyOwner {
+  function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyManagerOrOwner {
     IERC20(tokenAddress_).transfer(recipient_, tokenAmount_);
   }
 
-  function toggleStatsEnabled() external onlyOwner {
+  function toggleStatsEnabled() external onlyManagerOrOwner {
     statsEnabled = !statsEnabled;
   }
 
-  function togglePaused() external onlyOwner {
+  function togglePaused() external onlyManagerOrOwner {
     paused = !paused;
   }
 
   /// @notice Withdraw native coins from contract
-  function withdraw() external onlyOwner {
+  function withdraw() external onlyManagerOrOwner {
     (bool success, ) = owner().call{value: address(this).balance}("");
     require(success, "Failed to withdraw native coins from contract");
   }

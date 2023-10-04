@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../../access/OwnableWithManagers.sol";
 
 interface IStats {
   function addWeiSpent(address user_, uint256 weiSpent_) external;
@@ -11,7 +11,7 @@ interface IStats {
 @title Iggy Launchpad Stats Middleware
 @author Tempe Techie
 */
-contract StatsMiddleware is Ownable {
+contract StatsMiddleware is OwnableWithManagers {
   address public statsAddress;
   mapping (address => bool) public writers; // writer contracts that can send stats to this contract
 
@@ -29,15 +29,15 @@ contract StatsMiddleware is Ownable {
   }
   
   // OWNER
-  function addWriter(address writer_) external onlyOwner {
+  function addWriter(address writer_) external onlyManagerOrOwner {
     writers[writer_] = true;
   }
 
-  function removeWriter(address writer_) external onlyOwner {
+  function removeWriter(address writer_) external onlyManagerOrOwner {
     writers[writer_] = false;
   }
 
-  function setStatsAddress(address statsAddress_) external onlyOwner {
+  function setStatsAddress(address statsAddress_) external onlyManagerOrOwner {
     statsAddress = statsAddress_;
   }
 

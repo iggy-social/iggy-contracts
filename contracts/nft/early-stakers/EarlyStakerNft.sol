@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../../access/OwnableWithManagers.sol";
 import { ERC5192 } from "../../lib/ERC5192.sol";
 import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 
@@ -14,7 +14,7 @@ interface IEarlyStakerMetadata {
  * @author Tempe Techie
  * @notice ERC-5192 is an extension of ERC-721 that makes the NFT soulbound (e.g. non-transferable)
  */
-contract EarlyStakerNft is ERC5192, Ownable {
+contract EarlyStakerNft is ERC5192, OwnableWithManagers {
   address public metadataAddress;
   address public minterAddress;
 
@@ -48,20 +48,20 @@ contract EarlyStakerNft is ERC5192, Ownable {
 
   // OWNER
 
-  function changeMetadataAddress(address _metadataAddress) external onlyOwner {
+  function changeMetadataAddress(address _metadataAddress) external onlyManagerOrOwner {
     metadataAddress = _metadataAddress;
   }
 
-  function changeMinterAddress(address _minterAddress) external onlyOwner {
+  function changeMinterAddress(address _minterAddress) external onlyManagerOrOwner {
     minterAddress = _minterAddress;
   }
 
-  function ownerMintNft(address _to) external onlyOwner {
+  function ownerMintNft(address _to) external onlyManagerOrOwner {
     _mint(_to, counter);
     counter++;
   }
 
-  function togglePaused() external onlyOwner {
+  function togglePaused() external onlyManagerOrOwner {
     paused = !paused;
   }
 

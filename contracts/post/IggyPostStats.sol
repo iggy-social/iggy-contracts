@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title Iggy post stats contract
 /// @author Tempe Techie
 /// @notice Contract that keeps track of who minted which Iggy Post IDs
-contract IggyPostStats is Ownable {
+contract IggyPostStats is OwnableWithManagers {
   address public minterAddress;
 
   mapping (address => uint256[]) public getMintedPostIds; // user => postIds; get a list of post IDs minted by a user
@@ -63,7 +63,7 @@ contract IggyPostStats is Ownable {
 
   // OWNER
 
-  function setMinterAddress(address _minterAddress) external onlyOwner {
+  function setMinterAddress(address _minterAddress) external onlyManagerOrOwner {
     minterAddress = _minterAddress;
     emit MinterAddressChanged(_msgSender(), _minterAddress);
   }
@@ -71,12 +71,12 @@ contract IggyPostStats is Ownable {
   // RECOVERY
 
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
-  function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyOwner {
+  function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyManagerOrOwner {
     IERC20(tokenAddress_).transfer(recipient_, tokenAmount_);
   }
 
   /// @notice Withdraw native coins from contract
-  function withdraw() external onlyOwner {
+  function withdraw() external onlyManagerOrOwner {
     (bool success, ) = owner().call{value: address(this).balance}("");
     require(success, "Failed to withdraw native coins from contract");
   }

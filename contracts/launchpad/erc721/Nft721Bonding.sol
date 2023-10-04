@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import { ERC721, ERC721Enumerable } from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../../access/OwnableWithManagers.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface IFactory {
@@ -23,7 +23,7 @@ interface IStats {
 @title ERC-721 contract with bonding curve pricing
 @author Tempe Techie
 */
-contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
+contract Nft721Bonding is ERC721, ERC721Enumerable, OwnableWithManagers, ReentrancyGuard {
   address public factoryAddress;
   address public metadataAddress;
   address public mintingFeeReceiver;
@@ -205,12 +205,12 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
   // OWNER
 
   // set metadata address
-  function setMetadataAddress(address metadataAddress_) external onlyOwner {
+  function setMetadataAddress(address metadataAddress_) external onlyManagerOrOwner {
     metadataAddress = metadataAddress_;
   }
 
   // set minting fee percentage
-  function setMintingFeePercentage(uint256 mintingFeePercentage_) external onlyOwner {
+  function setMintingFeePercentage(uint256 mintingFeePercentage_) external onlyManagerOrOwner {
     require(mintingFeePercentage_ < (5 * 1e16), "Nft721Bonding: fee must be lower than 5%");
     mintingFeePercentage = mintingFeePercentage_;
   }

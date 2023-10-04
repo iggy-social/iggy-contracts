@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 
 interface IStats {
   function getWeiSpent(address user_) external view returns (uint256);
 }
 
-contract ActivityPoints is Ownable {
+/** 
+@title Collect all wei spending stats from different contracts and return them as one
+@author Tempe Techie
+*/
+contract ActivityPoints is OwnableWithManagers {
   address public keyStatsAddress;
   address public mintedPostsStatsAddress;
   address public nftStatsAddress;
@@ -51,19 +55,19 @@ contract ActivityPoints is Ownable {
 
   // OWNER
 
-  function setKeyStatsAddress(address _keyStatsAddress) external onlyOwner {
+  function setKeyStatsAddress(address _keyStatsAddress) external onlyManagerOrOwner {
     keyStatsAddress = _keyStatsAddress;
   }
 
-  function setMintedPostsStatsAddress(address _mintedPostsStatsAddress) external onlyOwner {
+  function setMintedPostsStatsAddress(address _mintedPostsStatsAddress) external onlyManagerOrOwner {
     mintedPostsStatsAddress = _mintedPostsStatsAddress;
   }
 
-  function setNftStatsAddress(address _nftStatsAddress) external onlyOwner {
+  function setNftStatsAddress(address _nftStatsAddress) external onlyManagerOrOwner {
     nftStatsAddress = _nftStatsAddress;
   }
 
-  function setTldStatsAddress(address _tldStatsAddress) external onlyOwner {
+  function setTldStatsAddress(address _tldStatsAddress) external onlyManagerOrOwner {
     tldStatsAddress = _tldStatsAddress;
   }
   

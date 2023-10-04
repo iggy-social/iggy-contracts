@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -74,7 +74,7 @@ interface IWETH {
 /// @title Iggy swap router contract
 /// @author Tempe Techie
 /// @notice Contract that helps an Iggy frontend to swap tokens (custom because it's specific to a particular frontend)
-contract IggySwapRouter is Ownable {
+contract IggySwapRouter is OwnableWithManagers {
   using SafeERC20 for IERC20;
 
   address public feeChangerAddress; // a special role that is allowed to change fees and share amounts
@@ -485,22 +485,22 @@ contract IggySwapRouter is Ownable {
   // OWNER
 
   /// @notice Change router address
-  function changeRouterAddress(address _newRouterAddress) external onlyOwner {
+  function changeRouterAddress(address _newRouterAddress) external onlyManagerOrOwner {
     routerAddress = _newRouterAddress;
   }
 
   /// @notice Change staking address
-  function changeStakingAddress(address _newStakingAddress) external onlyOwner {
+  function changeStakingAddress(address _newStakingAddress) external onlyManagerOrOwner {
     stakingAddress = _newStakingAddress;
   }
 
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
-  function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyOwner {
+  function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyManagerOrOwner {
     IERC20(tokenAddress_).safeTransfer(recipient_, tokenAmount_);
   }
 
   /// @notice Recover native coins from contract
-  function recoverETH() external onlyOwner {
+  function recoverETH() external onlyManagerOrOwner {
     (bool success, ) = owner().call{value: address(this).balance}("");
     require(success, "Failed to recover native coins from contract");
   }

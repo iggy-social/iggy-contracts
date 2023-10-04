@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 
-contract KeyStats is Ownable {
+/** 
+@title Stats for Friend Keys
+@author Tempe Techie
+*/
+contract KeyStats is OwnableWithManagers {
   address public submitter;
 
   mapping (address => uint256) public getFeesWei;
@@ -20,7 +24,7 @@ contract KeyStats is Ownable {
   }
 
   // OWNER
-  function setSubmitter(address _submitter) external onlyOwner {
+  function setSubmitter(address _submitter) external onlyManagerOrOwner {
     submitter = _submitter;
   }
 }

@@ -3,10 +3,14 @@ pragma solidity 0.8.17;
 
 import { IPunkTLD } from "../interfaces/IPunkTLD.sol";
 import { IKeyStats } from "../interfaces/IKeyStats.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract FriendKeys is Ownable, ReentrancyGuard {
+/** 
+@title Friend Keys contract for buying and selling keys of punk domains
+@author Tempe Techie
+*/
+contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
   address public feeReceiver; // protocol fee receiver
   address public keyStats;
   address public immutable tldAddress;
@@ -178,25 +182,25 @@ contract FriendKeys is Ownable, ReentrancyGuard {
     require(success1 && success2 && success3, "Unable to send funds");
   }
 
-  // OWNER
+  // OWNER OR MANAGER
 
-  function changeDomainHolderFeePercent(uint256 _feePercent) public onlyOwner {
+  function changeDomainHolderFeePercent(uint256 _feePercent) public onlyManagerOrOwner {
     domainHolderFeePercent = _feePercent;
   }
 
-  function changeFeeReceiver(address _feeReceiver) public onlyOwner {
+  function changeFeeReceiver(address _feeReceiver) public onlyManagerOrOwner {
     feeReceiver = _feeReceiver;
   }
 
-  function changeKeyStatsAddress(address _keyStats) public onlyOwner {
+  function changeKeyStatsAddress(address _keyStats) public onlyManagerOrOwner {
     keyStats = _keyStats;
   }
 
-  function changeProtocolFeePercent(uint256 _feePercent) public onlyOwner {
+  function changeProtocolFeePercent(uint256 _feePercent) public onlyManagerOrOwner {
     protocolFeePercent = _feePercent;
   }
 
-  function stopCollectingStats() public onlyOwner {
+  function stopCollectingStats() public onlyManagerOrOwner {
     collectStats = false;
   }
   

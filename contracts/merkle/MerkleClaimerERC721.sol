@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
@@ -10,7 +10,7 @@ interface INFT is IERC721 {
   function mint(address to) external;
 }
 
-contract MerkleClaimerERC721 is Ownable {
+contract MerkleClaimerERC721 is OwnableWithManagers {
   address public immutable nftAddress;
   bool public paused = false;
   bytes32 public immutable root; // merkle root
@@ -33,7 +33,7 @@ contract MerkleClaimerERC721 is Ownable {
   }
 
   // OWNER
-  function togglePaused() external onlyOwner {
+  function togglePaused() external onlyManagerOrOwner {
     paused = !paused;
   }
 }

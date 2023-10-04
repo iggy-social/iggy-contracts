@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../../access/OwnableWithManagers.sol";
 import "./Nft721Bonding.sol";
 
 interface INftMetadata {
@@ -20,7 +20,7 @@ interface IStatsContract {
 @title Factory contract for launching new ERC721 collections with bonding curve pricing
 @author Tempe Techie
 */
-contract IggyLaunchpad721Bonding is Ownable {
+contract IggyLaunchpad721Bonding is OwnableWithManagers {
   address public metadataAddress;
   address public mintingFeeReceiver; // the address that receives the ETH paid for launching a new NFT contract & minting fees from NFT contracts
   address public statsAddress; // usually the stats middleware address
@@ -179,26 +179,26 @@ contract IggyLaunchpad721Bonding is Ownable {
 
   // OWNER
 
-  function addNftAddressToAll(address _nftAddress) external onlyOwner {
+  function addNftAddressToAll(address _nftAddress) external onlyManagerOrOwner {
     allNftContracts.push(_nftAddress);
   }
 
-  function addNftAddressToFeatured(address _nftAddress) external onlyOwner {
+  function addNftAddressToFeatured(address _nftAddress) external onlyManagerOrOwner {
     featuredNftContracts.push(_nftAddress);
   }
 
   /// @notice Recover ETH sent to this contract
-  function recoverEth() external onlyOwner {
+  function recoverEth() external onlyManagerOrOwner {
     (bool sent, ) = owner().call{value: address(this).balance}("");
     require(sent, "Failed to send ETH to TLD owner");
   }
 
-  function removeNftAddressFromAllByIndex(uint256 _index) external onlyOwner {
+  function removeNftAddressFromAllByIndex(uint256 _index) external onlyManagerOrOwner {
     allNftContracts[_index] = allNftContracts[allNftContracts.length - 1];
     allNftContracts.pop();
   }
 
-  function removeNftAddressFromFeatured(address _nftAddress) external onlyOwner {
+  function removeNftAddressFromFeatured(address _nftAddress) external onlyManagerOrOwner {
     for (uint256 i = 0; i < featuredNftContracts.length; i++) {
       if (featuredNftContracts[i] == _nftAddress) {
         featuredNftContracts[i] = featuredNftContracts[featuredNftContracts.length - 1];
@@ -208,43 +208,43 @@ contract IggyLaunchpad721Bonding is Ownable {
     }
   }
 
-  function removeNftAddressFromFeaturedByIndex(uint256 _index) external onlyOwner {
+  function removeNftAddressFromFeaturedByIndex(uint256 _index) external onlyManagerOrOwner {
     featuredNftContracts[_index] = featuredNftContracts[featuredNftContracts.length - 1];
     featuredNftContracts.pop();
   }
 
   /// @notice Set max NFT name length
-  function setMaxNftNameLength(uint256 _maxNftNameLength) external onlyOwner {
+  function setMaxNftNameLength(uint256 _maxNftNameLength) external onlyManagerOrOwner {
     maxNftNameLength = _maxNftNameLength;
   }
 
   /// @notice Set metadata contract address
-  function setMetadataAddress(address _metadataAddress) external onlyOwner {
+  function setMetadataAddress(address _metadataAddress) external onlyManagerOrOwner {
     metadataAddress = _metadataAddress;
   }
 
   /// @notice Set royalty fee receiver
-  function setMintingFeeReceiver(address _mintingFeeReceiver) external onlyOwner {
+  function setMintingFeeReceiver(address _mintingFeeReceiver) external onlyManagerOrOwner {
     mintingFeeReceiver = _mintingFeeReceiver;
   }
 
   /// @notice Set royalty fee percentage in wei
-  function setMintingFeePercentage(uint256 _mintingFeePercentage) external onlyOwner {
+  function setMintingFeePercentage(uint256 _mintingFeePercentage) external onlyManagerOrOwner {
     mintingFeePercentage = _mintingFeePercentage;
   }
 
   /// @notice Set price for creating new NFT contract
-  function setPrice(uint256 _price) external onlyOwner {
+  function setPrice(uint256 _price) external onlyManagerOrOwner {
     price = _price;
   }
 
   /// @notice Set stats contract address
-  function setStatsAddress(address _statsAddress) external onlyOwner {
+  function setStatsAddress(address _statsAddress) external onlyManagerOrOwner {
     statsAddress = _statsAddress;
   }
 
   /// @notice Toggle pausing launching new collections
-  function togglePaused() external onlyOwner {
+  function togglePaused() external onlyManagerOrOwner {
     paused = !paused;
   }
 

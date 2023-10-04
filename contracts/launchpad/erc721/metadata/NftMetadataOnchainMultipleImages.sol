@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../../../access/OwnableWithManagers.sol";
 import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -9,7 +9,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 @title Metadata contract for a single ERC-721 NFT made with Iggy Launchpad. This contract allows for multiple onchain image URLs.
 @author Tempe Techie
 */
-contract NftMetadataOnchainMultipleImages is Ownable {
+contract NftMetadataOnchainMultipleImages is OwnableWithManagers {
   using Strings for uint256;
 
   string public collectionPreview; // collection preview image URL
@@ -116,12 +116,12 @@ contract NftMetadataOnchainMultipleImages is Ownable {
 
   // OWNER
 
-  function addImageToCollection(string memory imageUrl_) external onlyOwner {
+  function addImageToCollection(string memory imageUrl_) external onlyManagerOrOwner {
     imageUrls.push(imageUrl_);
   }
 
   /// @notice While this removes an image from the array, it also puts the last image in the array into the place of this removed image
-  function removeImageFromCollection(string memory imageUrl_) external onlyOwner {
+  function removeImageFromCollection(string memory imageUrl_) external onlyManagerOrOwner {
     for (uint256 i = 0; i < imageUrls.length; i++) {
       if (keccak256(bytes(imageUrls[i])) == keccak256(bytes(imageUrl_))) {
         imageUrls[i] = imageUrls[imageUrls.length - 1];
@@ -132,34 +132,34 @@ contract NftMetadataOnchainMultipleImages is Ownable {
   }
 
   /// @notice While this removes an image from the array, it also puts the last image in the array into the place of this removed image
-  function removeImageFromCollectionByIndex(uint256 index_) external onlyOwner {
+  function removeImageFromCollectionByIndex(uint256 index_) external onlyManagerOrOwner {
     require(index_ < imageUrls.length, "Index out of bounds");
     imageUrls[index_] = imageUrls[imageUrls.length - 1];
     imageUrls.pop();
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external onlyOwner {
+  function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external onlyManagerOrOwner {
     collectionPreview = collectionPreview_;
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setDescription(address nftAddress_, string memory description_) external onlyOwner {
+  function setDescription(address nftAddress_, string memory description_) external onlyManagerOrOwner {
     description = description_;
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setExternalUrl(address nftAddress_, string memory externalUrl_) external onlyOwner {
+  function setExternalUrl(address nftAddress_, string memory externalUrl_) external onlyManagerOrOwner {
     externalUrl = externalUrl_;
   }
 
   /// @dev here for compatibility with NftMetadata.sol
-  function setImage(address nftAddress_, string memory image_) external onlyOwner {
+  function setImage(address nftAddress_, string memory image_) external onlyManagerOrOwner {
     imageUrls[0] = image_;
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setMdType(address nftAddress_, uint256 mdType_) external onlyOwner {
+  function setMdType(address nftAddress_, uint256 mdType_) external onlyManagerOrOwner {
     mdType = mdType_;
   }
 
@@ -169,7 +169,7 @@ contract NftMetadataOnchainMultipleImages is Ownable {
     uint256 mdType_, 
     string memory mdUrlOrImage_,
     string memory collectionImage_
-  ) external onlyOwner {
+  ) external onlyManagerOrOwner {
     mdType = mdType_;
 
     if (mdType_ == 0) {
@@ -185,12 +185,12 @@ contract NftMetadataOnchainMultipleImages is Ownable {
 
   /// @notice URL to metadata on IPFS or from a custom API (needed for mdType 1 and 2). Needs to end with slash /
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setMdUrl(address nftAddress_, string memory mdUrl_) external onlyOwner {
+  function setMdUrl(address nftAddress_, string memory mdUrl_) external onlyManagerOrOwner {
     mdUrl = mdUrl_;
   }
 
   /// @dev nftAddress_ as param for compatibility with NftMetadata.sol
-  function setName(address nftAddress_, string memory name_) external onlyOwner {
+  function setName(address nftAddress_, string memory name_) external onlyManagerOrOwner {
     name = name_;
   }
 

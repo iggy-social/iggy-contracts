@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 /// @title Iggy Social Post NFT
-contract IggyPostNft721 is ERC721, Ownable {
+contract IggyPostNft721 is ERC721, OwnableWithManagers {
   address public metadataAddress; // address of the metadata contract
   address public minterAddress; // address of the minter contract
 
@@ -41,17 +41,17 @@ contract IggyPostNft721 is ERC721, Ownable {
   // OWNER
 
   // set default price
-  function ownerChangeDefaultPrice (uint256 _newDefaultPrice) public onlyOwner {
+  function ownerChangeDefaultPrice (uint256 _newDefaultPrice) public onlyManagerOrOwner {
     defaultPrice = _newDefaultPrice;
   }
 
   // set metadata address
-  function ownerChangeMetadataAddress (address _newMetadataAddress) public onlyOwner {
+  function ownerChangeMetadataAddress (address _newMetadataAddress) public onlyManagerOrOwner {
     metadataAddress = _newMetadataAddress;
   }
 
   // change minter address
-  function ownerChangeMinterAddress (address _newMinterAddress) public onlyOwner {
+  function ownerChangeMinterAddress (address _newMinterAddress) public onlyManagerOrOwner {
     minterAddress = _newMinterAddress;
   }
 

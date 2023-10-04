@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import { ERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ERC20Votes, ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /** 
@@ -14,7 +14,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuar
 staked token in 1:1 ratio. Receipt token holders can claim ETH rewards periodically. Receipt token holders 
 can also vote in governance (ERC20Votes) or have tokens transferred using the erc-2612 permit() function (ERC20Permit).
 */
-contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
+contract IggyStakingRewards is ERC20, OwnableWithManagers, ReentrancyGuard, ERC20Votes {
   using SafeERC20 for IERC20;
 
   address public immutable asset; // staked token address (rebase tokens and tokens with fee-on-transfer are NOT supported!)
@@ -253,25 +253,25 @@ contract IggyStakingRewards is ERC20, Ownable, ReentrancyGuard, ERC20Votes {
   Sets the minimum amount of ETH that must be in the contract for rewards to be distributed.
   If minimum is not met, rewards roll over into the next period.
   */
-  function setClaimRewardsMinimum(uint256 _claimRewardsMinimum) external onlyOwner {
+  function setClaimRewardsMinimum(uint256 _claimRewardsMinimum) external onlyManagerOrOwner {
     claimRewardsMinimum = _claimRewardsMinimum;
     emit OwnerClaimRewardsMinimumSet(msg.sender, _claimRewardsMinimum);
   }
 
   /// @notice Sets the maximum amount of assets that a user can deposit at once.
-  function setMaxDeposit(uint256 _maxDeposit) external onlyOwner {
+  function setMaxDeposit(uint256 _maxDeposit) external onlyManagerOrOwner {
     maxDeposit = _maxDeposit;
     emit OwnerMaxDepositSet(msg.sender, _maxDeposit);
   }
 
   /// @notice Sets the minimum amount of assets that a user can deposit.
-  function setMinDeposit(uint256 _minDeposit) external onlyOwner {
+  function setMinDeposit(uint256 _minDeposit) external onlyManagerOrOwner {
     minDeposit = _minDeposit;
     emit OwnerMinDepositSet(msg.sender, _minDeposit);
   }
 
   /// @notice Toggle withdrawals on/off
-  function toggleWithdrawals() external onlyOwner {
+  function toggleWithdrawals() external onlyManagerOrOwner {
     withdrawalsDisabled = !withdrawalsDisabled;
     
     if (withdrawalsDisabled) {

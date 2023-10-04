@@ -221,7 +221,7 @@ describe("RevenueDistributor", function () {
     // revert when user1 is trying to add a new recipient
     await expect(
       distributorContract.connect(user1).addRecipient(user2.address, "Recipient 7", ethers.utils.parseEther("0.01"))
-    ).to.be.revertedWith("RevenueDistributor: caller is not a manager");
+    ).to.be.revertedWith("OwnableWithManagers: caller is not a manager or owner");
 
     // add user1 as manager via addManager
     await distributorContract.addManager(user1.address);

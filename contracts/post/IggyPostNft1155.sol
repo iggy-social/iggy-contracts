@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
@@ -17,7 +17,7 @@ interface IIggyPostNftMetadata {
 }
 
 /// @title Iggy Social Post NFT
-contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
+contract IggyPostNft1155 is ERC1155, OwnableWithManagers, ReentrancyGuard {
   address public metadataAddress; // address of the metadata contract
   address public minterAddress; // address of the minter contract
 
@@ -152,29 +152,29 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   // OWNER
 
   // change default price
-  function ownerChangeDefaultPrice(uint256 _newDefaultPrice) external onlyOwner {
+  function ownerChangeDefaultPrice(uint256 _newDefaultPrice) external onlyManagerOrOwner {
     defaultPrice = _newDefaultPrice;
   }
 
   // owner can change image (if inappropiate)
-  function ownerChangeImage(uint256 _tokenId, string memory _newImage) external onlyOwner {
+  function ownerChangeImage(uint256 _tokenId, string memory _newImage) external onlyManagerOrOwner {
     require(_tokenId < counter, "IggyPost: Token id does not exist");
     require(!postChangingDisabledForever, "IggyPost: Post changing is disabled forever");
     getPost[_tokenId].image = _newImage;
   }
 
   // change metadata address
-  function ownerChangeMetadataAddress(address _newMetadataAddress) external onlyOwner {
+  function ownerChangeMetadataAddress(address _newMetadataAddress) external onlyManagerOrOwner {
     metadataAddress = _newMetadataAddress;
   }
 
   // change minter address
-  function ownerChangeMinterAddress(address _newMinterAddress) external onlyOwner {
+  function ownerChangeMinterAddress(address _newMinterAddress) external onlyManagerOrOwner {
     minterAddress = _newMinterAddress;
   }
 
   // owner can change text preview of a post
-  function ownerChangeTextPreview(uint256 _tokenId, string memory _newTextPreview) external onlyOwner {
+  function ownerChangeTextPreview(uint256 _tokenId, string memory _newTextPreview) external onlyManagerOrOwner {
     require(_tokenId < counter, "IggyPost: Token id does not exist");
     require(!postChangingDisabledForever, "IggyPost: Post changing is disabled forever");
     require(bytes(_newTextPreview).length <= maxTextPreviewLength, "IggyPost: Text preview is too long");
@@ -182,7 +182,7 @@ contract IggyPostNft1155 is ERC1155, Ownable, ReentrancyGuard {
   }
 
   // change text preview length
-  function ownerChangeMaxTextPreviewLength(uint256 _newMaxTextPreviewLength) external onlyOwner {
+  function ownerChangeMaxTextPreviewLength(uint256 _newMaxTextPreviewLength) external onlyManagerOrOwner {
     maxTextPreviewLength = _newMaxTextPreviewLength;
   }
 

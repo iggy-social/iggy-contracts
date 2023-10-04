@@ -6,7 +6,7 @@ const contractName = "ChatTokenClaimActivityPoints";
 
 const chatTokenMinterAddress = "0x2C6A9F47a2B1BA7976ACd14CDd8f6f35d27C1e28"; // TODO
 const activityPointsAddress = "0x7d20A0E75B1ac519f500a51351bcb01A07fE3D7d"; // TODO
-const chatEthRatio = 1_000; // TODO: 1 ETH = 1,000 CHAT
+const chatEthRatio = 1_000_000; // TODO: 1 ETH = 1,000 CHAT
 
 async function main() {
   const [deployer] = await ethers.getSigners();

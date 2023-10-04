@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableWithManagers } from "../../access/OwnableWithManagers.sol";
 import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 
-contract EarlyStakerMetadata is Ownable {
+contract EarlyStakerMetadata is OwnableWithManagers {
   string public description;
   string public externalUrl;
   string public image;
@@ -42,23 +42,23 @@ contract EarlyStakerMetadata is Ownable {
 
   // OWNER
 
-  function changeDescription(string memory description_) external onlyOwner {
+  function changeDescription(string memory description_) external onlyManagerOrOwner {
     description = description_;
   }
 
-  function changeExternalUrl(string memory externalUrl_) external onlyOwner {
+  function changeExternalUrl(string memory externalUrl_) external onlyManagerOrOwner {
     externalUrl = externalUrl_;
   }
 
-  function changeImage(string memory image_) external onlyOwner {
+  function changeImage(string memory image_) external onlyManagerOrOwner {
     image = image_;
   }
 
-  function changeName(string memory name_) external onlyOwner {
+  function changeName(string memory name_) external onlyManagerOrOwner {
     name = name_;
   }
 
-  function changeVideo(string memory video_) external onlyOwner {
+  function changeVideo(string memory video_) external onlyManagerOrOwner {
     video = video_;
   }
 
