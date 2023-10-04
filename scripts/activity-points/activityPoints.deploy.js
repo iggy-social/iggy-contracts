@@ -1,11 +1,11 @@
-// npx hardhat run scripts/activity-points/activityPoints.deploy.js --network polygonMumbai
+// npx hardhat run scripts/activity-points/activityPoints.deploy.js --network base
 
 const contractName = "ActivityPoints";
 
-const keyStatsAddress = "0x656b16555563167d7F78557Ec5Ed4292630F72EF";
-const mintedPostsStatsAddress = "0xFCF878b629fF0Ef3bC033eFfCfFD39B00c9a68C5";
-const nftStatsAddress = "0x8437dC33089B4Bd349566aa84825720f16954962";
-const tldStatsAddress = ethers.constants.AddressZero;
+const keyStatsAddress = "0x1625F2c759004726273fecd1449F882d5Bf6F76F";
+const mintedPostsStatsAddress = "0xDA07Ef226E212f548979339BFEb13160C1d52f30";
+const nftStatsAddress = "0x26Ea4872Ed43d9FedC240CC4dEB1DD06d6546856"; // NFT Launchpad stats
+const tldStatsAddress = "0xC316f4a7a0f663ae0790d75eEfcF4a0d212a5472"; // ethers.constants.AddressZero;
 
 async function main() {
   const [deployer] = await ethers.getSigners();

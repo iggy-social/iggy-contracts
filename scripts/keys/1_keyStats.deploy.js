@@ -1,5 +1,5 @@
 // 1. Deploy KeyStats contract first.
-// npx hardhat run scripts/keys/1_keyStats.deploy.js --network polygonMumbai
+// npx hardhat run scripts/keys/1_keyStats.deploy.js --network base
 
 const contractName = "KeyStats";
 

@@ -1,13 +1,13 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network polygonMumbai
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network base
 
 const contractName = "IggyPostMetadataStaticColor";
 
-const colorCode = "#8e85e6";
-const mdName = "Iggy Social Demo Post";
-const description = "Iggy Social is a Web3 Social template for DAOs and web3 communities. Go visit here: https://demo.iggy.social/";
-const url = "https://demo.iggy.social/post/";
-const tldAddress = "0x2582EC420195Fefb091B098da6FAdEE49f490740";
+const colorCode = "#e4007b";
+const mdName = "BasePunk Chat Post";
+const description = "BasePunk Chat is a Web3 Social app for the BasePunk NFT community. Go visit here: https://chat.basepunk.xyz/";
+const url = "https://chat.basepunk.xyz/post/";
+const tldAddress = "0xc2C543D39426bfd1dB66bBde2Dd9E4a5c7212876";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
