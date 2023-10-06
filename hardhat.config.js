@@ -47,8 +47,8 @@ module.exports = {
       gasPrice: 1000000000, // 1 gwei
     },
     base: {
-      //url: 'https://mainnet.base.org',
-      url: 'https://rpc.notadegen.com/base',
+      url: 'https://mainnet.base.org',
+      //url: 'https://rpc.notadegen.com/base',
       //url: 'https://base-mainnet.public.blastapi.io',
       chainId: 8453,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
