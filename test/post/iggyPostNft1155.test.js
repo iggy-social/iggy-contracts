@@ -843,4 +843,41 @@ describe("IggyPostNft1155", function () {
 
   });
 
+  it("mints a post NFT with emoji in text", async function () {
+    const tokenId = 1;
+
+    const textPreviewEmoji = "Loremicies lacinia. 😅 Nisl nisl aliquam nisl, eget aliquam nisl nisl sit amet nisl. 🤣";
+
+    // check user1 balance before
+    const user1BalanceBefore = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceBefore).to.equal(0);
+
+    // fails to mint because the preview text is too long
+    await minterContract.connect(user1).mint(
+      postId, // post ID
+      author.address, // post author
+      user1.address, // NFT receiver
+      referrer.address, // referrer
+      textPreviewEmoji, // text preview
+      "", // image
+      quantityOne, // quantity
+      {
+        value: defaultPrice
+      }
+    );
+
+    // check user1 balance after
+    const user1BalanceAfter = await iggyPostContract.balanceOf(user1.address, tokenId);
+    expect(user1BalanceAfter).to.equal(1);
+
+    // get NFT metadata
+    const nftMetadata = await iggyPostContract.uri(tokenId);
+    console.log("NFT metadata: ", nftMetadata);
+
+    // fetch Post data (token id 1) and assert that text preview in post data is correct
+    const postData = await iggyPostContract.getPost(tokenId);
+    expect(postData.textPreview).to.equal(textPreviewEmoji);
+
+  });
+
 });
