@@ -2,14 +2,14 @@
 
 const contractName = "IggySwapRouter";
 
-const frontendAddress = "0x0000000000000000000000000000000000000000";
-const iggyAddress = "0x6771f33cfd8c6fc0a1766331f715f5d2e1d4e0e2";
-const routerAddress = "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86";
+const frontendAddress = "0xd688b5ed29ab77b39884babd1930213bf7805cd1";
+const iggyAddress = "0xe08033d0bdbcebe7e619c3ae165e7957ab577961";
+const routerAddress = "0x327df1e6de05895d2ab08513aadd9313fe505d86";
 const stakingAddress = "0x0000000000000000000000000000000000000000";
 
 const swapFee = 80; // 0.8%
-const stakingShare = 0; // 80%
-const frontendShare = 0; // 50% of what's left after staking share and referral share are taken out
+const stakingShare = 0; 
+const frontendShare = 5000; // 50% of what's left after staking share and referral share are taken out
 
 async function main() {
   const [deployer] = await ethers.getSigners();

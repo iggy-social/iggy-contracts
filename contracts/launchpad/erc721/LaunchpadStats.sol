@@ -18,6 +18,10 @@ contract LaunchpadStats is OwnableWithManagers {
     return weiSpentPerAddress[user_];
   }
 
+  function weiSpentTotal() external view returns (uint256) {
+    return totalVolumeWei;
+  }
+
   // WRITE
 
   function addWeiSpent(address user_, uint256 weiSpent_) external {

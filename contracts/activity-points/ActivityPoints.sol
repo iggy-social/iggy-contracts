@@ -5,6 +5,7 @@ import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 
 interface IStats {
   function getWeiSpent(address user_) external view returns (uint256);
+  function weiSpentTotal() external view returns (uint256);
 }
 
 /** 
@@ -48,6 +49,28 @@ contract ActivityPoints is OwnableWithManagers {
 
     if (tldStatsAddress != address(0)) {
       totalWeiSpent += IStats(tldStatsAddress).getWeiSpent(_user);
+    }
+
+    return totalWeiSpent;
+  }
+
+  function getTotalWeiSpentAllUsers() external view returns (uint256) {
+    uint256 totalWeiSpent = 0;
+
+    if (keyStatsAddress != address(0)) {
+      totalWeiSpent += IStats(keyStatsAddress).weiSpentTotal();
+    }
+    
+    if (mintedPostsStatsAddress != address(0)) {
+      totalWeiSpent += IStats(mintedPostsStatsAddress).weiSpentTotal();
+    }
+
+    if (nftStatsAddress != address(0)) {
+      totalWeiSpent += IStats(nftStatsAddress).weiSpentTotal();
+    }
+
+    if (tldStatsAddress != address(0)) {
+      totalWeiSpent += IStats(tldStatsAddress).weiSpentTotal();
     }
 
     return totalWeiSpent;

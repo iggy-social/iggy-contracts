@@ -9,6 +9,7 @@ import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 */
 contract KeyStats is OwnableWithManagers {
   address public submitter;
+  uint256 public weiSpentTotal; // total wei spent
 
   mapping (address => uint256) public getFeesWei;
 
@@ -21,6 +22,7 @@ contract KeyStats is OwnableWithManagers {
   function addFee(address _address, uint256 _amount) external {
     require(msg.sender == submitter, "KeyStats: Only submitter can add fee");
     getFeesWei[_address] += _amount;
+    weiSpentTotal += _amount;
   }
 
   // OWNER

@@ -9,6 +9,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// @notice Contract that keeps track of who minted which Iggy Post IDs
 contract IggyPostStats is OwnableWithManagers {
   address public minterAddress;
+  uint256 public weiSpentTotal; // total wei spent
 
   mapping (address => uint256[]) public getMintedPostIds; // user => postIds; get a list of post IDs minted by a user
   mapping (address => uint256) public getMintedWei; // user => wei; get the total amount of wei paid for minting posts by a user
@@ -54,6 +55,7 @@ contract IggyPostStats is OwnableWithManagers {
   function addMintedWei(address _user, uint256 _wei) external {
     require(_msgSender() == minterAddress, "IggyPostStats: Only minter can add minted wei");
     getMintedWei[_user] += _wei;
+    weiSpentTotal += _wei;
   }
 
   function addWeiEarnedByAuthorPerPostId(uint256 _postId, uint256 _wei) external {
