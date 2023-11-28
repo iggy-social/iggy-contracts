@@ -115,11 +115,13 @@ contract IggyPostMinter is OwnableWithManagers, ReentrancyGuard {
 
     // store some stats in the stats contract
     if (statsEnabled && statsAddress != address(0)) {
+      uint256 fees = (price * (referrerFee + devFee + daoFee)) / MAX_BPS;
+
       // feel free to comment out the stats that you don't need to track
-      IIggyPostStats(statsAddress).addMintedWei(_nftReceiver, price);
+      IIggyPostStats(statsAddress).addMintedWei(_nftReceiver, fees);
 
       // exclude fees from the price
-      price = price - ((price * referrerFee) / MAX_BPS) - ((price * devFee) / MAX_BPS) - ((price * daoFee) / MAX_BPS);
+      price -= fees;
       IIggyPostStats(statsAddress).addWeiEarnedByAuthorPerPostId(tokenId, price);
       
       IIggyPostStats(statsAddress).addMintedPostId(_nftReceiver, tokenId);
