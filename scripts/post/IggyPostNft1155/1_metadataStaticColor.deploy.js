@@ -1,13 +1,13 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network base
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network arbitrumOne
 
 const contractName = "IggyPostMetadataStaticColor";
 
-const colorCode = "#e4007b";
-const mdName = "BasePunk Chat Post";
-const description = "BasePunk Chat is a Web3 Social app for the BasePunk NFT community. Go visit here: https://chat.basepunk.xyz/";
-const url = "https://chat.basepunk.xyz/post/";
-const tldAddress = "0xc2C543D39426bfd1dB66bBde2Dd9E4a5c7212876";
+const colorCode = "#5DC4FF";
+const mdName = "AlwaysLiquid Arbi Post";
+const description = "Social NFT Marketplace on Arbitrum, where NFTs are always liquid. Go visit here: https://arbi.alwaysliquid.com/";
+const url = "https://arbi.alwaysliquid.com/post/";
+const tldAddress = "0xe97456E0fB121F65422F43ccbd4A07a0e269B534";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

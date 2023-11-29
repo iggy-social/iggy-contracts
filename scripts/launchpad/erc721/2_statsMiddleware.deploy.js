@@ -1,9 +1,9 @@
 // 2. Deploy StatsMiddleware contract.
-// npx hardhat run scripts/launchpad/erc721/2_statsMiddleware.deploy.js --network base
+// npx hardhat run scripts/launchpad/erc721/2_statsMiddleware.deploy.js --network arbitrumOne
 
 const contractName = "StatsMiddleware";
 
-const launchpadStatsAddress = "0x26Ea4872Ed43d9FedC240CC4dEB1DD06d6546856";
+const launchpadStatsAddress = "0xabf9960132818049340253C3Ca0551F92Db856d7";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

@@ -1,12 +1,12 @@
 // 2. Deploy NFT contract
-// npx hardhat run scripts/post/IggyPostNft1155/2_iggyPostNft1155.deploy.js --network base
+// npx hardhat run scripts/post/IggyPostNft1155/2_iggyPostNft1155.deploy.js --network arbitrumOne
 
 const contractName = "IggyPostNft1155";
 
 const defaultPrice = ethers.utils.parseEther("0.0002");
-const metadataAddress = "0xaf517aa5fA04145348a54E231cd7e76d72E566AC";
-const collectionName = "BasePunk Chat Posts";
-const collectionSymbol = "BPCPOST";
+const metadataAddress = "0x633Ae857445cF0cd02B21C6a3033C7CE74fB32c2";
+const collectionName = "AlwaysLiquid Arbi Posts";
+const collectionSymbol = "ALAPOST";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

@@ -163,6 +163,13 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 20000000000, // 20 gwei
     },
+    scroll: { // Scroll Mainnet
+      url: 'https://rpc.scroll.io',
+      chainId: 534352,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1000000000, // 1 gwei
+    },
     sokol: { // Gnosis Chain testnet
       url: 'https://sokol.poa.network',
       chainId: 77,
@@ -200,6 +207,7 @@ module.exports = {
       polygonMumbai: process.env.POLYGONSCAN_API_KEY, 
       polygonZkEvm: process.env.POLYGONSCAN_ZKEVM_API_KEY, 
       polygonZkEvmTestnet: process.env.POLYGONSCAN_ZKEVM_API_KEY, 
+      scroll: process.env.SCROLLSCAN_API_KEY,
       sokol: "randomstring",
       songbird: "randomstring",
       gnosis: process.env.GNOSISSCAN_API_KEY // xdai
@@ -288,6 +296,14 @@ module.exports = {
         urls: {
           apiURL: "https://api-testnet-zkevm.polygonscan.com/api",
           browserURL: "https://testnet-zkevm.polygonscan.com"
+        }
+      },
+      {
+        network: "scroll",
+        chainId: 534352,
+        urls: {
+          apiURL: "https://api.scrollscan.com/api",
+          browserURL: "https://scrollscan.com/"
         }
       },
       {
