@@ -5,6 +5,10 @@ import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+interface IStats {
+  function addWeiSpent(address user_, uint256 weiSpent_) external;
+}
+
 interface IUniswapV2Factory {
   function getPair(address tokenA, address tokenB) external view returns (address pair);
 }
@@ -82,6 +86,7 @@ contract IggySwapRouter is OwnableWithManagers {
   address public iggyAddress;
   address public routerAddress; // DEX router address
   address public stakingAddress; // staking contract address
+  address public statsAddress; // stats contract address
   address public immutable wethAddress;
 
   uint256 public constant MAX_BPS = 10_000;
@@ -104,6 +109,7 @@ contract IggySwapRouter is OwnableWithManagers {
     address _iggyAddress,
     address _routerAddress,
     address _stakingAddress,
+    address _statsAddress,
     uint256 _swapFee,
     uint256 _stakingShare,
     uint256 _frontendShare
@@ -112,6 +118,7 @@ contract IggySwapRouter is OwnableWithManagers {
     iggyAddress = _iggyAddress;
     routerAddress = _routerAddress;
     stakingAddress = _stakingAddress;
+    statsAddress = _statsAddress;
 
     swapFee = _swapFee;
     stakingShare = _stakingShare;
@@ -494,6 +501,11 @@ contract IggySwapRouter is OwnableWithManagers {
     stakingAddress = _newStakingAddress;
   }
 
+  /// @notice Change stats address
+  function changeStatsAddress(address _newStatsAddress) external onlyManagerOrOwner {
+    statsAddress = _newStatsAddress;
+  }
+
   /// @notice Recover any ERC-20 token mistakenly sent to this contract address
   function recoverERC20(address tokenAddress_, uint256 tokenAmount_, address recipient_) external onlyManagerOrOwner {
     IERC20(tokenAddress_).safeTransfer(recipient_, tokenAmount_);
@@ -577,13 +589,17 @@ contract IggySwapRouter is OwnableWithManagers {
       require(sentWeth, "Failed to send native coins to the recipient");
 
       // if there's a referrer, send them a share of the fee
+      uint256 referrerShareAmountNative;
       if (referrer != address(0) && referrerShare > 0) {
-        uint256 referrerShareAmountNative = (_feeAmount * referrerShare) / MAX_BPS;
+        referrerShareAmountNative = (_feeAmount * referrerShare) / MAX_BPS;
 
         (bool sentWethReferrer, ) = referrer.call{value: referrerShareAmountNative}("");
         require(sentWethReferrer, "Failed to send native coins to the referrer");
 
         _feeAmount -= referrerShareAmountNative; // deduct referrer's share from the fee
+        if (statsAddress != address(0)) {
+          IStats(statsAddress).addWeiSpent(referrer, referrerShareAmountNative); // add referrer's share to stats
+        }
       }
 
       // if there's a staking contract, send them a share of the fee
@@ -606,6 +622,11 @@ contract IggySwapRouter is OwnableWithManagers {
       // send the rest to Iggy
       (bool sentWethIggy, ) = iggyAddress.call{value: address(this).balance}("");
       require(sentWethIggy, "Failed to send native coins to Iggy");
+
+      // add user's fee (without referral's share) to stats
+      if (statsAddress != address(0)) {
+        IStats(statsAddress).addWeiSpent(to, _feeAmount-referrerShareAmountNative);
+      }
     } else {
       // else: tokenOut is NOT the native coin
 

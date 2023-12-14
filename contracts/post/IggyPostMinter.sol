@@ -86,28 +86,29 @@ contract IggyPostMinter is OwnableWithManagers, ReentrancyGuard {
     require(msg.value >= price, "Value below price");
 
     // send a referrer fee
+    uint256 referrerPayment;
     if (referrerFee > 0 && _referrer != address(0)) {
-      uint256 referrerPayment = (price * referrerFee) / MAX_BPS;
-      (bool sentReferrerFee, ) = payable(_referrer).call{value: referrerPayment}("");
+      referrerPayment = (price * referrerFee) / MAX_BPS;
+      (bool sentReferrerFee, ) = _referrer.call{value: referrerPayment}("");
       require(sentReferrerFee, "Failed to send referrer fee");
     }
 
     // send a dev fee
     if (devFee > 0 && devAddress != address(0)) {
       uint256 devPayment = (price * devFee) / MAX_BPS;
-      (bool sentDevFee, ) = payable(devAddress).call{value: devPayment}("");
+      (bool sentDevFee, ) = devAddress.call{value: devPayment}("");
       require(sentDevFee, "Failed to send dev fee");
     }
 
     // send a dao fee
     if (daoFee > 0 && daoAddress != address(0)) {
       uint256 daoFeePayment = (price * daoFee) / MAX_BPS;
-      (bool sentDaoFee, ) = payable(daoAddress).call{value: daoFeePayment}("");
+      (bool sentDaoFee, ) = daoAddress.call{value: daoFeePayment}("");
       require(sentDaoFee, "Failed to send dao fee");
     }
 
     // send the rest to post author
-    (bool sent, ) = payable(_author).call{value: address(this).balance}("");
+    (bool sent, ) = _author.call{value: address(this).balance}("");
     require(sent, "Failed to send payment to the post author");
 
     // mint the post as NFT
@@ -115,7 +116,18 @@ contract IggyPostMinter is OwnableWithManagers, ReentrancyGuard {
 
     // store some stats in the stats contract
     if (statsEnabled && statsAddress != address(0)) {
-      uint256 fees = (price * (referrerFee + devFee + daoFee)) / MAX_BPS;
+      uint256 fees;
+
+      if (referrerPayment > 0) {
+        // referral fee was taken and sent to the referrer
+        fees = (price * (devFee + daoFee)) / MAX_BPS;
+
+        // asign wei from referrer fee to referrer in stats
+        IIggyPostStats(statsAddress).addMintedWei(_referrer, referrerPayment); 
+      } else {
+        // referral fee was not taken
+        fees = (price * (referrerFee + devFee + daoFee)) / MAX_BPS;
+      }
 
       // feel free to comment out the stats that you don't need to track
       IIggyPostStats(statsAddress).addMintedWei(_nftReceiver, fees);

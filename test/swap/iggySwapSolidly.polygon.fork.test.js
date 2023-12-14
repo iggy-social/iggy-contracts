@@ -1,6 +1,6 @@
 // test on a forked mainnet (polygon)
 // 1. First run the forked localhost node: npx hardhat node --fork https://rpc.ankr.com/polygon // must be Polygon Mainnet
-// 2. Then run the tests in a different tab: npx hardhat test test/swap/iggySwap.polygon.fork.test.js --network localhost
+// 2. Then run the tests in a different tab: npx hardhat test test/swap/iggySwapSolidly.polygon.fork.test.js --network localhost
 
 const { expect } = require("chai");
 
@@ -20,8 +20,8 @@ function calculateGasCosts(testName, receipt) {
   console.log(testName + " gas cost (Polygon): $" + String(Number(gasCostMatic)*matic));
 }
 
-xdescribe("Iggy Swap tests (on a forked mainnet)", function () {
-  let routerAddress = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router
+xdescribe("Iggy Swap Solidly tests (on a forked Polygon mainnet)", function () {
+  let routerAddress = "0xda822340F5E8216C277DBF66627648Ff5D57b527"; // quickswap router
   let wethAddress = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"; // wmatic
   let daiAddress = "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"; // dai on polygon
   let aaveAddress = "0xd6df932a45c0f255f85145f286ea0b292b21c90b"; // aave on polygon
@@ -44,13 +44,14 @@ xdescribe("Iggy Swap tests (on a forked mainnet)", function () {
     [owner, frontend, iggy, user1, user2, referrer, staking] = await ethers.getSigners();
 
     // deploy IggySwapRouter
-    const IggySwapRouter = await ethers.getContractFactory("IggySwapRouter");
+    const IggySwapRouter = await ethers.getContractFactory("IggySwapRouterSolidly");
     iggySwapRouterContract = await IggySwapRouter.deploy(
       frontend.address,
       iggy.address,
       routerAddress,
       staking.address,
       ethers.constants.AddressZero,
+      wethAddress,
       swapFee,
       stakingShare,
       frontendShare

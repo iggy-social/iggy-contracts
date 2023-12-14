@@ -1,15 +1,16 @@
-// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network base
+// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network songbird
 
 const contractName = "IggySwapRouter";
 
-const frontendAddress = "0xd688b5ed29ab77b39884babd1930213bf7805cd1";
-const iggyAddress = "0xe08033d0bdbcebe7e619c3ae165e7957ab577961";
-const routerAddress = "0x327df1e6de05895d2ab08513aadd9313fe505d86";
-const stakingAddress = "0x0000000000000000000000000000000000000000";
+const frontendAddress = "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D";
+const iggyAddress = "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D";
+const routerAddress = "0xB0F6F956CE004438926299712aAB1Ff97De7254e";
+const stakingAddress = "0xCA9749778327CD67700d3a777731a712330beB9A";
+const statsAddress = "";
 
 const swapFee = 80; // 0.8%
-const stakingShare = 0; 
-const frontendShare = 5000; // 50% of what's left after staking share and referral share are taken out
+const stakingShare = 9999; 
+const frontendShare = 8000; // 100% of what's left after staking share and referral share are taken out
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -24,6 +25,7 @@ async function main() {
     iggyAddress,
     routerAddress,
     stakingAddress,
+    statsAddress,
     swapFee,
     stakingShare,
     frontendShare

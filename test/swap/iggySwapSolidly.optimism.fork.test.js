@@ -1,6 +1,6 @@
 // test on a forked mainnet (polygon)
-// 1. First run the forked localhost node: npx hardhat node --fork https://rpc.ankr.com/polygon // must be Polygon Mainnet
-// 2. Then run the tests in a different tab: npx hardhat test test/swap/iggySwap.polygon.fork.test.js --network localhost
+// 1. First run the forked localhost node: npx hardhat node --fork https://rpc.ankr.com/op // must be Optimism Mainnet
+// 2. Then run the tests in a different tab: npx hardhat test test/swap/iggySwapSolidly.optimism.fork.test.js --network localhost
 
 const { expect } = require("chai");
 
@@ -20,11 +20,11 @@ function calculateGasCosts(testName, receipt) {
   console.log(testName + " gas cost (Polygon): $" + String(Number(gasCostMatic)*matic));
 }
 
-xdescribe("Iggy Swap tests (on a forked mainnet)", function () {
-  let routerAddress = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router
-  let wethAddress = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"; // wmatic
-  let daiAddress = "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"; // dai on polygon
-  let aaveAddress = "0xd6df932a45c0f255f85145f286ea0b292b21c90b"; // aave on polygon
+xdescribe("Iggy Swap Solidly tests (on a forked Optimism mainnet)", function () {
+  let routerAddress = "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"; // velodrome router
+  let wethAddress = "0x4200000000000000000000000000000000000006"; // weth
+  let daiAddress = "0x7f5c764cbc14f9669b88837ca1490cca17c31607"; // usdc on optimism
+  let aaveAddress = "0x4200000000000000000000000000000000000042"; // op on optimism
 
   let iggySwapRouterContract;
 

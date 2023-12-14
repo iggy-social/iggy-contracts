@@ -30,7 +30,7 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, OwnableWithManagers, Reentra
 
   string public constant pricingType = "bonding";
 
-  uint256 counter = 1; // counter for the tokenId
+  uint256 public counter = 1; // counter for the tokenId
   uint256 public immutable createdAt; // NFT creation time
   uint256 public mintingFeePercentage; // in wei
   uint256 public immutable ratio; // ratio for the bonding curve

@@ -1,10 +1,10 @@
 // TODO:
 // 1. Create the first NFT collection through the factory.
 // 2. Verify the contract on block explorer using this script (run the command below).
-// Run: npx hardhat run scripts/launchpad/erc721/5_verifyNftContract.js --network arbitrumOne
+// Run: npx hardhat run scripts/launchpad/erc721/5_verifyNftContract.js --network opera
 
-const networkName = "arbitrumOne";
-const contractAddress = "0x4D27d48e1218528972B6110e837CB3323af7cb7B";
+const networkName = "opera";
+const contractAddress = "0xb262977D1313da790380E10a232111b74B0C1d57";
 
 async function main() {
   console.log("Copy the line below and paste it in your terminal to verify the TLD contract on Etherscan:");

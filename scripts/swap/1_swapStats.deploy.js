@@ -1,7 +1,7 @@
-// 1. Deploy LaunchpadStats contract.
-// npx hardhat run scripts/launchpad/erc721/1_launchpadStats.deploy.js --network opera
+// 1. Deploy KeyStats contract first.
+// npx hardhat run scripts/swap/1_swapStats.deploy.js --network base
 
-const contractName = "LaunchpadStats";
+const contractName = "SwapStats";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -12,7 +12,6 @@ async function main() {
   // deploy contract
   const contract = await ethers.getContractFactory(contractName);
   const instance = await contract.deploy();
-  await instance.deployed();
   
   console.log(contractName + " contract address:", instance.address);
 

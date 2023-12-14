@@ -1,5 +1,5 @@
 // 2. Deploy StatsMiddleware contract.
-// npx hardhat run scripts/launchpad/erc721/2_statsMiddleware.deploy.js --network arbitrumOne
+// npx hardhat run scripts/launchpad/erc721/2_statsMiddleware.deploy.js --network opera
 
 const contractName = "StatsMiddleware";
 

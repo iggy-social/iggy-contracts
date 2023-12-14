@@ -1,13 +1,13 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network arbitrumOne
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network optimisticEthereum
 
 const contractName = "IggyPostMetadataStaticColor";
 
-const colorCode = "#5DC4FF";
-const mdName = "AlwaysLiquid Arbi Post";
-const description = "Social NFT Marketplace on Arbitrum, where NFTs are always liquid. Go visit here: https://arbi.alwaysliquid.com/";
-const url = "https://arbi.alwaysliquid.com/post/";
-const tldAddress = "0xe97456E0fB121F65422F43ccbd4A07a0e269B534";
+const colorCode = "#8050E3";
+const mdName = "Pool Chat Post";
+const description = "Web3 Social chat for the PoolTogether DAO community. Go visit here: https://chat.pooly.me/";
+const url = "https://chat.pooly.me/post/";
+const tldAddress = "0xf2C9E463592BD440f0D422E944E5F95c79404586";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

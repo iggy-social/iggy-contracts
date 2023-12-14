@@ -1,9 +1,9 @@
 // 4. Deploy stats contract
-// npx hardhat run scripts/post/IggyPostNft1155/4_stats.deploy.js --network arbitrumOne
+// npx hardhat run scripts/post/IggyPostNft1155/4_stats.deploy.js --network optimisticEthereum
 
 const contractName = "IggyPostStats";
 
-const minterAddress = "0x5e54CebB2612744cB56547bC7CC41466ad7ac557";
+const minterAddress = "0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A";
 const shouldStatsBeEnabled = true;
 
 const minterInterface = new ethers.utils.Interface([

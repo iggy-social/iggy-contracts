@@ -112,18 +112,18 @@ module.exports = {
       gasPrice: 1, // 1 wei
     },
     opera: { // Fantom mainnet
-      url: 'https://rpc.ftm.tools', // "https://rpcapi.fantom.network", 
+      url: "https://fantom-mainnet.public.blastapi.io", // 'https://rpc.fantom.network', // "https://rpc.ankr.com/fantom", // 
       chainId: 250,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 70000000000, // 70 gwei
+      gasPrice: 600000000000, // 600 gwei
     },
     optimisticEthereum: {
       url: 'https://rpc.ankr.com/optimism',
       chainId: 10,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 200000000, // 0.2 gwei
+      gasPrice: 20000000, // 0.02 gwei
     },
     optimisticGoerli: {
       url: 'https://goerli.optimism.io',
