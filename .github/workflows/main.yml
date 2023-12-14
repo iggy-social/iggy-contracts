@@ -1,6 +1,9 @@
 name: Mirroring
 
-on: [push, delete]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   to_bitbucket:
