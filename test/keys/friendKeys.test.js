@@ -20,7 +20,7 @@ function calculateGasCosts(testName, receipt) {
 
 describe("FriendKeys", function () {
   let mockPunkTldContract;
-  let keyStatsContract;
+  let statsMiddlewareContract;
   let friendKeysContract;
 
   let owner;
@@ -43,17 +43,28 @@ describe("FriendKeys", function () {
     mockPunkTldContract = await MockPunkTld.deploy(user2.address, domainName);
     await mockPunkTldContract.deployed();
 
-    const KeyStats = await ethers.getContractFactory("KeyStats");
-    keyStatsContract = await KeyStats.deploy();
-    await keyStatsContract.deployed();
+    const Stats = await ethers.getContractFactory("Stats");
+    const statsContract = await Stats.deploy();
+    await statsContract.deployed();
+
+    const StatsMiddleware = await ethers.getContractFactory("StatsMiddleware");
+    statsMiddlewareContract = await StatsMiddleware.deploy(statsContract.address);
+    await statsMiddlewareContract.deployed();
+
+    await statsContract.setStatsWriterAddress(statsMiddlewareContract.address);
 
     const FriendKeys = await ethers.getContractFactory("FriendKeys");
     friendKeysContract = await FriendKeys.deploy(
-      mockPunkTldContract.address, feeReceiver.address, keyStatsContract.address, protocolFeePercent, domainHolderFeePercent, ratio
+      mockPunkTldContract.address, 
+      feeReceiver.address, 
+      statsMiddlewareContract.address, 
+      protocolFeePercent, 
+      domainHolderFeePercent, 
+      ratio
     );
     await friendKeysContract.deployed();
 
-    await keyStatsContract.setSubmitter(friendKeysContract.address);
+    await statsMiddlewareContract.addWriter(friendKeysContract.address);
   });
 
   it("buys and sell 3 keys sequentially", async function () {

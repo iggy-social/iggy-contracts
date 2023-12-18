@@ -171,8 +171,10 @@ contract IggyLaunchpad721Bonding is OwnableWithManagers {
     nftContract.transferOwnership(contractOwner_);
 
     // update stats
-    IStatsContract(statsAddress).addWeiSpent(msg.sender, msg.value);
-    IStatsContract(statsAddress).addWriterByWriter(address(nftContract));
+    if (statsAddress != address(0)) {
+      IStatsContract(statsAddress).addWeiSpent(msg.sender, msg.value);
+      IStatsContract(statsAddress).addWriterByWriter(address(nftContract));
+    }
 
     emit CollectionLaunch(contractOwner_, msg.sender, name_, uniqueId_, address(nftContract));
   }

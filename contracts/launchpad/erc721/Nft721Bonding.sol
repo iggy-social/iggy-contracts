@@ -150,7 +150,10 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, OwnableWithManagers, Reentra
     _burn(tokenId);
 
     // add addWeiSpent call to the stats contract
-    IStats(IFactory(factoryAddress).statsAddress()).addWeiSpent(_ownerOf(tokenId), protocolFee);
+    address statsAddress = IFactory(factoryAddress).statsAddress();
+    if (statsAddress != address(0)) {
+      IStats(statsAddress).addWeiSpent(_ownerOf(tokenId), protocolFee);
+    }
 
     // send fees
     (bool successOwner, ) = owner().call{value: ownerFee}("");
@@ -185,7 +188,10 @@ contract Nft721Bonding is ERC721, ERC721Enumerable, OwnableWithManagers, Reentra
     require(msg.value == price + protocolFee + ownerFee, "Insufficient payment");
 
     // add addWeiSpent call to the stats contract
-    IStats(IFactory(factoryAddress).statsAddress()).addWeiSpent(msg.sender, protocolFee);
+    address statsAddress = IFactory(factoryAddress).statsAddress();
+    if (statsAddress != address(0)) {
+      IStats(statsAddress).addWeiSpent(msg.sender, protocolFee);
+    }
 
     // send fees
     (bool successOwner, ) = owner().call{value: ownerFee}("");

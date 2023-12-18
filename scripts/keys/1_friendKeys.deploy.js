@@ -1,11 +1,11 @@
-// 2. Deploy FriendKeys contract and automatically add it's address to the KeyStats contract.
-// npx hardhat run scripts/keys/2_friendKeys.deploy.js --network base
+// 1. Deploy FriendKeys contract and automatically add it's address to the Stats middleware contract.
+// npx hardhat run scripts/keys/1_friendKeys.deploy.js --network base
 
 const contractName = "FriendKeys";
 
 const tldAddress = "0xc2C543D39426bfd1dB66bBde2Dd9E4a5c7212876";
 const feeReceiver = "0xE06828A6303fE7A249c99ee95605F30A24fc3fbf"; // distributor contract address
-const keyStatsAddress = "0x1625F2c759004726273fecd1449F882d5Bf6F76F";
+const statsAddress = "0x1625F2c759004726273fecd1449F882d5Bf6F76F"; // stats middleware contract address
 
 const protocolFeePercent = ethers.utils.parseEther("0.05");
 const domainHolderFeePercent = ethers.utils.parseEther("0.05");
@@ -22,7 +22,7 @@ async function main() {
   const instance = await contract.deploy(
     tldAddress, 
     feeReceiver,
-    keyStatsAddress,
+    statsAddress,
     protocolFeePercent,
     domainHolderFeePercent,
     ratio
@@ -32,19 +32,16 @@ async function main() {
   
   console.log(contractName + " contract address:", instance.address);
 
-  console.log("Adding this address to the KeyStats contract:");
-
-  // add this address to the KeyStats contract
-  const keyStatsContract = await ethers.getContractFactory("KeyStats");
-  const keyStatsInstance = await keyStatsContract.attach(keyStatsAddress);
-
-  const tx1 = await keyStatsInstance.setSubmitter(instance.address);
+  // add this address to the Stats middleware contract
+  console.log("Adding this address to the stats middleware contract:");
+  const statsContract = await ethers.getContractFactory("StatsMiddleware");
+  const statsInstance = await statsContract.attach(statsAddress);
+  const tx1 = await statsInstance.addWriter(instance.address);
   await tx1.wait();
-
   console.log("Done!");
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + tldAddress + " " + feeReceiver + " " + keyStatsAddress + ' "' + protocolFeePercent + '" "' + domainHolderFeePercent + '" "' + ratio + '"');
+  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + tldAddress + " " + feeReceiver + " " + statsAddress + ' "' + protocolFeePercent + '" "' + domainHolderFeePercent + '" "' + ratio + '"');
 }
 
 main()

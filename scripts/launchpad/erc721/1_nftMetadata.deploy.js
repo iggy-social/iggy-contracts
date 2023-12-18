@@ -1,7 +1,7 @@
-// 1. Deploy LaunchpadStats contract.
-// npx hardhat run scripts/launchpad/erc721/1_launchpadStats.deploy.js --network opera
+// 1. Deploy NftMetadata contract.
+// npx hardhat run scripts/launchpad/erc721/1_nftMetadata.deploy.js --network opera
 
-const contractName = "LaunchpadStats";
+const contractName = "NftMetadata";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

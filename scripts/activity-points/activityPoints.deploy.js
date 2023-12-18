@@ -2,9 +2,8 @@
 
 const contractName = "ActivityPoints";
 
-const keyStatsAddress = "0x1625F2c759004726273fecd1449F882d5Bf6F76F";
+const statsAddress = "0x1625F2c759004726273fecd1449F882d5Bf6F76F"; // stats middleware contract
 const mintedPostsStatsAddress = "0xDA07Ef226E212f548979339BFEb13160C1d52f30";
-const nftStatsAddress = "0x26Ea4872Ed43d9FedC240CC4dEB1DD06d6546856"; // NFT Launchpad stats
 const tldStatsAddress = "0xC316f4a7a0f663ae0790d75eEfcF4a0d212a5472"; // ethers.constants.AddressZero;
 
 async function main() {
@@ -16,16 +15,15 @@ async function main() {
   // deploy contract
   const contract = await ethers.getContractFactory(contractName);
   const instance = await contract.deploy(
-    keyStatsAddress,
+    statsAddress,
     mintedPostsStatsAddress,
-    nftStatsAddress,
     tldStatsAddress
   );
   
   console.log(contractName + " contract address:", instance.address);
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + keyStatsAddress + " " + mintedPostsStatsAddress + " " + nftStatsAddress + " " + tldStatsAddress);
+  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + statsAddress + " " + mintedPostsStatsAddress + " " + tldStatsAddress);
 }
 
 main()

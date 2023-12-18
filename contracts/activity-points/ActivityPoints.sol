@@ -13,10 +13,8 @@ interface IStats {
 @author Tempe Techie
 */
 contract ActivityPoints is OwnableWithManagers {
-  address public keyStatsAddress;
+  address public statsAddress; // stats for NFT launchpad, Friend Keys, Swap etc.
   address public mintedPostsStatsAddress;
-  address public nftStatsAddress;
-  address public swapStatsAddress;
   address public tldStatsAddress;
 
   uint256 public bonusPointsTotal; // total bonus points in wei
@@ -28,16 +26,12 @@ contract ActivityPoints is OwnableWithManagers {
   event BonusPointsRemoved(address indexed manager_, address indexed user_, uint256 wei_);
 
   constructor(
-    address _keyStatsAddress,
+    address _statsAddress,
     address _mintedPostsStatsAddress,
-    address _nftStatsAddress,
-    address _swapStatsAddress,
     address _tldStatsAddress
   ) {
-    keyStatsAddress = _keyStatsAddress;
+    statsAddress = _statsAddress;
     mintedPostsStatsAddress = _mintedPostsStatsAddress;
-    nftStatsAddress = _nftStatsAddress;
-    swapStatsAddress = _swapStatsAddress;
     tldStatsAddress = _tldStatsAddress;
   }
 
@@ -46,20 +40,12 @@ contract ActivityPoints is OwnableWithManagers {
   function getTotalWeiSpent(address _user) external view returns (uint256) {
     uint256 totalWeiSpent = bonusPoints[_user];
 
-    if (keyStatsAddress != address(0)) {
-      totalWeiSpent += IStats(keyStatsAddress).getWeiSpent(_user);
+    if (statsAddress != address(0)) {
+      totalWeiSpent += IStats(statsAddress).getWeiSpent(_user);
     }
     
     if (mintedPostsStatsAddress != address(0)) {
       totalWeiSpent += IStats(mintedPostsStatsAddress).getWeiSpent(_user);
-    }
-
-    if (nftStatsAddress != address(0)) {
-      totalWeiSpent += IStats(nftStatsAddress).getWeiSpent(_user);
-    }
-
-    if (swapStatsAddress != address(0)) {
-      totalWeiSpent += IStats(swapStatsAddress).getWeiSpent(_user);
     }
 
     if (tldStatsAddress != address(0)) {
@@ -72,20 +58,12 @@ contract ActivityPoints is OwnableWithManagers {
   function getTotalWeiSpentAllUsers() external view returns (uint256) {
     uint256 totalWeiSpent = bonusPointsTotal;
 
-    if (keyStatsAddress != address(0)) {
-      totalWeiSpent += IStats(keyStatsAddress).weiSpentTotal();
+    if (statsAddress != address(0)) {
+      totalWeiSpent += IStats(statsAddress).weiSpentTotal();
     }
     
     if (mintedPostsStatsAddress != address(0)) {
       totalWeiSpent += IStats(mintedPostsStatsAddress).weiSpentTotal();
-    }
-
-    if (nftStatsAddress != address(0)) {
-      totalWeiSpent += IStats(nftStatsAddress).weiSpentTotal();
-    }
-
-    if (swapStatsAddress != address(0)) {
-      totalWeiSpent += IStats(swapStatsAddress).weiSpentTotal();
     }
 
     if (tldStatsAddress != address(0)) {
@@ -109,20 +87,12 @@ contract ActivityPoints is OwnableWithManagers {
     emit BonusPointsRemoved(msg.sender, _user, _wei);
   }
 
-  function setKeyStatsAddress(address _keyStatsAddress) external onlyManagerOrOwner {
-    keyStatsAddress = _keyStatsAddress;
+  function setStatsAddress(address _statsAddress) external onlyManagerOrOwner {
+    statsAddress = _statsAddress;
   }
 
   function setMintedPostsStatsAddress(address _mintedPostsStatsAddress) external onlyManagerOrOwner {
     mintedPostsStatsAddress = _mintedPostsStatsAddress;
-  }
-
-  function setNftStatsAddress(address _nftStatsAddress) external onlyManagerOrOwner {
-    nftStatsAddress = _nftStatsAddress;
-  }
-
-  function setSwapStatsAddress(address _swapStatsAddress) external onlyManagerOrOwner {
-    swapStatsAddress = _swapStatsAddress;
   }
 
   function setTldStatsAddress(address _tldStatsAddress) external onlyManagerOrOwner {

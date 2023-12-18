@@ -1,5 +1,5 @@
-// 4. Deploy IggyLaunchpad721Bonding contract.
-// npx hardhat run scripts/launchpad/erc721/4_launchpadBonding.deploy.js --network opera
+// 2. Deploy IggyLaunchpad721Bonding contract.
+// npx hardhat run scripts/launchpad/erc721/2_launchpadBonding.deploy.js --network opera
 
 const contractName = "IggyLaunchpad721Bonding";
 

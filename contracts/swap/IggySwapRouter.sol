@@ -86,7 +86,7 @@ contract IggySwapRouter is OwnableWithManagers {
   address public iggyAddress;
   address public routerAddress; // DEX router address
   address public stakingAddress; // staking contract address
-  address public statsAddress; // stats contract address
+  address public statsAddress; // stats middleware contract address
   address public immutable wethAddress;
 
   uint256 public constant MAX_BPS = 10_000;

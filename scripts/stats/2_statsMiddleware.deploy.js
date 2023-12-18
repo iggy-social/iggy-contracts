@@ -1,7 +1,9 @@
-// 1. Deploy KeyStats contract first.
-// npx hardhat run scripts/swap/1_swapStats.deploy.js --network base
+// 2. Deploy StatsMiddleware contract.
+// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network opera
 
-const contractName = "SwapStats";
+const contractName = "StatsMiddleware";
+
+const statsAddress = "";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -11,9 +13,18 @@ async function main() {
 
   // deploy contract
   const contract = await ethers.getContractFactory(contractName);
-  const instance = await contract.deploy();
-  
+  const instance = await contract.deploy(statsAddress);
+  await instance.deployed();
+
   console.log(contractName + " contract address:", instance.address);
+  
+  // create a Stats contract instance
+  const statsInstance = await ethers.getContractAt("Stats", statsAddress);
+
+  // set middleware address (setStatsWriterAddress)
+  console.log("Setting middleware address...");
+  const tx2 = await statsInstance.setStatsWriterAddress(instance.address);
+  await tx2.wait();
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
   console.log("npx hardhat verify --network " + network.name + " " + instance.address);

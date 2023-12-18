@@ -1,19 +1,24 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.17;
 
-import { OwnableWithManagers } from "../../access/OwnableWithManagers.sol";
+import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 
 interface IStats {
   function addWeiSpent(address user_, uint256 weiSpent_) external;
 }
 
 /** 
-@title Iggy Launchpad Stats Middleware
+@title Iggy Stats Middleware
 @author Tempe Techie
 */
 contract StatsMiddleware is OwnableWithManagers {
   address public statsAddress;
   mapping (address => bool) public writers; // writer contracts that can send stats to this contract
+
+  // CONSTRUCTOR
+  constructor(address statsAddress_) {
+    statsAddress = statsAddress_;
+  }
 
   // WRITER
 

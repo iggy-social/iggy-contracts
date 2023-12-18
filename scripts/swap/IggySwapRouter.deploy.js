@@ -6,7 +6,7 @@ const frontendAddress = "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D";
 const iggyAddress = "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D";
 const routerAddress = "0xB0F6F956CE004438926299712aAB1Ff97De7254e";
 const stakingAddress = "0xCA9749778327CD67700d3a777731a712330beB9A";
-const statsAddress = "";
+const statsAddress = ""; // stats middleware address
 
 const swapFee = 80; // 0.8%
 const stakingShare = 9999; 
@@ -30,13 +30,23 @@ async function main() {
     stakingShare,
     frontendShare
   );
+
+  await instance.deployed();
   
   console.log(contractName + " contract address:", instance.address);
+
+  // add this address to the Stats middleware contract
+  console.log("Adding this address to the stats middleware contract:");
+  const statsContract = await ethers.getContractFactory("StatsMiddleware");
+  const statsInstance = await statsContract.attach(statsAddress);
+  const tx1 = await statsInstance.addWriter(instance.address);
+  await tx1.wait();
+  console.log("Done!");
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
   console.log(
     "npx hardhat verify --network " + network.name + " " + instance.address + " " + frontendAddress + " " + 
-    iggyAddress + " " + routerAddress + " " + stakingAddress + ' "' + swapFee + '" "' + stakingShare + '" "' + frontendShare + '"'
+    iggyAddress + " " + routerAddress + " " + stakingAddress + " " + statsAddress + ' "' + swapFee + '" "' + stakingShare + '" "' + frontendShare + '"'
   );
 }
 

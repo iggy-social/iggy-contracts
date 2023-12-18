@@ -8,6 +8,7 @@ on:
 jobs:
   to_bitbucket:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:                                              # <-- must use actions/checkout before mirroring!
       - uses: actions/checkout@v3
         with:
@@ -21,6 +22,7 @@ jobs:
 
   to_gitlab:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:                                              # <-- must use actions/checkout before mirroring!
       - uses: actions/checkout@v3
         with:

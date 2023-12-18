@@ -2,9 +2,12 @@
 pragma solidity 0.8.17;
 
 import { IPunkTLD } from "../interfaces/IPunkTLD.sol";
-import { IKeyStats } from "../interfaces/IKeyStats.sol";
 import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+interface IStats {
+  function addWeiSpent(address user_, uint256 weiSpent_) external;
+}
 
 /** 
 @title Friend Keys contract for buying and selling keys of punk domains
@@ -12,25 +15,21 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuar
 */
 contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
   address public feeReceiver; // protocol fee receiver
-  address public keyStats;
+  address public statsAddress; // stats middleware contract
   address public immutable tldAddress;
 
   string public tldName;
   
   uint256 public protocolFeePercent;
   uint256 public domainHolderFeePercent;
-
   uint256 public immutable ratio;
+  uint256 public totalVolumeWei;
 
   // Domain => (Holder => Balance)
   mapping(string => mapping(address => uint256)) public keysBalance;
 
   // Domain => Supply
-  mapping(string => uint256) public keysSupply;
-
-  // stats
-  bool public collectStats = true;
-  uint256 public totalVolumeWei;
+  mapping(string => uint256) public keysSupply;  
 
   // EVENTS
   event Trade(address trader, string domain, bool isBuy, uint256 keyAmount, uint256 ethAmount, uint256 protocolEthAmount, uint256 subjectEthAmount, uint256 supply);
@@ -39,7 +38,7 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
   constructor(
     address _tldAddress,
     address _feeReceiver, 
-    address _keyStats,
+    address _statsAddress,
     uint256 _protocolFeePercent, 
     uint256 _domainHolderFeePercent,
     uint256 _ratio
@@ -48,7 +47,7 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
     tldName = IPunkTLD(_tldAddress).name();
 
     feeReceiver = _feeReceiver;
-    keyStats = _keyStats;
+    statsAddress = _statsAddress;
 
     protocolFeePercent = _protocolFeePercent;
     domainHolderFeePercent = _domainHolderFeePercent;
@@ -143,9 +142,21 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
     (bool success1, ) = feeReceiver.call{value: protocolFee}("");
     (bool success2, ) = domainOwner.call{value: subjectFee}("");
 
+    // if (referrer != address(0)) {
+      // pseudocode, double-check + tests!!!
+    //  uint256 referrerFee = (protocolFee + subjectFee) / referrerFeePercent;
+    //  (bool success, ) = referrer.call{value: referrerFee}("");
+    //  require(success, "Unable to send funds");
+    //  protocolFee = protocolFee - (protocolFee * (1 ether - referrerFeePercent) / 1 ether);
+    //  subjectFee = subjectFee - (subjectFee * (1 ether - referrerFeePercent) / 1 ether);
+    //  if (collectStats) {
+    //    IStats(statsAddress).addWeiSpent(referrer, referrerFee);
+    //  }
+    // }
+
     // add protocol fees to stats
-    if (collectStats) {
-      IKeyStats(keyStats).addFee(msg.sender, protocolFee);
+    if (statsAddress != address(0)) {
+      IStats(statsAddress).addWeiSpent(msg.sender, protocolFee);
     }
     totalVolumeWei += (price + protocolFee + subjectFee);
 
@@ -174,8 +185,8 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
     (bool success3, ) = domainOwner.call{value: subjectFee}("");
 
     // add protocol fees to stats
-    if (collectStats) {
-      IKeyStats(keyStats).addFee(msg.sender, protocolFee);
+    if (statsAddress != address(0)) {
+      IStats(statsAddress).addWeiSpent(msg.sender, protocolFee);
     }
     totalVolumeWei += (price + protocolFee + subjectFee);
 
@@ -192,16 +203,12 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
     feeReceiver = _feeReceiver;
   }
 
-  function changeKeyStatsAddress(address _keyStats) public onlyManagerOrOwner {
-    keyStats = _keyStats;
-  }
-
   function changeProtocolFeePercent(uint256 _feePercent) public onlyManagerOrOwner {
     protocolFeePercent = _feePercent;
   }
 
-  function stopCollectingStats() public onlyManagerOrOwner {
-    collectStats = false;
+  function changeStatsAddress(address _statsAddress) public onlyManagerOrOwner {
+    statsAddress = _statsAddress;
   }
   
 }

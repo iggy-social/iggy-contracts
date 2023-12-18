@@ -45,16 +45,13 @@ describe("IggyLaunchpad721Bonding", function () {
   beforeEach(async function () {
     [factoryOwner, feeReceiver, nftContractOwner, user1, user2] = await ethers.getSigners();
 
-    const StatsMiddleware = await ethers.getContractFactory("StatsMiddleware");
-    statsMiddlewareContract = await StatsMiddleware.deploy();
-    await statsMiddlewareContract.deployed();
-
-    const LaunchpadStats = await ethers.getContractFactory("LaunchpadStats");
-    statsContract = await LaunchpadStats.deploy();
+    const Stats = await ethers.getContractFactory("Stats");
+    statsContract = await Stats.deploy();
     await statsContract.deployed();
 
-    // add launchpad stats contract address to middleware contract
-    await statsMiddlewareContract.setStatsAddress(statsContract.address);
+    const StatsMiddleware = await ethers.getContractFactory("StatsMiddleware");
+    statsMiddlewareContract = await StatsMiddleware.deploy(statsContract.address);
+    await statsMiddlewareContract.deployed();
 
     // add middleware contract address to launchpad stats contract
     await statsContract.setStatsWriterAddress(statsMiddlewareContract.address);
