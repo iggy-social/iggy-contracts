@@ -4,19 +4,22 @@ pragma solidity 0.8.17;
 import { IPunkTLD } from "../interfaces/IPunkTLD.sol";
 import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IStats {
   function addWeiSpent(address user_, uint256 weiSpent_) external;
 }
 
 /** 
-@title Friend Keys contract for buying and selling keys of punk domains
+@title Friend Keys contract for buying and selling keys of punk domains using an ERC-20 token as payment method
 @author Tempe Techie
+@notice IMPORTANT: Only tested with ERC-20 tokens with 18 decimals
 */
-contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
+contract FriendKeysErc20 is OwnableWithManagers, ReentrancyGuard {
   address public feeReceiver; // protocol fee receiver
-  address public statsAddress; // stats middleware contract
-  address public immutable tldAddress;
+  address public statsAddress; // stats contract
+  address public immutable tldAddress; // Punk Domains TLD contract address
+  address public immutable tokenAddress; // ERC-20 token address for key payments (only tested for tokens with 18 decimals)
 
   string public tldName;
   
@@ -38,6 +41,7 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
   // CONSTRUCTOR
   constructor(
     address _tldAddress,
+    address _tokenAddress,
     address _feeReceiver, 
     address _statsAddress,
     uint256 _protocolFeePercent, 
@@ -46,6 +50,8 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
   ) {
     tldAddress = _tldAddress;
     tldName = IPunkTLD(_tldAddress).name();
+
+    tokenAddress = _tokenAddress; // ERC-20 token address
 
     feeReceiver = _feeReceiver;
     statsAddress = _statsAddress;
@@ -116,7 +122,7 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
 
   // WRITE
 
-  function buyKeys(string memory domainName, uint256 amount, address referrer) external payable nonReentrant {
+  function buyKeys(string memory domainName, uint256 amount, address referrer) external nonReentrant {
     address domainOwner = IPunkTLD(tldAddress).getDomainHolder(domainName);
     require(domainOwner != address(0), "Domain does not exist");
 
@@ -133,10 +139,13 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
     uint256 protocolFee = price * protocolFeePercent / 1 ether;
     uint256 subjectFee = price * domainHolderFeePercent / 1 ether;
 
-    require(msg.value == price + protocolFee + subjectFee, "Insufficient payment");
+    // transfer tokens from key buyer to this contract
+    IERC20(tokenAddress).transferFrom(msg.sender, address(this), price + protocolFee + subjectFee);
     
     keysBalance[domainName][msg.sender] += amount;
     keysSupply[domainName] += amount;
+
+    emit Trade(msg.sender, domainName, true, amount, price, protocolFee, subjectFee, supply + amount);
 
     // increase total volume stats
     totalVolumeWei += (price + protocolFee + subjectFee);
@@ -146,8 +155,8 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
       uint256 referrerFeeProtocol = protocolFee * referrerFeeShare / 1 ether;
       uint256 referrerFeeSubject = subjectFee * referrerFeeShare / 1 ether;
 
-      (bool successRef, ) = referrer.call{value: referrerFeeProtocol + referrerFeeSubject}("");
-      require(successRef, "Unable to send funds");
+      // send referrer their share in tokens
+      IERC20(tokenAddress).transfer(referrer, referrerFeeProtocol + referrerFeeSubject);
 
       if (statsAddress != address(0)) {
         IStats(statsAddress).addWeiSpent(referrer, referrerFeeProtocol + referrerFeeSubject);
@@ -157,20 +166,17 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
       subjectFee = subjectFee - referrerFeeSubject;
     }
 
-    emit Trade(msg.sender, domainName, true, amount, price, protocolFee, subjectFee, supply + amount);
-
-    (bool success1, ) = feeReceiver.call{value: protocolFee}("");
-    (bool success2, ) = domainOwner.call{value: subjectFee}("");
+    // send protocol fee to the project, and domain holder fee to the domain owner
+    IERC20(tokenAddress).transfer(feeReceiver, protocolFee);
+    IERC20(tokenAddress).transfer(domainOwner, subjectFee);
 
     // add protocol fees to stats
     if (statsAddress != address(0)) {
       IStats(statsAddress).addWeiSpent(msg.sender, protocolFee);
     }
-
-    require(success1 && success2, "Unable to send funds");
   }
 
-  function sellKeys(string memory domainName, uint256 amount, address referrer) external payable nonReentrant {
+  function sellKeys(string memory domainName, uint256 amount, address referrer) external nonReentrant {
     uint256 supply = keysSupply[domainName];
     require(supply > amount, "Cannot sell the last key");
 
@@ -183,8 +189,10 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
     keysBalance[domainName][msg.sender] -= amount;
     keysSupply[domainName] = supply - amount;
 
+    emit Trade(msg.sender, domainName, false, amount, price, protocolFee, subjectFee, supply - amount);
+
     // send the key seller their share
-    (bool success1, ) = msg.sender.call{value: price - protocolFee - subjectFee}("");
+    IERC20(tokenAddress).transfer(msg.sender, price - protocolFee - subjectFee);
 
     // increase total volume stats
     totalVolumeWei += (price + protocolFee + subjectFee);
@@ -194,8 +202,8 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
       uint256 referrerFeeProtocol = protocolFee * referrerFeeShare / 1 ether;
       uint256 referrerFeeSubject = subjectFee * referrerFeeShare / 1 ether;
 
-      (bool successRef, ) = referrer.call{value: referrerFeeProtocol + referrerFeeSubject}("");
-      require(successRef, "Unable to send funds");
+      // send referrer their share in tokens
+      IERC20(tokenAddress).transfer(referrer, referrerFeeProtocol + referrerFeeSubject);
 
       if (statsAddress != address(0)) {
         IStats(statsAddress).addWeiSpent(referrer, referrerFeeProtocol + referrerFeeSubject);
@@ -204,22 +212,16 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
       protocolFee = protocolFee - referrerFeeProtocol;
       subjectFee = subjectFee - referrerFeeSubject;
     }
-
-    emit Trade(msg.sender, domainName, false, amount, price, protocolFee, subjectFee, supply - amount);
-
-    // send fee to the project
-    (bool success2, ) = feeReceiver.call{value: protocolFee}("");
-
-    // send fee to the domain owner
+    
+    // send protocol fee to the project, and domain holder fee to the domain owner
+    IERC20(tokenAddress).transfer(feeReceiver, protocolFee);
     address domainOwner = IPunkTLD(tldAddress).getDomainHolder(domainName);
-    (bool success3, ) = domainOwner.call{value: subjectFee}("");
+    IERC20(tokenAddress).transfer(domainOwner, subjectFee);
 
     // add protocol fees to stats
     if (statsAddress != address(0)) {
       IStats(statsAddress).addWeiSpent(msg.sender, protocolFee);
     }
-
-    require(success1 && success2 && success3, "Unable to send funds");
   }
 
   // OWNER OR MANAGER
