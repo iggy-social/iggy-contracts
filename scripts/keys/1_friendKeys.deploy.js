@@ -7,8 +7,8 @@ const tldAddress = "0xc2C543D39426bfd1dB66bBde2Dd9E4a5c7212876";
 const feeReceiver = "0xE06828A6303fE7A249c99ee95605F30A24fc3fbf"; // distributor contract address
 const statsAddress = "0x1625F2c759004726273fecd1449F882d5Bf6F76F"; // stats middleware contract address
 
-const protocolFeePercent = ethers.utils.parseEther("0.05");
-const domainHolderFeePercent = ethers.utils.parseEther("0.05");
+const protocolFeePercent = ethers.utils.parseEther("0.05"); // 1 is 100%
+const domainHolderFeePercent = ethers.utils.parseEther("0.05"); // 1 is 100%
 const ratio = ethers.utils.parseEther("1"); // 1 ETH for 16000 keys
 
 async function main() {

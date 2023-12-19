@@ -1,4 +1,4 @@
-// npx hardhat test test/keys/friendKeys.test.js
+// npx hardhat test test/keys/friendKeysReferrer.test.js
 
 const { expect } = require("chai");
 
@@ -18,7 +18,7 @@ function calculateGasCosts(testName, receipt) {
   console.log(testName + " gas cost (Polygon): $" + String(Number(gasCostMatic)*matic));
 }
 
-describe("FriendKeys", function () {
+describe("FriendKeys WITH REFERRER", function () {
   let mockPunkTldContract;
   let statsMiddlewareContract;
   let friendKeysContract;
@@ -27,6 +27,7 @@ describe("FriendKeys", function () {
   let feeReceiver;
   let user1;
   let user2; // domain holder
+  let referrer;
 
   const domainName = "test"; // test.tld domain
 
@@ -37,7 +38,7 @@ describe("FriendKeys", function () {
   //const provider = waffle.provider;
 
   beforeEach(async function () {
-    [owner, feeReceiver, user1, user2] = await ethers.getSigners();
+    [owner, feeReceiver, user1, user2, referrer] = await ethers.getSigners();
 
     const MockPunkTld = await ethers.getContractFactory("MockPunkTld");
     mockPunkTldContract = await MockPunkTld.deploy(user2.address, domainName);
@@ -67,7 +68,7 @@ describe("FriendKeys", function () {
     await statsMiddlewareContract.addWriter(friendKeysContract.address);
   });
 
-  it("buys and sell 3 keys sequentially", async function () {
+  it("buys and sell 3 keys sequentially WITH REFERRER", async function () {
     // function getSellPriceAfterFee(string memory domainName, uint256 amount) public view returns (uint256)
     // get sell price for 1 domain
     const sellPrice = await friendKeysContract.getSellPriceAfterFee(domainName, 1);
@@ -93,6 +94,10 @@ describe("FriendKeys", function () {
     const smartContractBalanceBefore = await ethers.provider.getBalance(friendKeysContract.address);
     console.log("smartContractBalanceBefore: " + ethers.utils.formatEther(smartContractBalanceBefore) + " ETH");
 
+    // get referrer balance
+    const referrerBalanceBefore = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceBefore: " + ethers.utils.formatEther(referrerBalanceBefore) + " ETH");
+
     // get buy price (should be 0 for the 1 share)
     const buyPriceBefore = await friendKeysContract.getBuyPriceAfterFee(domainName, 1);
     console.log("buyPriceBefore: " + ethers.utils.formatEther(buyPriceBefore) + " ETH");
@@ -100,7 +105,10 @@ describe("FriendKeys", function () {
 
     // buy 1 share
     const tx = await friendKeysContract.connect(user1).buyKeys(
-      domainName, 1, ethers.constants.AddressZero, { value: buyPriceBefore }
+      domainName, 
+      1, 
+      referrer.address,
+      { value: buyPriceBefore }
     );
     const receipt = await tx.wait();
     //calculateGasCosts("buyKeys", receipt);
@@ -119,6 +127,10 @@ describe("FriendKeys", function () {
     const user1BalanceAfter1 = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceAfter1: " + ethers.utils.formatEther(user1BalanceAfter1) + " ETH");
 
+    // get referrer balance
+    const referrerBalanceAfter1 = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceAfter1: " + ethers.utils.formatEther(referrerBalanceAfter1) + " ETH");
+
     // get buy price after (should not be 0 anymore)
     const buyPriceAfter1 = await friendKeysContract.getBuyPriceAfterFee(domainName, 1);
     console.log("buyPriceAfter1: " + ethers.utils.formatEther(buyPriceAfter1) + " ETH");
@@ -128,7 +140,7 @@ describe("FriendKeys", function () {
     console.log("sellPriceBefore: " + ethers.utils.formatEther(sellPriceBefore) + " ETH");
 
     // buy 1 share
-    const tx2 = await friendKeysContract.connect(user1).buyKeys(domainName, 1, ethers.constants.AddressZero, { value: buyPriceAfter1 });
+    const tx2 = await friendKeysContract.connect(user1).buyKeys(domainName, 1, referrer.address, { value: buyPriceAfter1 });
     const receipt2 = await tx2.wait();
     //calculateGasCosts("buyKeys", receipt2);
 
@@ -146,12 +158,16 @@ describe("FriendKeys", function () {
     const user1BalanceAfter2 = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceAfter2: " + ethers.utils.formatEther(user1BalanceAfter2) + " ETH");
 
+    // get referrer balance
+    const referrerBalanceAfter2 = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceAfter2: " + ethers.utils.formatEther(referrerBalanceAfter2) + " ETH");
+
     // get buy price after (should not be 0 anymore)
     const buyPriceAfter2 = await friendKeysContract.getBuyPriceAfterFee(domainName, 1);
     console.log("buyPriceAfter2: " + ethers.utils.formatEther(buyPriceAfter2) + " ETH");
 
     // buy 1 share
-    const tx3 = await friendKeysContract.connect(user1).buyKeys(domainName, 1, ethers.constants.AddressZero, { value: buyPriceAfter2 });
+    const tx3 = await friendKeysContract.connect(user1).buyKeys(domainName, 1, referrer.address, { value: buyPriceAfter2 });
     const receipt3 = await tx3.wait();
 
     console.log("----");
@@ -168,6 +184,10 @@ describe("FriendKeys", function () {
     const user1BalanceAfter3 = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceAfter3: " + ethers.utils.formatEther(user1BalanceAfter3) + " ETH");
 
+    // get referrer balance
+    const referrerBalanceAfter3 = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceAfter3: " + ethers.utils.formatEther(referrerBalanceAfter3) + " ETH");
+
     // get buy price after (should not be 0 anymore)
     const buyPriceAfter3 = await friendKeysContract.getBuyPriceAfterFee(domainName, 1);
     console.log("buyPriceAfter3: " + ethers.utils.formatEther(buyPriceAfter3) + " ETH");
@@ -177,7 +197,7 @@ describe("FriendKeys", function () {
     console.log("sellPrice1: " + ethers.utils.formatEther(sellPrice1) + " ETH");
 
     // sell 1 share
-    const tx4 = await friendKeysContract.connect(user1).sellKeys(domainName, 1, ethers.constants.AddressZero);
+    const tx4 = await friendKeysContract.connect(user1).sellKeys(domainName, 1, referrer.address);
     const receipt4 = await tx4.wait();
 
     console.log("----");
@@ -194,12 +214,16 @@ describe("FriendKeys", function () {
     const user1BalanceAfter4 = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceAfter4: " + ethers.utils.formatEther(user1BalanceAfter4) + " ETH");
 
+    // get referrer balance
+    const referrerBalanceAfter4 = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceAfter4: " + ethers.utils.formatEther(referrerBalanceAfter4) + " ETH");
+
     // get sell price for 1 domain
     const sellPrice2 = await friendKeysContract.getSellPriceAfterFee(domainName, 1);
     console.log("sellPrice2: " + ethers.utils.formatEther(sellPrice2) + " ETH");
 
     // sell 1 share
-    const tx5 = await friendKeysContract.connect(user1).sellKeys(domainName, 1, ethers.constants.AddressZero);
+    const tx5 = await friendKeysContract.connect(user1).sellKeys(domainName, 1, referrer.address);
     const receipt5 = await tx5.wait();
 
     console.log("----");
@@ -216,12 +240,16 @@ describe("FriendKeys", function () {
     const user1BalanceAfter5 = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceAfter5: " + ethers.utils.formatEther(user1BalanceAfter5) + " ETH");
 
+    // get referrer balance
+    const referrerBalanceAfter5 = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceAfter5: " + ethers.utils.formatEther(referrerBalanceAfter5) + " ETH");
+
     // get sell price for 1 domain
     const sellPrice3 = await friendKeysContract.getSellPriceAfterFee(domainName, 1);
     console.log("sellPrice3: " + ethers.utils.formatEther(sellPrice3) + " ETH");
 
     // sell 1 share
-    const tx6 = await friendKeysContract.connect(user1).sellKeys(domainName, 1, ethers.constants.AddressZero);
+    const tx6 = await friendKeysContract.connect(user1).sellKeys(domainName, 1, referrer.address);
     const receipt6 = await tx6.wait();
 
     console.log("----");
@@ -238,6 +266,10 @@ describe("FriendKeys", function () {
     const user1BalanceAfter6 = await ethers.provider.getBalance(user1.address);
     console.log("user1BalanceAfter6: " + ethers.utils.formatEther(user1BalanceAfter6) + " ETH");
 
+    // get referrer balance
+    const referrerBalanceAfter6 = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceAfter6: " + ethers.utils.formatEther(referrerBalanceAfter6) + " ETH");
+
     // get sell price for 1 domain
     const sellPrice4 = await friendKeysContract.getSellPriceAfterFee(domainName, 1);
     console.log("sellPrice4: " + ethers.utils.formatEther(sellPrice4) + " ETH");
@@ -252,7 +284,7 @@ describe("FriendKeys", function () {
     console.log("keySupply: " + keySupply);
 
     // expect to revert when trying to sell the last share as user2
-    await expect(friendKeysContract.connect(user2).sellKeys(domainName, 1, ethers.constants.AddressZero)).to.be.revertedWith("Cannot sell the last key");
+    await expect(friendKeysContract.connect(user2).sellKeys(domainName, 1, referrer.address)).to.be.revertedWith("Cannot sell the last key");
     
   });
 

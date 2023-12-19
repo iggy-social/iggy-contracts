@@ -20,8 +20,9 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
 
   string public tldName;
   
-  uint256 public protocolFeePercent;
   uint256 public domainHolderFeePercent;
+  uint256 public protocolFeePercent;
+  uint256 public referrerFeeShare = 100000000000000000; // referrer's share of the protocol and domain holder fee in wei (default: 100000000000000000 wei = 10%)
   uint256 public immutable ratio;
   uint256 public totalVolumeWei;
 
@@ -115,7 +116,7 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
 
   // WRITE
 
-  function buyKeys(string memory domainName, uint256 amount) external payable nonReentrant {
+  function buyKeys(string memory domainName, uint256 amount, address referrer) external payable nonReentrant {
     address domainOwner = IPunkTLD(tldAddress).getDomainHolder(domainName);
     require(domainOwner != address(0), "Domain does not exist");
 
@@ -139,31 +140,37 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
 
     emit Trade(msg.sender, domainName, true, amount, price, protocolFee, subjectFee, supply + amount);
 
+    // increase total volume stats
+    totalVolumeWei += (price + protocolFee + subjectFee);
+
+    // if there is a referrer, send them their share of the protocol and domain holder fee
+    if (referrer != address(0)) {
+      uint256 referrerFeeProtocol = protocolFee * referrerFeeShare / 1 ether;
+      uint256 referrerFeeSubject = subjectFee * referrerFeeShare / 1 ether;
+
+      (bool successRef, ) = referrer.call{value: referrerFeeProtocol + referrerFeeSubject}("");
+      require(successRef, "Unable to send funds");
+
+      if (statsAddress != address(0)) {
+        IStats(statsAddress).addWeiSpent(referrer, referrerFeeProtocol + referrerFeeSubject);
+      }
+
+      protocolFee = protocolFee - referrerFeeProtocol;
+      subjectFee = subjectFee - referrerFeeSubject;
+    }
+
     (bool success1, ) = feeReceiver.call{value: protocolFee}("");
     (bool success2, ) = domainOwner.call{value: subjectFee}("");
-
-    // if (referrer != address(0)) {
-      // pseudocode, double-check + tests!!!
-    //  uint256 referrerFee = (protocolFee + subjectFee) / referrerFeePercent;
-    //  (bool success, ) = referrer.call{value: referrerFee}("");
-    //  require(success, "Unable to send funds");
-    //  protocolFee = protocolFee - (protocolFee * (1 ether - referrerFeePercent) / 1 ether);
-    //  subjectFee = subjectFee - (subjectFee * (1 ether - referrerFeePercent) / 1 ether);
-    //  if (collectStats) {
-    //    IStats(statsAddress).addWeiSpent(referrer, referrerFee);
-    //  }
-    // }
 
     // add protocol fees to stats
     if (statsAddress != address(0)) {
       IStats(statsAddress).addWeiSpent(msg.sender, protocolFee);
     }
-    totalVolumeWei += (price + protocolFee + subjectFee);
 
     require(success1 && success2, "Unable to send funds");
   }
 
-  function sellKeys(string memory domainName, uint256 amount) external payable nonReentrant {
+  function sellKeys(string memory domainName, uint256 amount, address referrer) external payable nonReentrant {
     uint256 supply = keysSupply[domainName];
     require(supply > amount, "Cannot sell the last key");
 
@@ -178,9 +185,32 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
 
     emit Trade(msg.sender, domainName, false, amount, price, protocolFee, subjectFee, supply - amount);
 
+    // send the key seller their share
     (bool success1, ) = msg.sender.call{value: price - protocolFee - subjectFee}("");
+
+    // increase total volume stats
+    totalVolumeWei += (price + protocolFee + subjectFee);
+
+    // if there is a referrer, send them their share of the protocol and domain holder fee
+    if (referrer != address(0)) {
+      uint256 referrerFeeProtocol = protocolFee * referrerFeeShare / 1 ether;
+      uint256 referrerFeeSubject = subjectFee * referrerFeeShare / 1 ether;
+
+      (bool successRef, ) = referrer.call{value: referrerFeeProtocol + referrerFeeSubject}("");
+      require(successRef, "Unable to send funds");
+
+      if (statsAddress != address(0)) {
+        IStats(statsAddress).addWeiSpent(referrer, referrerFeeProtocol + referrerFeeSubject);
+      }
+
+      protocolFee = protocolFee - referrerFeeProtocol;
+      subjectFee = subjectFee - referrerFeeSubject;
+    }
+
+    // send fee to the project
     (bool success2, ) = feeReceiver.call{value: protocolFee}("");
 
+    // send fee to the domain owner
     address domainOwner = IPunkTLD(tldAddress).getDomainHolder(domainName);
     (bool success3, ) = domainOwner.call{value: subjectFee}("");
 
@@ -188,13 +218,13 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
     if (statsAddress != address(0)) {
       IStats(statsAddress).addWeiSpent(msg.sender, protocolFee);
     }
-    totalVolumeWei += (price + protocolFee + subjectFee);
 
     require(success1 && success2 && success3, "Unable to send funds");
   }
 
   // OWNER OR MANAGER
 
+  /// @notice Fee in wei, 1 ether = 100%
   function changeDomainHolderFeePercent(uint256 _feePercent) public onlyManagerOrOwner {
     domainHolderFeePercent = _feePercent;
   }
@@ -203,8 +233,14 @@ contract FriendKeys is OwnableWithManagers, ReentrancyGuard {
     feeReceiver = _feeReceiver;
   }
 
+  /// @notice Fee in wei, 1 ether = 100%
   function changeProtocolFeePercent(uint256 _feePercent) public onlyManagerOrOwner {
     protocolFeePercent = _feePercent;
+  }
+
+  /// @notice Fee in wei, 1 ether = 100%
+  function changeReferrerFeeShare(uint256 _referrerFeeShare) public onlyManagerOrOwner {
+    referrerFeeShare = _referrerFeeShare;
   }
 
   function changeStatsAddress(address _statsAddress) public onlyManagerOrOwner {
