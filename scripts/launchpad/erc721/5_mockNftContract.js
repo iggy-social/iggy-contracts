@@ -1,6 +1,6 @@
 // If verifying contract via step 3 does not work, use this script instead
-// 4. Deploy mock/test Nft721Bonding contract so that others created through factory can get auto-verified.
-// npx hardhat run scripts/launchpad/erc721/4_mockNftContract.js --network opera
+// 5. Deploy mock/test Nft721Bonding contract so that others created through factory can get auto-verified.
+// npx hardhat run scripts/launchpad/erc721/5_mockNftContract.js --network opera
 
 const contractName = "Nft721Bonding";
 

@@ -19,6 +19,7 @@ function calculateGasCosts(testName, receipt) {
 }
 
 describe("IggyLaunchpad721Bonding", function () {
+  let directoryContract;
   let launchpadContract;
   let statsContract;
   let statsMiddlewareContract;
@@ -60,15 +61,23 @@ describe("IggyLaunchpad721Bonding", function () {
     metadataContract = await NftMetadata.deploy();
     await metadataContract.deployed();
 
+    const NftDirectory = await ethers.getContractFactory("NftDirectory");
+    directoryContract = await NftDirectory.deploy();
+    await directoryContract.deployed();
+
     const IggyLaunchpad721Bonding = await ethers.getContractFactory("IggyLaunchpad721Bonding");
     launchpadContract = await IggyLaunchpad721Bonding.deploy(
       metadataContract.address,
       feeReceiver.address,
+      directoryContract.address,
       statsMiddlewareContract.address,
       feePercent,
       priceLaunch
     );
     await launchpadContract.deployed();
+
+    // add launchpad contract as writer in the NFT directory contract
+    await directoryContract.addWriter(launchpadContract.address);
 
     // add launchpad contract address to stats middleware contract as writer
     await statsMiddlewareContract.addWriter(launchpadContract.address);
@@ -431,7 +440,7 @@ describe("IggyLaunchpad721Bonding", function () {
     console.log(lastFeaturedContracts5);
 
     // addNftAddressToFeatured
-    await launchpadContract.addNftAddressToFeatured(lastNftContracts3[1]);
+    await directoryContract.addNftAddressToFeatured(lastNftContracts3[1]);
 
     const lastFeaturedContracts6 = await launchpadContract.getFeaturedNftContracts(6);
     console.log(lastFeaturedContracts6);
