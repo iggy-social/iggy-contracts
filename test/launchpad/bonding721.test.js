@@ -1,6 +1,7 @@
 // npx hardhat test test/launchpad/bonding721.test.js
 
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 function calculateGasCosts(testName, receipt) {
   console.log(testName + " gasUsed: " + receipt.gasUsed);
@@ -44,7 +45,7 @@ describe("IggyLaunchpad721Bonding", function () {
   const nftUniqueId = "justsomethingunique";
 
   beforeEach(async function () {
-    [factoryOwner, feeReceiver, nftContractOwner, user1, user2] = await ethers.getSigners();
+    [factoryOwner, feeReceiver, nftContractOwner, user1, user2, referrer] = await ethers.getSigners();
 
     const Stats = await ethers.getContractFactory("Stats");
     statsContract = await Stats.deploy();
@@ -95,6 +96,7 @@ describe("IggyLaunchpad721Bonding", function () {
     // launch a new NFT contract
     const tx = await launchpadContract.connect(user1).launch(
       user1.address, // NFT contract owner
+      ethers.constants.AddressZero, // referrer
       nftDescription,
       nftImage,
       nftMetadataName,
@@ -389,8 +391,13 @@ describe("IggyLaunchpad721Bonding", function () {
 
   it("creates a few new NFT contracts via launchpad and queries them", async function () {
 
+    // check referrer balance
+    const referrerBalanceBefore = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceBefore: " + ethers.utils.formatEther(referrerBalanceBefore) + " ETH");
+
     await launchpadContract.connect(user1).launch(
       user1.address, // NFT contract owner
+      referrer.address, // referrer
       nftDescription,
       nftImage,
       nftMetadataName,
@@ -401,8 +408,13 @@ describe("IggyLaunchpad721Bonding", function () {
       { value: priceLaunch }
     );
 
+    // referrer balance after 1
+    const referrerBalanceAfter1 = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceAfter1: " + ethers.utils.formatEther(referrerBalanceAfter1) + " ETH");
+
     await launchpadContract.connect(user1).launch(
       user2.address, // NFT contract owner
+      ethers.constants.AddressZero, // referrer
       nftDescription,
       nftImage,
       nftMetadataName,
@@ -413,8 +425,13 @@ describe("IggyLaunchpad721Bonding", function () {
       { value: priceLaunch }
     );
 
+    // referrer balance after 2
+    const referrerBalanceAfter2 = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceAfter2: " + ethers.utils.formatEther(referrerBalanceAfter2) + " ETH");
+
     await launchpadContract.connect(user1).launch(
       user1.address, // NFT contract owner
+      referrer.address, // referrer
       nftDescription,
       nftImage,
       nftMetadataName,
@@ -424,6 +441,10 @@ describe("IggyLaunchpad721Bonding", function () {
       ratio,
       { value: priceLaunch }
     );
+
+    // referrer balance after 3
+    const referrerBalanceAfter3 = await ethers.provider.getBalance(referrer.address);
+    console.log("referrerBalanceAfter3: " + ethers.utils.formatEther(referrerBalanceAfter3) + " ETH");
 
     // call getLastNftContracts
 
@@ -453,6 +474,7 @@ describe("IggyLaunchpad721Bonding", function () {
     // launch a new NFT contract
     const tx = await launchpadContract.connect(user1).launch(
       user1.address, // NFT contract owner
+      ethers.constants.AddressZero, // referrer
       nftDescription,
       nftImage,
       nftMetadataName,

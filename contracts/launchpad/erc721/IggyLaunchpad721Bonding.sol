@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import { OwnableWithManagers } from "../../access/OwnableWithManagers.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./Nft721Bonding.sol";
 
 interface INftDirectory {
@@ -32,7 +33,7 @@ interface IStatsContract {
 @title Factory contract for launching new ERC721 collections with bonding curve pricing
 @author Tempe Techie
 */
-contract IggyLaunchpad721Bonding is OwnableWithManagers {
+contract IggyLaunchpad721Bonding is OwnableWithManagers, ReentrancyGuard {
   address public metadataAddress;
   address public mintingFeeReceiver; // the address that receives the ETH paid for launching a new NFT contract & minting fees from NFT contracts
   address public nftDirectoryAddress;
@@ -43,6 +44,7 @@ contract IggyLaunchpad721Bonding is OwnableWithManagers {
   uint256 public maxNftNameLength = 32;
   uint256 public mintingFeePercentage; // in wei
   uint256 public price; // price for creating new NFT contract
+  uint256 public referralFeePercentage = 10**17; // in wei (1 ether is 100%, default is 10**17 = 10%)
 
   // EVENTS
   event CollectionLaunch(address indexed contractOwner_, address indexed msgSender_, string name_, string uniqueId_, address indexed nftContract_);
@@ -110,6 +112,7 @@ contract IggyLaunchpad721Bonding is OwnableWithManagers {
   /// @notice Launch new ERC721 collection with bonding curve pricing
   function launch(
     address contractOwner_,
+    address referrer_,
     string memory mdDescription_,
     string memory mdImage_,
     string memory mdName_,
@@ -117,7 +120,7 @@ contract IggyLaunchpad721Bonding is OwnableWithManagers {
     string memory symbol_,
     string calldata uniqueId_, // to easily find the NFT contract address
     uint256 ratio // ratio of price increase per token minted for bonding curve (in wei)
-  ) external payable {
+  ) external payable nonReentrant {
     require(!paused, "Launching new collections is paused");
     require(msg.value >= price, "Not enough ETH sent to cover price");
     
@@ -125,6 +128,16 @@ contract IggyLaunchpad721Bonding is OwnableWithManagers {
 
     require(isUniqueIdAvailable(uniqueId_), "Unique ID is not available");
     require(bytes(name_).length <= maxNftNameLength, "Name must be 32 characters or less");
+
+    uint256 paid = msg.value;
+
+    // send referral fee
+    if (referrer_ != address(0) && referralFeePercentage > 0) {
+      uint256 referralFee = msg.value * referralFeePercentage / 1 ether;
+      (bool sentRef, ) = referrer_.call{value: referralFee}("");
+      IStatsContract(statsAddress).addWeiSpent(referrer_, referralFee);
+      paid -= referralFee;
+    }
 
     (bool sent, ) = mintingFeeReceiver.call{value: address(this).balance}("");
     require(sent, "Failed to send launch payment to the payment receiver");
@@ -148,7 +161,7 @@ contract IggyLaunchpad721Bonding is OwnableWithManagers {
 
     // update stats
     if (statsAddress != address(0)) {
-      IStatsContract(statsAddress).addWeiSpent(msg.sender, msg.value);
+      IStatsContract(statsAddress).addWeiSpent(msg.sender, paid);
       IStatsContract(statsAddress).addWriterByWriter(address(nftContract));
     }
 
@@ -191,6 +204,11 @@ contract IggyLaunchpad721Bonding is OwnableWithManagers {
   /// @notice Set price for creating new NFT contract
   function setPrice(uint256 _price) external onlyManagerOrOwner {
     price = _price;
+  }
+
+  /// @notice Set referral fee percentage in wei (1 ether is 100%)
+  function setReferralFeePercentage(uint256 _referralFeePercentage) external onlyManagerOrOwner {
+    referralFeePercentage = _referralFeePercentage;
   }
 
   /// @notice Set stats contract address
