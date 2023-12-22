@@ -17,28 +17,40 @@ contract ActivityPoints is OwnableWithManagers {
   address public mintedPostsStatsAddress;
   address public tldStatsAddress;
 
-  uint256 public bonusPointsTotal; // total bonus points in wei
+  uint256 public bonusWeiTotal; // total bonus wei (without multiplier)
 
-  mapping (address => uint256) public bonusPoints; // bonus points in wei
+  uint256 public multiplier; // multiplier for points (e.g. 1 means 1 wei spent = 1 point)
+
+  mapping (address => uint256) public bonusWei; // bonus wei (without multiplier)
 
   // EVENTS
-  event BonusPointsAdded(address indexed manager_, address indexed user_, uint256 wei_);
-  event BonusPointsRemoved(address indexed manager_, address indexed user_, uint256 wei_);
+  event BonusPointsAdded(address indexed manager_, address indexed user_, uint256 bp_);
+  event BonusPointsRemoved(address indexed manager_, address indexed user_, uint256 bp_);
 
   constructor(
     address _statsAddress,
     address _mintedPostsStatsAddress,
-    address _tldStatsAddress
+    address _tldStatsAddress,
+    uint256 _multiplier
   ) {
     statsAddress = _statsAddress;
     mintedPostsStatsAddress = _mintedPostsStatsAddress;
     tldStatsAddress = _tldStatsAddress;
+    multiplier = _multiplier;
   }
 
   // READ
 
-  function getTotalWeiSpent(address _user) external view returns (uint256) {
-    uint256 totalWeiSpent = bonusPoints[_user];
+  function getPoints(address user_) external view returns (uint256) {
+    return (bonusWei[user_] + getTotalWeiSpent(user_)) * multiplier;
+  }
+
+  function getTotalPointsAllUsers() external view returns (uint256) {
+    return (bonusWeiTotal + getTotalWeiSpentAllUsers()) * multiplier;
+  }
+
+  function getTotalWeiSpent(address _user) public view returns (uint256) {
+    uint256 totalWeiSpent;
 
     if (statsAddress != address(0)) {
       totalWeiSpent += IStats(statsAddress).getWeiSpent(_user);
@@ -55,8 +67,8 @@ contract ActivityPoints is OwnableWithManagers {
     return totalWeiSpent;
   }
 
-  function getTotalWeiSpentAllUsers() external view returns (uint256) {
-    uint256 totalWeiSpent = bonusPointsTotal;
+  function getTotalWeiSpentAllUsers() public view returns (uint256) {
+    uint256 totalWeiSpent;
 
     if (statsAddress != address(0)) {
       totalWeiSpent += IStats(statsAddress).weiSpentTotal();
@@ -75,24 +87,44 @@ contract ActivityPoints is OwnableWithManagers {
 
   // OWNER
 
-  function addBonusPoints(address _user, uint256 _wei) external onlyManagerOrOwner {
-    bonusPoints[_user] += _wei;
-    bonusPointsTotal += _wei;
-    emit BonusPointsAdded(msg.sender, _user, _wei);
+  /// @notice These points already include the multiplier
+  function addBonusPoints(address _user, uint256 _bp) external onlyManagerOrOwner {
+    bonusWei[_user] += _bp / multiplier;
+    bonusWeiTotal += _bp / multiplier;
+    emit BonusPointsAdded(msg.sender, _user, _bp);
   }
 
-  function removeBonusPoints(address _user, uint256 _wei) external onlyManagerOrOwner {
-    bonusPoints[_user] -= _wei;
-    bonusPointsTotal -= _wei;
-    emit BonusPointsRemoved(msg.sender, _user, _wei);
+  /// @notice These points already include the multiplier
+  function removeBonusPoints(address _user, uint256 _bp) external onlyManagerOrOwner {
+    require(bonusWei[_user] >= _bp / multiplier, "ActivityPoints: not enough bonus points");
+    bonusWei[_user] -= _bp / multiplier;
+    bonusWeiTotal -= _bp / multiplier;
+    emit BonusPointsRemoved(msg.sender, _user, _bp);
   }
 
-  function setStatsAddress(address _statsAddress) external onlyManagerOrOwner {
-    statsAddress = _statsAddress;
+  /// @notice Bonus wei does not include the multiplier
+  function addBonusWei(address _user, uint256 _wei) external onlyManagerOrOwner {
+    bonusWei[_user] += _wei;
+    bonusWeiTotal += _wei;
+  }
+
+  /// @notice Bonus wei does not include the multiplier
+  function removeBonusWei(address _user, uint256 _wei) external onlyManagerOrOwner {
+    require(bonusWei[_user] >= _wei, "ActivityPoints: not enough bonus wei");
+    bonusWei[_user] -= _wei;
+    bonusWeiTotal -= _wei;
   }
 
   function setMintedPostsStatsAddress(address _mintedPostsStatsAddress) external onlyManagerOrOwner {
     mintedPostsStatsAddress = _mintedPostsStatsAddress;
+  }
+
+  function setMultiplier(uint256 _multiplier) external onlyManagerOrOwner {
+    multiplier = _multiplier;
+  }
+
+  function setStatsAddress(address _statsAddress) external onlyManagerOrOwner {
+    statsAddress = _statsAddress;
   }
 
   function setTldStatsAddress(address _tldStatsAddress) external onlyManagerOrOwner {
