@@ -1,9 +1,9 @@
 // 2. Deploy StatsMiddleware contract.
-// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network opera
+// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network polygonMumbai
 
 const contractName = "StatsMiddleware";
 
-const statsAddress = "";
+const statsAddress = "0x6Cb1bA799566318Ba433DDF91462D6045Bb90Bc5";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -27,7 +27,7 @@ async function main() {
   await tx2.wait();
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + instance.address);
+  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + statsAddress);
 }
 
 main()

@@ -1,12 +1,12 @@
-// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network songbird
+// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network polygonMumbai
 
 const contractName = "IggySwapRouter";
 
 const frontendAddress = "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D";
 const iggyAddress = "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D";
-const routerAddress = "0xB0F6F956CE004438926299712aAB1Ff97De7254e";
-const stakingAddress = "0xCA9749778327CD67700d3a777731a712330beB9A";
-const statsAddress = ""; // stats middleware address
+const routerAddress = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
+const stakingAddress = "0x96Dc7548fD018d1E51d2d5e98B265411C3D0F22A";
+const statsAddress = "0xfc31E770d80dBC6733ECa738d0c3b62A4b04d62D"; // stats middleware address
 
 const swapFee = 80; // 0.8%
 const stakingShare = 9999; 

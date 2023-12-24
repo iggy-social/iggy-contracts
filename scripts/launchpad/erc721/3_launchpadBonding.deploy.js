@@ -1,14 +1,14 @@
 // 3. Deploy IggyLaunchpad721Bonding contract.
-// npx hardhat run scripts/launchpad/erc721/3_launchpadBonding.deploy.js --network opera
+// npx hardhat run scripts/launchpad/erc721/3_launchpadBonding.deploy.js --network polygonMumbai
 
 const contractName = "IggyLaunchpad721Bonding";
 
-const metadataAddress = "0x6AbDd1Bf5078cC6b0D75caFCdDC69A8339067F50";
-const mintingFeeReceiver = "0x90BbcF08d82e276262267a9dB9014C979b70Db3c"; // revenue distributor contract address
-const directoryAddress = "";
-const statsMiddlewareAddress = "0xce314209aB485bE222CE85F653Ac918f54532503";
+const metadataAddress = "0x58A7D696687d9130e0b46085108bd3A3855380Fa";
+const mintingFeeReceiver = "0xb29050965a5ac70ab487aa47546cdcbc97dae45d"; // revenue distributor contract address
+const directoryAddress = "0x4bE1e05BB0527bcbDEcA0e1E72c41e680a126d4b";
+const statsMiddlewareAddress = "0xfc31E770d80dBC6733ECa738d0c3b62A4b04d62D";
 const mintingFeePercentage = ethers.utils.parseEther("0.02");
-const price = ethers.utils.parseEther("2"); // price for creating a new NFT collection
+const price = ethers.utils.parseEther("0.00002"); // price for creating a new NFT collection
 
 async function main() {
   const [deployer] = await ethers.getSigners();

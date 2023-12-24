@@ -5,6 +5,8 @@ import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
 
 interface IStats {
   function addWeiSpent(address user_, uint256 weiSpent_) external;
+  function getWeiSpent(address user_) external view returns (uint256);
+  function weiSpentTotal() external view returns (uint256);
 }
 
 /** 
@@ -18,6 +20,16 @@ contract StatsMiddleware is OwnableWithManagers {
   // CONSTRUCTOR
   constructor(address statsAddress_) {
     statsAddress = statsAddress_;
+  }
+
+  // READ
+
+  function getWeiSpent(address user_) external view returns (uint256) {
+    return IStats(statsAddress).getWeiSpent(user_);
+  }
+
+  function weiSpentTotal() external view returns (uint256) {
+    return IStats(statsAddress).weiSpentTotal();
   }
 
   // WRITER

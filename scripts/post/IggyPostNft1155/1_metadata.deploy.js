@@ -1,12 +1,12 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network flare
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network polygonMumbai
 
 const contractName = "IggyPostMetadata";
 
-const mdName = "FLR Chat Post";
-const description = "FLR Chat is the first decentralized social network on Flare. Go visit here: https://flr.chat/";
-const url = "https://flr.chat/post/";
-const tldAddress = "0xBDACF94dDCAB51c39c2dD50BffEe60Bb8021949a";
+const mdName = "Iggy Demo Post";
+const description = "Iggy Demo is an example decentralized social network on Polygon Mumbai testnet. Go visit here: https://demo.iggy.social/";
+const url = "https://demo.iggy.social/post/";
+const tldAddress = "0x2582EC420195Fefb091B098da6FAdEE49f490740";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

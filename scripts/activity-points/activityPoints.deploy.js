@@ -1,11 +1,11 @@
-// npx hardhat run scripts/activity-points/activityPoints.deploy.js --network base
+// npx hardhat run scripts/activity-points/activityPoints.deploy.js --network polygonMumbai
 
 const contractName = "ActivityPoints";
 
-const statsAddress = "0x1625F2c759004726273fecd1449F882d5Bf6F76F"; // stats middleware contract
-const mintedPostsStatsAddress = "0xDA07Ef226E212f548979339BFEb13160C1d52f30";
-const tldStatsAddress = "0xC316f4a7a0f663ae0790d75eEfcF4a0d212a5472"; // ethers.constants.AddressZero;
-const multiplier = 1000; // 1 wei = 1000 points
+const statsAddress = "0xfc31E770d80dBC6733ECa738d0c3b62A4b04d62D"; // stats contract
+const mintedPostsStatsAddress = "0xe336676aC859785CECe2659317176304DB2DF808";
+const tldStatsAddress = ethers.constants.AddressZero;
+const multiplier = 100000; // 1 wei = 1000 points
 
 async function main() {
   const [deployer] = await ethers.getSigners();
