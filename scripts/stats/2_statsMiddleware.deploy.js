@@ -1,9 +1,9 @@
 // 2. Deploy StatsMiddleware contract.
-// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network polygonMumbai
+// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network zkfair
 
-const contractName = "StatsMiddleware";
+const contractName = "StatsMiddleware"; // not run yet on ZKFair
 
-const statsAddress = "0x6Cb1bA799566318Ba433DDF91462D6045Bb90Bc5";
+const statsAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
