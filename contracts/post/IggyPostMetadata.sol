@@ -41,8 +41,8 @@ contract IggyPostMetadata is OwnableWithManagers {
   }
 
   // INTERNAL
-  function _randomHueNum(uint256 _tokenId) internal pure returns(uint256) {
-    return uint256(keccak256(abi.encodePacked(_tokenId))) % 361;
+  function _randomHueNum(uint256 _tokenId) internal view returns(uint256) {
+    return uint256(keccak256(abi.encodePacked(_tokenId, tldAddress, name))) % 361;
   }
 
   // READ

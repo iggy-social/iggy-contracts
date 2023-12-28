@@ -1,12 +1,12 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network polygonMumbai
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network zkfair
 
 const contractName = "IggyPostMetadata";
 
-const mdName = "Iggy Demo Post";
-const description = "Iggy Demo is an example decentralized social network on Polygon Mumbai testnet. Go visit here: https://demo.iggy.social/";
-const url = "https://demo.iggy.social/post/";
-const tldAddress = "0x2582EC420195Fefb091B098da6FAdEE49f490740";
+const mdName = "Fairchat Post";
+const description = "Fairchat.xyz is the first decentralized social network on ZKFair. Go visit here: https://fairchat.xyz/";
+const url = "https://fairchat.xyz/post/";
+const tldAddress = "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
