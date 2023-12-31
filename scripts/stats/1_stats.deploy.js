@@ -1,5 +1,5 @@
 // 1. Deploy LaunchpadStats contract.
-// npx hardhat run scripts/stats/1_stats.deploy.js --network zkfair
+// npx hardhat run scripts/stats/1_stats.deploy.js --network polygon
 
 const contractName = "Stats";
 

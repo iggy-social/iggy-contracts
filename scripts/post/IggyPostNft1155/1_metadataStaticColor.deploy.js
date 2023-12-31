@@ -1,13 +1,13 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network optimisticEthereum
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network polygon
 
 const contractName = "IggyPostMetadataStaticColor";
 
-const colorCode = "#8050E3";
-const mdName = "Pool Chat Post";
-const description = "Web3 Social chat for the PoolTogether DAO community. Go visit here: https://chat.pooly.me/";
-const url = "https://chat.pooly.me/post/";
-const tldAddress = "0xf2C9E463592BD440f0D422E944E5F95c79404586";
+const colorCode = "#884bf2";
+const mdName = "Always Liquid Polygon Post";
+const description = "Social NFT marketplace where NFTs are always liquid. Go visit here: https://polygon.alwaysliquid.com/";
+const url = "https://polygon.alwaysliquid.com/post/";
+const tldAddress = "0x70Ac07C50131b7bb2c8Bd9466D8d2add30B7759f";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

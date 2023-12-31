@@ -1,12 +1,12 @@
 // 2. Deploy NFT contract
-// npx hardhat run scripts/post/IggyPostNft1155/2_iggyPostNft1155.deploy.js --network zkfair
+// npx hardhat run scripts/post/IggyPostNft1155/2_iggyPostNft1155.deploy.js --network polygon
 
 const contractName = "IggyPostNft1155";
 
 const defaultPrice = ethers.utils.parseEther("0.69"); // TODO: change price!!!
-const metadataAddress = "0x5e54CebB2612744cB56547bC7CC41466ad7ac557";
-const collectionName = "Fairchat.xyz Posts";
-const collectionSymbol = "FAIRPOST";
+const metadataAddress = "0xF40284a811c82b4B9ab22E94Bb909Df6d2c66C08";
+const collectionName = "Always Liquid Polygon Posts";
+const collectionSymbol = "ALPOLYPOST";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

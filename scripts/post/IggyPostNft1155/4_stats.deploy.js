@@ -1,9 +1,9 @@
 // 4. Deploy stats contract
-// npx hardhat run scripts/post/IggyPostNft1155/4_stats.deploy.js --network zkfair
+// npx hardhat run scripts/post/IggyPostNft1155/4_stats.deploy.js --network polygon
 
 const contractName = "IggyPostStats";
 
-const minterAddress = "0xF40284a811c82b4B9ab22E94Bb909Df6d2c66C08";
+const minterAddress = "0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A";
 const shouldStatsBeEnabled = true;
 
 const minterInterface = new ethers.utils.Interface([

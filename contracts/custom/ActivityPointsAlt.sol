@@ -17,7 +17,7 @@ interface IStats {
 @title Collect all wei spending stats from different contracts and return them as one
 @author Tempe Techie
 */
-contract ActivityPointsFairchat is OwnableWithManagers {
+contract ActivityPointsAlt is OwnableWithManagers {
   address public statsAddress; // stats for NFT launchpad, Friend Keys, Swap etc.
   address public mintedPostsStatsAddress;
   address public immutable tldAddress;

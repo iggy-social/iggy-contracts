@@ -1,10 +1,10 @@
-// npx hardhat run scripts/custom/activityPointsFairchat.deploy.js --network zkfair
+// npx hardhat run scripts/custom/activityPointsAlt.deploy.js --network polygon
 
-const contractName = "ActivityPointsFairchat";
+const contractName = "ActivityPointsAlt";
 
-const statsAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee"; // stats contract
-const mintedPostsStatsAddress = "0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A";
-const tldAddress = "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1";
+const statsAddress = "0x06A7Ab7Bb68b0ad6eB7688C5781E60BE6AFc658d"; // stats contract
+const mintedPostsStatsAddress = "0xce314209aB485bE222CE85F653Ac918f54532503";
+const tldAddress = "0x70Ac07C50131b7bb2c8Bd9466D8d2add30B7759f";
 const multiplier = 10; // 1 wei = 1000 points
 
 async function main() {

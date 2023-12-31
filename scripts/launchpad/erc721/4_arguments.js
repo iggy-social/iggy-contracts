@@ -1,9 +1,9 @@
 module.exports = [
-  "0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e",
-  "0x6AbDd1Bf5078cC6b0D75caFCdDC69A8339067F50",
-  "0x90BbcF08d82e276262267a9dB9014C979b70Db3c",
-  "CEKKE",
-  "CEKKE CRONJE",
-  "20000000000000000",
-  "666000000000000000000"
+  "0x498e0e6B245898c5E2dD0299d0456a8928F58ECC", // factory address
+  "0x4A82158ff4B0504F3DB4c7555FfB6298452985E2", // metadata address
+  "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2", // minting fee receiver address
+  "Always Liquid on Polygon", // collection name
+  "ALPOLY", // collection symbol
+  "20000000000000000", // minting fee percentage
+  "100000000000000000" // ratio
 ];

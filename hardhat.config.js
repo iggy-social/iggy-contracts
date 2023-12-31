@@ -97,6 +97,13 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 20000000000, // 20 gwei
     },
+    linea: { // Linea mainnet
+      url: "https://rpc.linea.build/", 
+      chainId: 59144,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 2000000000, // 2 gwei
+    },
     mainnet: { // Ethereum
       url: 'https://eth-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_ETHEREUM,
       chainId: 1,
@@ -134,11 +141,11 @@ module.exports = {
     },
     polygon: {
       //url: 'https://polygon-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_POLYGON,
-      url: "https://poly-rpc.gateway.pokt.network",
+      url: "https://rpc.ankr.com/polygon",
       chainId: 137,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 400000000000, // 400 gwei
+      gasPrice: 200000000000, // 200 gwei
     },
     polygonMumbai: {
       //url: 'https://polygon-mumbai.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY_MUMBAI,
@@ -204,6 +211,7 @@ module.exports = {
       bsc: process.env.BSC_API_KEY,
       flare: "randomstring",
       flareCoston: "randomstring",
+      linea: process.env.LINEASCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       mantleTestnet: "randomstring",
       ftmTestnet: process.env.FTMSCAN_API_KEY,
@@ -272,6 +280,14 @@ module.exports = {
         urls: {
           apiURL: "https://coston-explorer.flare.network/api",
           browserURL: "https://coston-explorer.flare.network"
+        }
+      },
+      {
+        network: "linea",
+        chainId: 59144,
+        urls: {
+          apiURL: "https://api.lineascan.build/api",
+          browserURL: "https://lineascan.build"
         }
       },
       {
