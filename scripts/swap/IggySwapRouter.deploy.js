@@ -1,16 +1,16 @@
-// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network polygonMumbai
+// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network zkfair
 
 const contractName = "IggySwapRouter";
 
-const frontendAddress = "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D";
-const iggyAddress = "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D";
-const routerAddress = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
-const stakingAddress = "0x96Dc7548fD018d1E51d2d5e98B265411C3D0F22A";
-const statsAddress = "0xfc31E770d80dBC6733ECa738d0c3b62A4b04d62D"; // stats middleware address
+const frontendAddress = ethers.constants.AddressZero; // optional
+const iggyAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // mandatory
+const routerAddress = "0x72E25Dd6a6E75fC8f7820bA2eDEc3F89bB61f7A4";
+const stakingAddress = ethers.constants.AddressZero; // optional
+const statsAddress = "0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e"; // stats middleware address
 
 const swapFee = 80; // 0.8%
-const stakingShare = 9999; 
-const frontendShare = 8000; // 100% of what's left after staking share and referral share are taken out
+const stakingShare = 4000; // bps
+const frontendShare = 4000; // bps
 
 async function main() {
   const [deployer] = await ethers.getSigners();
