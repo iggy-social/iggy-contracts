@@ -33,6 +33,10 @@ async function main() {
   // getPoints for caller
   const pointsCaller = await apInstance.getPoints("0xb29050965A5AC70ab487aa47546cdCBc97dAE45D");
   console.log("Points for caller:", ethers.utils.formatEther(pointsCaller));
+
+  // getTotalWeiSpentAllUsers
+  const totalPointsAllUsers = await apInstance.getTotalPointsAllUsers();
+  console.log("Total points of all users:", ethers.utils.formatEther(totalPointsAllUsers));
 }
 
 main()
