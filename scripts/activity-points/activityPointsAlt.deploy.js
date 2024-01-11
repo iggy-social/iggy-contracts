@@ -1,4 +1,4 @@
-// npx hardhat run scripts/custom/activityPointsAlt.deploy.js --network arbitrumNova
+// npx hardhat run scripts/activity-points/activityPointsAlt.deploy.js --network arbitrumNova
 
 const contractName = "ActivityPointsAlt";
 
