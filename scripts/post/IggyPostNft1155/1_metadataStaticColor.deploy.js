@@ -1,13 +1,13 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network polygon
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network arbitrumNova
 
 const contractName = "IggyPostMetadataStaticColor";
 
-const colorCode = "#884bf2";
-const mdName = "Always Liquid Polygon Post";
-const description = "Social NFT marketplace where NFTs are always liquid. Go visit here: https://polygon.alwaysliquid.com/";
-const url = "https://polygon.alwaysliquid.com/post/";
-const tldAddress = "0x70Ac07C50131b7bb2c8Bd9466D8d2add30B7759f";
+const colorCode = "#ef8220";
+const mdName = "Always Liquid Post";
+const description = "Social NFT marketplace where NFTs are always liquid. Go visit here: https://nova.alwaysliquid.com/";
+const url = "https://nova.alwaysliquid.com/post/";
+const tldAddress = "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

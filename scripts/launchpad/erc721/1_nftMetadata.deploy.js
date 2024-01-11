@@ -1,5 +1,5 @@
 // 1. Deploy NftMetadata contract.
-// npx hardhat run scripts/launchpad/erc721/1_nftMetadata.deploy.js --network polygon
+// npx hardhat run scripts/launchpad/erc721/1_nftMetadata.deploy.js --network arbitrumNova
 
 const contractName = "NftMetadata";
 

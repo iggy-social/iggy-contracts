@@ -37,6 +37,10 @@ async function main() {
   // getTotalWeiSpentAllUsers
   const totalPointsAllUsers = await apInstance.getTotalPointsAllUsers();
   console.log("Total points of all users:", ethers.utils.formatEther(totalPointsAllUsers));
+
+  // check statsAddress
+  const statsAddress = await apInstance.statsAddress();
+  console.log("Stats address:", statsAddress);
 }
 
 main()

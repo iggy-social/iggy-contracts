@@ -1,7 +1,5 @@
 // npx hardhat run scripts/stats/calls.js --network zkfair
 
-const swapAddress = "0xe69FD53b8C0F2F764cFe5929CAb5e213c0328b42";
-const statsAddress = "";
 const statsMiddlewareAddress = "0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e";
 
 async function main() {
@@ -10,21 +8,18 @@ async function main() {
   console.log("Calling methods with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const statsMiddlewareInterface = new ethers.utils.Interface([
-    "function addWriter(address writer_) external",
-    "function writers(address) view public returns(bool)",
-    "function statsAddress() view public returns(address)"
-  ]);
-
-  const statsInterface = new ethers.utils.Interface([
-
-  ]);
-
-  //const statsMiddlewareContract = new ethers.Contract(statsMiddlewareAddress, statsMiddlewareInterface, deployer);
+  // create stats middleware contract
   const statsMiddlewareContract = await ethers.getContractAt("StatsMiddleware", statsMiddlewareAddress);
-  //const statsContract = new ethers.Contract(statsAddress, statsInterface, deployer);
+
+  // get stats contract address
+  const statsAddress = await statsMiddlewareContract.statsAddress();
+  console.log("Stats address:", statsAddress);
+
+  // create stats contract
+  const statsContract = await ethers.getContractAt("Stats", statsAddress);
 
   // Check if this address is a writer
+  const swapAddress = "0xe69FD53b8C0F2F764cFe5929CAb5e213c0328b42";
   const isWriter = await statsMiddlewareContract.writers(swapAddress);
   console.log("Is writer: ", isWriter);
 

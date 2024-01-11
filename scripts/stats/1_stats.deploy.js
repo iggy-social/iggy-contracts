@@ -1,5 +1,5 @@
 // 1. Deploy LaunchpadStats contract.
-// npx hardhat run scripts/stats/1_stats.deploy.js --network polygon
+// npx hardhat run scripts/stats/1_stats.deploy.js --network arbitrumNova
 
 const contractName = "Stats";
 

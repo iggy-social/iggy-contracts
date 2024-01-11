@@ -32,6 +32,14 @@ module.exports = {
       gasPrice: 1000000000, // 1 gwei
       allowUnlimitedContractSize: true
     },
+    arbitrumNova: {
+      //url: "https://arbitrum-nova.public.blastapi.io",
+      url: "https://nova.arbitrum.io/rpc",
+      chainId: 42170,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 10000000, // 0.01 gwei
+    },
     aurora: {
       url: 'https://mainnet.aurora.dev',
       chainId: 1313161554,
@@ -191,6 +199,13 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 125000000000, // 125 gwei
     },
+    taikoJolnir: { // Taiko testnet (L2)
+      url: 'https://rpc.jolnir.taiko.xyz',
+      chainId: 167007,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1000000000, // 1 gwei
+    },
     zkfair: { // zkFair mainnet
       url: 'https://rpc.zkfair.io',
       chainId: 42766,
@@ -204,6 +219,7 @@ module.exports = {
     apiKey: { // all possible key names here: https://gist.github.com/tempe-techie/95a3ad4e81b46c895928a0524fc2b7ac
       arbitrumOne: process.env.ARBISCAN_API_KEY,
       arbitrumGoerli: process.env.ARBISCAN_API_KEY,
+      arbitrumNova: process.env.NOVAARBISCAN_API_KEY,
       aurora: process.env.AURORASCAN_API_KEY,
       auroraTestnet: process.env.AURORASCAN_API_KEY,
       base: process.env.BASESCAN_API_KEY,
@@ -211,10 +227,11 @@ module.exports = {
       bsc: process.env.BSC_API_KEY,
       flare: "randomstring",
       flareCoston: "randomstring",
+      ftmTestnet: process.env.FTMSCAN_API_KEY,
+      gnosis: process.env.GNOSISSCAN_API_KEY, // xdai
       linea: process.env.LINEASCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       mantleTestnet: "randomstring",
-      ftmTestnet: process.env.FTMSCAN_API_KEY,
       opera: process.env.FTMSCAN_API_KEY, // fantom
       optimisticEthereum: process.env.OPTIMISTIC_ETHERSCAN_API_KEY,
       optimisticGoerli: process.env.OPTIMISTIC_ETHERSCAN_API_KEY,
@@ -225,7 +242,7 @@ module.exports = {
       scroll: process.env.SCROLLSCAN_API_KEY,
       sokol: "randomstring",
       songbird: "randomstring",
-      gnosis: process.env.GNOSISSCAN_API_KEY, // xdai
+      taikoJolnir: "42069",
       zkfair: "randomstring"
     },
     customChains: [
@@ -235,6 +252,14 @@ module.exports = {
         urls: {
           apiURL: "https://api-goerli.arbiscan.io/api",
           browserURL: "https://goerli.arbiscan.io"
+        }
+      },
+      {
+        network: "arbitrumNova",
+        chainId: 42170,
+        urls: {
+          apiURL: "https://api-nova.arbiscan.io/api",
+          browserURL: "https://nova.arbiscan.io"
         }
       },
       /* */
@@ -336,6 +361,15 @@ module.exports = {
         urls: {
           apiURL: "https://songbird-explorer.flare.network/api",
           browserURL: "https://songbird-explorer.flare.network/"
+        }
+      },
+      {
+        network: "taikoJolnir",
+        chainId: 167007,
+        urls: {
+          //apiURL: "https://api.routescan.io/v2/network/testnet/evm/167007/etherscan",
+          apiURL: "https://explorer.jolnir.taiko.xyz/api",
+          browserURL: "https://explorer.jolnir.taiko.xyz/"
         }
       },
       {
