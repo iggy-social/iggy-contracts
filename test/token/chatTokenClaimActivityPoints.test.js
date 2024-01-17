@@ -61,6 +61,7 @@ describe("ChatTokenClaimActivityPoints", function () {
       ethers.constants.AddressZero, // no token address
       iggyPostStatsContract.address, // IggyPostStats address
       ethers.constants.AddressZero, // no token address
+      1
     );
 
     // deploy ChatTokenClaimActivityPoints
