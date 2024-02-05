@@ -1,14 +1,14 @@
 // 3. Deploy minter contract
-// npx hardhat run scripts/post/IggyPostNft1155/3_minter.deploy.js --network taikoJolnir
+// npx hardhat run scripts/post/IggyPostNft1155/3_minter.deploy.js --network scroll
 
 const contractName = "IggyPostMinter";
 
-const daoAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // distributor contract
-const devAddress = "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2"; // iggy address
-const postAddress = "0x06A7Ab7Bb68b0ad6eB7688C5781E60BE6AFc658d";
+const daoAddress = "0x0E66249733DDFe422F7A127B0b9E906601F23E06"; // distributor contract
+const devAddress = "0xE08033d0bDBcEbE7e619c3aE165E7957Ab577961"; // iggy address
+const postAddress = "0xa9cfa4e8EA79537F5893f45c3B1491A2f7B54e7E";
 
-const daoFee = 2000; // 10%
-const devFee = 0; // 10%
+const daoFee = 1000; // 10%
+const devFee = 1000; // 10%
 const refFee = 1000; // 10%
 
 const postInterface = new ethers.utils.Interface([

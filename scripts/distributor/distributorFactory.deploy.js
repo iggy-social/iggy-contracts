@@ -1,4 +1,4 @@
-// npx hardhat run scripts/distributor/distributorFactory.deploy.js --network bsc
+// npx hardhat run scripts/distributor/distributorFactory.deploy.js --network scroll
 
 const contractName = "RevenueDistributorFactory";
 

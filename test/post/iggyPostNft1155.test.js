@@ -136,13 +136,16 @@ describe("IggyPostNft1155", function () {
     // get author's ETH balance before
     const authorEthBalanceBefore = await author.getBalance();
 
-    //return;
-
     // check dao ETH balance before
     const daoEthBalanceBefore = await dao.getBalance();
 
     // check dev ETH balance before
     const devEthBalanceBefore = await dev.getBalance();
+
+    // check NFT total supply before
+    const totalSupplyBefore = await iggyPostContract.totalSupply();
+    expect(totalSupplyBefore).to.equal(0);
+    console.log("Total supply before:", totalSupplyBefore.toString());
 
     // mint through the minter contract
     const tx = await minterContract.connect(user1).mint(
@@ -160,6 +163,11 @@ describe("IggyPostNft1155", function () {
 
     const receipt = await tx.wait();
     calculateGasCosts("mintOneNftDefaultPrice", receipt);
+
+    // check NFT total supply after
+    const totalSupplyAfter = await iggyPostContract.totalSupply();
+    expect(totalSupplyAfter).to.equal(1);
+    console.log("Total supply after:", totalSupplyAfter.toString());
 
     // check user1 balance after
     const user1BalanceAfter = await iggyPostContract.balanceOf(user1.address, tokenId);
@@ -262,6 +270,11 @@ describe("IggyPostNft1155", function () {
     // check dev ETH balance before
     const devEthBalanceBefore = await dev.getBalance();
 
+    // check NFT total supply before
+    const totalSupplyBefore = await iggyPostContract.totalSupply();
+    expect(totalSupplyBefore).to.equal(0);
+    console.log("Total supply before:", totalSupplyBefore.toString());
+
     // mint through the minter contract
     const tx = await minterContract.connect(user1).mint(
       postId, // post ID
@@ -278,6 +291,11 @@ describe("IggyPostNft1155", function () {
 
     const receipt = await tx.wait();
     calculateGasCosts("mintMultipleNftsDefaultPrice", receipt);
+
+    // check NFT total supply after 1
+    const totalSupplyAfter1 = await iggyPostContract.totalSupply();
+    expect(totalSupplyAfter1).to.equal(quantityMultiple);
+    console.log("Total supply after 1:", totalSupplyAfter1.toString());
 
     // check user1 balance after
     const user1BalanceAfter = await iggyPostContract.balanceOf(user1.address, tokenId);

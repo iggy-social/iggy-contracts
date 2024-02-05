@@ -1,12 +1,12 @@
 // 2. Deploy NFT contract
-// npx hardhat run scripts/post/IggyPostNft1155/2_iggyPostNft1155.deploy.js --network taikoJolnir
+// npx hardhat run scripts/post/IggyPostNft1155/2_iggyPostNft1155.deploy.js --network scroll
 
 const contractName = "IggyPostNft1155";
 
 const defaultPrice = ethers.utils.parseEther("0.0001"); // TODO: change price!!!
-const metadataAddress = "0x633Ae857445cF0cd02B21C6a3033C7CE74fB32c2";
-const collectionName = "TKO Chat Posts";
-const collectionSymbol = "TKOCHATPOST";
+const metadataAddress = "0xa6b7116A5b6eF4e1336980dF4FB162eeBC38b766";
+const collectionName = "Scrolly Posts";
+const collectionSymbol = "SCROLLYPOST";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

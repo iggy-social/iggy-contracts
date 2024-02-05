@@ -199,9 +199,16 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 125000000000, // 125 gwei
     },
-    taikoJolnir: { // Taiko testnet (L2)
+    taikoJolnir: { // Taiko Jolnir testnet (L2)
       url: 'https://rpc.jolnir.taiko.xyz',
       chainId: 167007,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1000000000, // 1 gwei
+    },
+    taikoKatla: { // Taiko Katla testnet (L2)
+      url: 'https://rpc.katla.taiko.xyz',
+      chainId: 167008,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
       gasPrice: 1000000000, // 1 gwei
@@ -243,6 +250,7 @@ module.exports = {
       sokol: "randomstring",
       songbird: "randomstring",
       taikoJolnir: "42069",
+      taikoKatla: "42069",
       zkfair: "randomstring"
     },
     customChains: [
@@ -370,6 +378,15 @@ module.exports = {
           //apiURL: "https://api.routescan.io/v2/network/testnet/evm/167007/etherscan",
           apiURL: "https://explorer.jolnir.taiko.xyz/api",
           browserURL: "https://explorer.jolnir.taiko.xyz/"
+        }
+      },
+      {
+        network: "taikoKatla",
+        chainId: 167008,
+        urls: {
+          //apiURL: "https://api.routescan.io/v2/network/testnet/evm/167007/etherscan",
+          apiURL: "https://explorer.katla.taiko.xyz/api",
+          browserURL: "https://explorer.katla.taiko.xyz/"
         }
       },
       {

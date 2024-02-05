@@ -1,12 +1,12 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network taikoJolnir
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network scroll
 
 const contractName = "IggyPostMetadata";
 
-const mdName = "TKO Chat Post";
-const description = "TKO.chat is the first decentralized social network on Taiko testnet. Go visit here: https://tko.chat/";
-const url = "https://tko.chat/post/";
-const tldAddress = "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1";
+const mdName = "Scrolly Post";
+const description = "Scrolly Hub is a web3 place for all-things around the Scrolly web3 community. Go visit here: https://hub.scrolly.xyz/";
+const url = "https://hub.scrolly.xyz/post/";
+const tldAddress = "0xc2C543D39426bfd1dB66bBde2Dd9E4a5c7212876";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

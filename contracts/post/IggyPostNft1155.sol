@@ -26,6 +26,7 @@ contract IggyPostNft1155 is ERC1155, OwnableWithManagers, ReentrancyGuard {
   uint256 public counter = 1; // id counter, starts with 1
   uint256 public defaultPrice; // default price for minting a post
   uint256 public maxTextPreviewLength = 243; // max length of the text preview
+  uint256 public totalSupply; // total supply of NFTs
 
   string public name;
   string public symbol;
@@ -145,6 +146,8 @@ contract IggyPostNft1155 is ERC1155, OwnableWithManagers, ReentrancyGuard {
     }
 
     _mint(_nftReceiver, tokenId, _quantity, "");
+
+    totalSupply += _quantity;
 
     emit MintPost(_nftReceiver, _postId, _author, _quantity);
   }
