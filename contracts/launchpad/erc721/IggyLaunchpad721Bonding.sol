@@ -135,7 +135,11 @@ contract IggyLaunchpad721Bonding is OwnableWithManagers, ReentrancyGuard {
     if (referrer_ != address(0) && referralFeePercentage > 0) {
       uint256 referralFee = msg.value * referralFeePercentage / 1 ether;
       (bool sentRef, ) = referrer_.call{value: referralFee}("");
-      IStatsContract(statsAddress).addWeiSpent(referrer_, referralFee);
+
+      if (statsAddress != address(0)) {
+        IStatsContract(statsAddress).addWeiSpent(referrer_, referralFee);
+      }
+      
       paid -= referralFee;
     }
 
