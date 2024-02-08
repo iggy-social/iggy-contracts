@@ -69,9 +69,7 @@ contract IggyPostMetadataStaticColor is OwnableWithManagers {
   function _getImage(string memory _textPreview, address _author) internal view returns (string memory) {
     string memory authorName = IBasePunkTLD(tldAddress).defaultNames(_author);
 
-    if (bytes(authorName).length == 0) {
-      authorName = "Anonymous";
-    } else {
+    if (bytes(authorName).length > 0) {
       authorName = string(abi.encodePacked(authorName, IBasePunkTLD(tldAddress).name()));
     }
 

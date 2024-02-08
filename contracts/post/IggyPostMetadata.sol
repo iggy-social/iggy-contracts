@@ -72,9 +72,7 @@ contract IggyPostMetadata is OwnableWithManagers {
     string memory hue = _randomHueNum(_tokenId).toString();
     string memory authorName = IBasePunkTLD(tldAddress).defaultNames(_author);
 
-    if (bytes(authorName).length == 0) {
-      authorName = "Anonymous";
-    } else {
+    if (bytes(authorName).length > 0)  {
       authorName = string(abi.encodePacked(authorName, IBasePunkTLD(tldAddress).name()));
     }
 
