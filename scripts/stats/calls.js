@@ -1,6 +1,6 @@
-// npx hardhat run scripts/stats/calls.js --network zkfair
+// npx hardhat run scripts/stats/calls.js --network scroll
 
-const statsMiddlewareAddress = "0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e";
+const statsMiddlewareAddress = "0xb61bed21a502519bF49DA543f84cEEFe0196dD2b";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -18,17 +18,17 @@ async function main() {
   // create stats contract
   const statsContract = await ethers.getContractAt("Stats", statsAddress);
 
-  // Check if this address is a writer
-  const swapAddress = "0xe69FD53b8C0F2F764cFe5929CAb5e213c0328b42";
-  const isWriter = await statsMiddlewareContract.writers(swapAddress);
+  // Check if this contract address is a writer
+  const contractAddr = "0x0E1ABbd03aeCDd832F7baA29E91085b7a8f2dFad";
+  const isWriter = await statsMiddlewareContract.writers(contractAddr);
   console.log("Is writer: ", isWriter);
 
   // Add this address to the Stats middleware contract
-  /*
+  /**/
   console.log("Adding this address to the stats middleware contract:");
-  const tx1 = await statsMiddlewareContract.addWriter(swapAddress);
+  const tx1 = await statsMiddlewareContract.addWriter(contractAddr);
   await tx1.wait();
-  */
+  
 
   console.log("Done!");
 

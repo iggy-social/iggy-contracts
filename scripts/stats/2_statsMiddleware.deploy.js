@@ -1,9 +1,9 @@
 // 2. Deploy StatsMiddleware contract.
-// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network arbitrumNova
+// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network scroll
 
 const contractName = "StatsMiddleware";
 
-const statsAddress = "0xabf9960132818049340253C3Ca0551F92Db856d7";
+const statsAddress = "0x8A6d7926Db502Bb5b9Ffbcc2FF195623f52040C8";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

@@ -8,7 +8,7 @@ const mintingFeeReceiver = "0x0E66249733DDFe422F7A127B0b9E906601F23E06"; // reve
 const directoryAddress = "0xD48e9b2D25CEe123be1d01c09645A0a355174db0";
 const statsMiddlewareAddress = ethers.constants.AddressZero;
 const mintingFeePercentage = ethers.utils.parseEther("0.02");
-const price = ethers.utils.parseEther("0.002"); // price for creating a new NFT collection
+const price = ethers.utils.parseEther("0.00069"); // price for creating a new NFT collection
 
 async function main() {
   const [deployer] = await ethers.getSigners();
