@@ -1,12 +1,12 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network scroll
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network degen
 
 const contractName = "IggyPostMetadata";
 
-const mdName = "Scrolly Post";
-const description = "Scrolly Hub is a web3 place for all-things around the Scrolly web3 community. Go visit here: https://hub.scrolly.xyz/";
-const url = "https://hub.scrolly.xyz/post/";
-const tldAddress = "0xc2C543D39426bfd1dB66bBde2Dd9E4a5c7212876";
+const mdName = "NFTdegen.lol Post";
+const description = "NFTdegen is an NFT launchpad and marketplace where NFTs are always liquid. Go visit here: https://nftdegen.lol/";
+const url = "https://nftdegen.lol/post/";
+const tldAddress = "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

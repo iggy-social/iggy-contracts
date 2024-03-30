@@ -1,9 +1,9 @@
 module.exports = [
-  "0x072F6683DA7F71b9E52bAC7867488F18058Cb410", // factory address
-  "0xCF171dD6563Fc6e84EC16c40FB964Dcf0C2e6d05", // metadata address
-  "0x0E66249733DDFe422F7A127B0b9E906601F23E06", // minting fee receiver address
-  "Scrolly's Journey", // collection name
-  "SCROLLYJOURNEY", // collection symbol
+  "0x1EB2Adc19eB3Df26D84427Be11F1eB1887c6631c", // factory address
+  "0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e", // metadata address
+  "0x5193877dD31b569Fedf762308aFae70B9091b951", // minting fee receiver address
+  "Mr. Degen", // collection name
+  "MRDEGEN", // collection symbol
   "20000000000000000", // minting fee percentage
-  "10000000000000000000" // ratio
+  "6969000000000000000000" // ratio
 ];
