@@ -1,11 +1,11 @@
 // 1. Deploy FriendKeys contract and automatically add it's address to the Stats middleware contract.
-// npx hardhat run scripts/keys/1_friendKeys.deploy.js --network scroll
+// npx hardhat run scripts/keys/1_friendKeys.deploy.js --network base
 
 const contractName = "FriendKeys";
 
-const tldAddress = "";
-const feeReceiver = ""; // distributor contract address
-const statsAddress = ""; // stats middleware contract address
+const tldAddress = "0x273dB54929d8392c1997Be361Da89D41af202a49";
+const feeReceiver = "0x068B16f737ad4489B0f3b60C3AdF144Ea24C9273"; // distributor contract address
+const statsAddress = "0xe80A5619DCf6a3C2AC129841a1eDeb9e8d402942"; // stats middleware contract address
 
 const protocolFeePercent = ethers.utils.parseEther("0.05"); // 1 is 100%
 const domainHolderFeePercent = ethers.utils.parseEther("0.05"); // 1 is 100%

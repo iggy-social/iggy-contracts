@@ -1,12 +1,12 @@
 // 2. Deploy NFT contract
-// npx hardhat run scripts/post/IggyPostNft1155/2_iggyPostNft1155.deploy.js --network degen
+// npx hardhat run scripts/post/IggyPostNft1155/2_iggyPostNft1155.deploy.js --network base
 
 const contractName = "IggyPostNft1155";
 
-const defaultPrice = ethers.utils.parseEther("6.9"); // TODO: change price!!!
-const metadataAddress = "0x2D4144B4E00cf1dC1c4DeDa37cb1CaCEda030998";
-const collectionName = "Degen Posts";
-const collectionSymbol = "DEGENPOST";
+const defaultPrice = ethers.utils.parseEther("0.0006"); // TODO: change price!!!
+const metadataAddress = "0x597d2389D5845d1A38CCa3e7964B337E5D485898";
+const collectionName = "Based Chat Posts";
+const collectionSymbol = "BASEDCHATPOST";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

@@ -1,11 +1,10 @@
-// npx hardhat run scripts/activity-points/activityPointsAlt.deploy.js --network scroll
+// npx hardhat run scripts/activity-points/other/activityPointsScrolly.deploy.js --network scrollTestnet
 
-const contractName = "ActivityPointsAlt";
+const contractName = "ActivityPointsScrolly";
 
-const statsAddress = "0x8A6d7926Db502Bb5b9Ffbcc2FF195623f52040C8"; // stats contract
-const mintedPostsStatsAddress = "0xde16C1c780f32cF8dB6F6F41a58B2D4e91B86fd3";
-const tldAddress = "0xc2C543D39426bfd1dB66bBde2Dd9E4a5c7212876";
-const multiplier = 1_000_000; // 1 eth = 1M points
+const statsAddress = "0x633Ae857445cF0cd02B21C6a3033C7CE74fB32c2"; // stats contract (not middleware)
+const mintedPostsStatsAddress = ethers.constants.AddressZero; // minted posts stats contract
+const tldAddress = "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -18,14 +17,13 @@ async function main() {
   const instance = await contract.deploy(
     statsAddress,
     mintedPostsStatsAddress,
-    tldAddress,
-    multiplier
+    tldAddress
   );
   
   console.log(contractName + " contract address:", instance.address);
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
-  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + statsAddress + " " + mintedPostsStatsAddress + " " + tldAddress + ' "' + multiplier + '"');
+  console.log("npx hardhat verify --network " + network.name + " " + instance.address + " " + statsAddress + " " + mintedPostsStatsAddress + " " + tldAddress);
 }
 
 main()

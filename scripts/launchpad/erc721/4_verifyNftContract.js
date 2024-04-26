@@ -3,7 +3,7 @@
 // 2. Verify the contract on block explorer using this script (run the command below).
 // Run: npx hardhat run scripts/launchpad/erc721/4_verifyNftContract.js --network degen
 
-const contractAddress = "0x2f7f910D746080B4ba14e44462a7b3bFeD8C47B9";
+const contractAddress = "0x09d88b5b33605fD4F072CD105f58F91746DD6F73";
 
 async function main() {
   console.log("Copy the line below and paste it in your terminal to verify the TLD contract on Etherscan:");

@@ -1,7 +1,7 @@
 // 1. Deploy NftMetadata contract.
 // npx hardhat run scripts/launchpad/erc721/1_nftMetadata.deploy.js --network degen
 
-const contractName = "NftMetadata";
+const contractName = "NftMetadataMedia";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

@@ -1,12 +1,12 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network degen
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadata.deploy.js --network base
 
 const contractName = "IggyPostMetadata";
 
-const mdName = "NFTdegen.lol Post";
-const description = "NFTdegen is an NFT launchpad and marketplace where NFTs are always liquid. Go visit here: https://nftdegen.lol/";
-const url = "https://nftdegen.lol/post/";
-const tldAddress = "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1";
+const mdName = "Based Chat Post";
+const description = "Based Chat is a decentralized chat for the Based Nouns community. Go visit here: https://chat.basednames.xyz/";
+const url = "https://chat.basednames.xyz/post/";
+const tldAddress = "0x273dB54929d8392c1997Be361Da89D41af202a49";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

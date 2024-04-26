@@ -61,7 +61,7 @@ module.exports = {
       chainId: 8453,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 12000000, // 0.012 gwei
+      gasPrice: 180000000, // 0.18 gwei
     },
     baseTestnet: {
       url: 'https://base-goerli.public.blastapi.io',
@@ -192,6 +192,13 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 630000000, // 0.63 gwei
     },
+    scrollTestnet: { // Scroll Testnet
+      url: 'https://sepolia-rpc.scroll.io',
+      chainId: 534351,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1000000000, // 1 gwei
+    },
     sokol: { // Gnosis Chain testnet
       url: 'https://sokol.poa.network',
       chainId: 77,
@@ -255,6 +262,7 @@ module.exports = {
       polygonZkEvm: process.env.POLYGONSCAN_ZKEVM_API_KEY, 
       polygonZkEvmTestnet: process.env.POLYGONSCAN_ZKEVM_API_KEY, 
       scroll: process.env.SCROLLSCAN_API_KEY,
+      scrollTestnet: process.env.SCROLLSCAN_API_KEY,
       sokol: "randomstring",
       songbird: "randomstring",
       taikoJolnir: "42069",
@@ -377,6 +385,14 @@ module.exports = {
         urls: {
           apiURL: "https://api.scrollscan.com/api",
           browserURL: "https://scrollscan.com/"
+        }
+      },
+      {
+        network: "scrollTestnet",
+        chainId: 534351,
+        urls: {
+          apiURL: "https://api-sepolia.scrollscan.com/api",
+          browserURL: "https://sepolia.scrollscan.dev/"
         }
       },
       {

@@ -1,16 +1,16 @@
-// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network taikoKatla
+// npx hardhat run scripts/swap/IggySwapRouter.deploy.js --network degen
 
 const contractName = "IggySwapRouter";
 
-const iggyAddress = ""; // mandatory
-const routerAddress = ""; // mandatory
-const frontendAddress = ethers.constants.AddressZero; // optional
+const iggyAddress = "0x5193877dD31b569Fedf762308aFae70B9091b951"; // mandatory
+const routerAddress = "0x5a8e4e0dd630395b5afb8d3ac5b3ef269f0c8356"; // mandatory
+const frontendAddress = "0x5193877dD31b569Fedf762308aFae70B9091b951"; // optional
 const stakingAddress = ethers.constants.AddressZero; // optional
-const statsAddress = ""; // stats middleware address (optional)
+const statsAddress = "0x06A7Ab7Bb68b0ad6eB7688C5781E60BE6AFc658d"; // stats middleware address (optional)
 
 const swapFee = 80; // 0.8%
-const stakingShare = 4000; // bps
-const frontendShare = 4000; // bps
+const stakingShare = 0; // bps
+const frontendShare = 5000; // bps
 
 async function main() {
   const [deployer] = await ethers.getSigners();
