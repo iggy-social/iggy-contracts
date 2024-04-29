@@ -1,5 +1,5 @@
 // 2. Deploy NftDirectory contract.
-// npx hardhat run scripts/launchpad/erc721/2_nftDirectory.deploy.js --network base
+// npx hardhat run scripts/launchpad/erc721/2_nftDirectory.deploy.js --network sepolia
 
 const contractName = "NftDirectory";
 

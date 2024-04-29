@@ -1,21 +1,22 @@
-// npx hardhat run scripts/other/manager/addManager.js --network base
+// npx hardhat run scripts/other/manager/addManager.js --network sepolia
 
-const managerAddress = "";
+const managerAddress = "0x5FfD23B1B0350debB17A2cB668929aC5f76d0E18";
 
 const contractAddresses = [
-  "", // Post NFT
-  "", // Post metadata
-  "", // Post minter
-  "", // Post stats
+  "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee", // Post NFT
+  "0xce314209aB485bE222CE85F653Ac918f54532503", // Post metadata
+  "0xc486B08Ed47fFe5c1b4b1A2ff5c671EA0083D9bA", // Post minter
+  "0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e", // Post stats
 
-  "", // Launchpad
-  "", // Launchpad stats middleware
-  "", // Launchpad stats
+  "0x50045895e1983F39FDC149C9a5AC29C39BEA18fe", // Launchpad Factory
+  "0xBdaba8106cdC29420c9A7Bb31066ED79c9b6Be74", // Launchpad Directory
 
-  "", // Keys
-  "", // Keys stats
+  "0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A", // stats middleware
+  "0x2D4144B4E00cf1dC1c4DeDa37cb1CaCEda030998", // stats
 
-  "", // Activity points
+  "0x0c6A6030121FB3071cB2347DEAC127037785436C", // Keys
+
+  "0xC3623737209Cc141592B20bcEBCA6052AFCcD183", // Activity points
 ];
 
 async function main() {

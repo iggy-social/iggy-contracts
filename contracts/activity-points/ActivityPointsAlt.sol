@@ -24,7 +24,7 @@ contract ActivityPointsAlt is OwnableWithManagers {
 
   uint256 public bonusWeiTotal; // total bonus wei (without multiplier)
   uint256 public multiplier; // multiplier for points (e.g. 1 means 1 wei spent = 1 point)
-  uint256 public weiPerDomain = 1690000000000000000;
+  uint256 public weiPerDomain = 169000000000000;
 
   mapping (address => uint256) public bonusWei; // bonus wei (without multiplier)
 

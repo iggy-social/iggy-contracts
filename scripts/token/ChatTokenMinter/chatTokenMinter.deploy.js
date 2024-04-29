@@ -1,10 +1,10 @@
-// npx hardhat run scripts/token/ChatTokenMinter/chatTokenMinter.deploy.js --network songbird
+// npx hardhat run scripts/token/ChatTokenMinter/chatTokenMinter.deploy.js --network sepolia
 // This script deploys the ChatTokenMinter contract and sets it as the minter in the ChatToken contract.
 // If setting the minter address fails, do it manually by calling the setMinter function in the ChatToken contract.
 
 const contractName = "ChatTokenMinter";
 
-const chatTokenAddress = "0x81aDd7359f2B95276F8542f2a0acD7ECD2Ae9349";
+const chatTokenAddress = "0x305912c0d03C22e6eB7D37E06A47ab899e48B9Af";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

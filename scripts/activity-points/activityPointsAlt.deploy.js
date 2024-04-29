@@ -1,10 +1,10 @@
-// npx hardhat run scripts/activity-points/activityPointsAlt.deploy.js --network scroll
+// npx hardhat run scripts/activity-points/activityPointsAlt.deploy.js --network sepolia
 
 const contractName = "ActivityPointsAlt";
 
-const statsAddress = "0x8A6d7926Db502Bb5b9Ffbcc2FF195623f52040C8"; // stats contract
-const mintedPostsStatsAddress = "0xde16C1c780f32cF8dB6F6F41a58B2D4e91B86fd3";
-const tldAddress = "0xc2C543D39426bfd1dB66bBde2Dd9E4a5c7212876";
+const statsAddress = "0x2D4144B4E00cf1dC1c4DeDa37cb1CaCEda030998"; // stats contract
+const mintedPostsStatsAddress = "0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e";
+const tldAddress = "0x1DD820F4f48eBC2B8e7F666F34fbC5820808074e";
 const multiplier = 1_000_000; // 1 eth = 1M points
 
 async function main() {

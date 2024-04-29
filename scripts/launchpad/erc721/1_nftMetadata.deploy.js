@@ -1,5 +1,5 @@
 // 1. Deploy NftMetadata contract.
-// npx hardhat run scripts/launchpad/erc721/1_nftMetadata.deploy.js --network degen
+// npx hardhat run scripts/launchpad/erc721/1_nftMetadata.deploy.js --network sepolia
 
 const contractName = "NftMetadataMedia";
 

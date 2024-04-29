@@ -1,9 +1,9 @@
-// npx hardhat run scripts/token/ChatToken/chatToken.deploy.js --network songbird
+// npx hardhat run scripts/token/ChatToken/chatToken.deploy.js --network sepolia
 
 const contractName = "ChatToken";
 
-const tokenName = "CHIRP";
-const symbol = "CHIRP";
+const tokenName = "Iggy Demo Token";
+const symbol = "DEMO";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

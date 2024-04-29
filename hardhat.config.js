@@ -199,6 +199,13 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 1000000000, // 1 gwei
     },
+    sepolia: { // Sepolia testnet
+      url: 'https://rpc2.sepolia.org',
+      chainId: 11155111,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 5000000000, // 5 gwei
+    },
     sokol: { // Gnosis Chain testnet
       url: 'https://sokol.poa.network',
       chainId: 77,
@@ -263,6 +270,7 @@ module.exports = {
       polygonZkEvmTestnet: process.env.POLYGONSCAN_ZKEVM_API_KEY, 
       scroll: process.env.SCROLLSCAN_API_KEY,
       scrollTestnet: process.env.SCROLLSCAN_API_KEY,
+      sepolia: process.env.ETHERSCAN_API_KEY,
       sokol: "randomstring",
       songbird: "randomstring",
       taikoJolnir: "42069",

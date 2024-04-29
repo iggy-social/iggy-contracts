@@ -1,11 +1,11 @@
-// npx hardhat run scripts/token/ChatTokenClaimActivityPoints/chatTokenClaimActivityPoints.deploy.js --network polygonMumbai
+// npx hardhat run scripts/token/ChatTokenClaimActivityPoints/chatTokenClaimActivityPoints.deploy.js --network sepolia
 // This script deploys the ChatTokenClaimActivityPoints contract and sets it as a minter in the ChatTokenMinter contract.
 // If setting the minter address fails, do it manually by calling the addMinter function in the ChatTokenMinter contract.
 
 const contractName = "ChatTokenClaimActivityPoints";
 
-const chatTokenMinterAddress = "0x2C6A9F47a2B1BA7976ACd14CDd8f6f35d27C1e28"; // TODO
-const activityPointsAddress = "0x7d20A0E75B1ac519f500a51351bcb01A07fE3D7d"; // TODO
+const chatTokenMinterAddress = "0xfAE210dfa2AC6CaF9Aaf9AeaDbB00A9B339B1e47"; // TODO
+const activityPointsAddress = "0xC3623737209Cc141592B20bcEBCA6052AFCcD183"; // TODO
 const chatEthRatio = 1_000_000; // TODO: 1 ETH = 1,000 CHAT
 
 async function main() {
