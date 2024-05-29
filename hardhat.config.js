@@ -220,6 +220,20 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 125000000000, // 125 gwei
     },
+    taiko: { // Taiko mainnet
+      url: 'https://rpc.taiko.xyz',
+      chainId: 167000,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 20000000, // 0.02 gwei
+    },
+    taikoHekla: { // Taiko Hekla testnet (L2)
+      url: 'https://rpc.hekla.taiko.xyz',
+      chainId: 167009,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1000000000, // 1 gwei
+    },
     taikoJolnir: { // Taiko Jolnir testnet (L2)
       url: 'https://rpc.jolnir.taiko.xyz',
       chainId: 167007,
@@ -273,6 +287,8 @@ module.exports = {
       sepolia: process.env.ETHERSCAN_API_KEY,
       sokol: "randomstring",
       songbird: "randomstring",
+      taiko: process.env.TAIKOSCAN_API_KEY,
+      taikoHekla: "42069",
       taikoJolnir: "42069",
       taikoKatla: "42069",
       zkfair: "randomstring"
@@ -409,6 +425,27 @@ module.exports = {
         urls: {
           apiURL: "https://songbird-explorer.flare.network/api",
           browserURL: "https://songbird-explorer.flare.network/"
+        }
+      },
+      { 
+        network: "taiko",
+        chainId: 167000,
+        urls: {
+          apiURL: "https://api.w3w.ai/taiko/v1/explorer/command_api/contract",
+          browserURL: "https://taikoscan.net"
+          //apiURL: "https://api.routescan.io/v2/network/mainnet/evm/167000/etherscan",
+          //browserURL: "https://taikoscan.network"
+          //apiURL: "https://api.taikoscan.io/api",
+          //browserURL: "https://taikoscan.io"
+        }
+      },
+      {
+        network: "taikoHekla",
+        chainId: 167009,
+        urls: {
+          //apiURL: "https://api.routescan.io/v2/network/testnet/evm/167009/etherscan",
+          apiURL: "https://blockscoutapi.hekla.taiko.xyz/api",
+          browserURL: "https://blockscoutapi.hekla.taiko.xyz/"
         }
       },
       {

@@ -1,10 +1,10 @@
 // 1. Deploy metadata contract
-// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network arbitrumNova
+// npx hardhat run scripts/post/IggyPostNft1155/1_metadataStaticColor.deploy.js --network taikoHekla
 
 const contractName = "IggyPostMetadataStaticColor";
 
 const colorCode = "#ef8220";
-const mdName = "Always Liquid Post";
+const mdName = "TKO Chat Post";
 const description = "Social NFT marketplace where NFTs are always liquid. Go visit here: https://nova.alwaysliquid.com/";
 const url = "https://nova.alwaysliquid.com/post/";
 const tldAddress = "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1";

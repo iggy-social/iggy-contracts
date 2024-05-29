@@ -1,9 +1,9 @@
 // 4. Deploy stats contract
-// npx hardhat run scripts/post/IggyPostNft1155/4_stats.deploy.js --network sepolia
+// npx hardhat run scripts/post/IggyPostNft1155/4_stats.deploy.js --network taiko
 
 const contractName = "IggyPostStats";
 
-const minterAddress = "0xc486B08Ed47fFe5c1b4b1A2ff5c671EA0083D9bA";
+const minterAddress = "0x5e54CebB2612744cB56547bC7CC41466ad7ac557";
 const shouldStatsBeEnabled = true;
 
 const minterInterface = new ethers.utils.Interface([

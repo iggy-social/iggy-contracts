@@ -1,8 +1,8 @@
-// npx hardhat run scripts/launchpad/erc721/other/calls.js --network zkfair
+// npx hardhat run scripts/launchpad/erc721/other/calls.js --network degen
 
 const contractName = "IggyLaunchpad721Bonding";
 
-const apAddress = "0x50045895e1983F39FDC149C9a5AC29C39BEA18fe";
+const apAddress = "";
 
 async function main() {
   const [caller] = await ethers.getSigners();
