@@ -220,6 +220,13 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 125000000000, // 125 gwei
     },
+    superpositionTestnet: { // Superposition testnet
+      url: 'https://testnet-rpc.superposition.so/',
+      chainId: 98985,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 20000000, // 0.02 gwei
+    },
     taiko: { // Taiko mainnet
       url: 'https://rpc.taiko.xyz',
       chainId: 167000,
@@ -287,6 +294,7 @@ module.exports = {
       sepolia: process.env.ETHERSCAN_API_KEY,
       sokol: "randomstring",
       songbird: "randomstring",
+      superpositionTestnet: "randomstring",
       taiko: process.env.TAIKOSCAN_API_KEY,
       taikoHekla: "42069",
       taikoJolnir: "42069",
@@ -425,6 +433,14 @@ module.exports = {
         urls: {
           apiURL: "https://songbird-explorer.flare.network/api",
           browserURL: "https://songbird-explorer.flare.network/"
+        }
+      },
+      {
+        network: "superpositionTestnet",
+        chainId: 98985,
+        urls: {
+          apiURL: "https://testnet-explorer.superposition.so/api",
+          browserURL: "https://testnet-explorer.superposition.so/"
         }
       },
       { 

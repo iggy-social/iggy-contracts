@@ -1,9 +1,9 @@
 // TODO:
 // 1. Create the first NFT collection through the factory.
 // 2. Verify the contract on block explorer using this script (run the command below).
-// Run: npx hardhat run scripts/distributor/other/verifyDistributor.js --network scroll
+// Run: npx hardhat run scripts/distributor/other/verifyDistributor.js --network superpositionTestnet
 
-const contractAddress = "0x0E66249733DDFe422F7A127B0b9E906601F23E06";
+const contractAddress = "0x4e3ccA5540d2115136E94B5e3EeD1cDeF9E6dc4a";
 
 async function main() {
   console.log("Copy the line below and paste it in your terminal to verify the TLD contract on Etherscan:");

@@ -1,4 +1,4 @@
-// npx hardhat run scripts/distributor/distributorFactory.deploy.js --network scroll
+// npx hardhat run scripts/distributor/distributorFactory.deploy.js --network superpositionTestnet
 
 const contractName = "RevenueDistributorFactory";
 
