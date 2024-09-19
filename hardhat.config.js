@@ -204,7 +204,7 @@ module.exports = {
       chainId: 11155111,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit
-      gasPrice: 5000000000, // 5 gwei
+      gasPrice: 80000000000, // 80 gwei
     },
     sokol: { // Gnosis Chain testnet
       url: 'https://sokol.poa.network',
