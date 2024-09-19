@@ -215,5 +215,40 @@ describe("ChatContextV1", function () {
     expect(await chatContract.getReplyCount(0)).to.equal(1);
   });
 
+  it("allows mod to suspend and unsuspend a user", async function () {
+    // Suspend user2
+    await chatContract.connect(user1).suspendUser(user2.address);
+    expect(await chatContract.suspended(user2.address)).to.be.true;
+
+    // Unsuspend user2
+    await chatContract.connect(user1).unsuspendUser(user2.address);
+    expect(await chatContract.suspended(user2.address)).to.be.false;
+
+    // non-mod cannot suspend or unsuspend
+    await expect(chatContract.connect(user2).suspendUser(user3.address))
+      .to.be.revertedWith("Not a mod or owner");
+    await expect(chatContract.connect(user2).unsuspendUser(user3.address))
+      .to.be.revertedWith("Not a mod or owner");
+  });
+
+  it("prevents suspended users from creating messages", async function () {
+    // Suspend user2
+    await chatContract.connect(user1).suspendUser(user2.address);
+    expect(await chatContract.suspended(user2.address)).to.be.true;
+
+    // Attempt to create a message
+    await expect(chatContract.connect(user2).createMessage("ipfs://message1"))
+      .to.be.revertedWith("You are suspended from posting");
+
+    // Unsuspend user2
+    await chatContract.connect(user1).unsuspendUser(user2.address);
+    expect(await chatContract.suspended(user2.address)).to.be.false;
+
+    // Attempt to create a message again
+    const tx = await chatContract.connect(user2).createMessage("ipfs://message1");
+    await expect(tx).to.emit(chatContract, "MessagePosted")
+      .withArgs(user2.address, "ipfs://message1", await ethers.provider.getBlock('latest').then(b => b.timestamp));
+  });
+
   // Add more tests as needed...
 });

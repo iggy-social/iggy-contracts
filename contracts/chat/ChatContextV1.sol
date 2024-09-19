@@ -29,6 +29,7 @@ contract ChatContextV1 is Ownable {
 
   Message[] public mainMessages; // array of main messages
   mapping(uint256 => Message[]) public replies; // mapping from main message index to array of replies
+  mapping(address => bool) public suspended; // whether an address is suspended from posting or not
 
   struct Message {
     address author;
@@ -134,6 +135,7 @@ contract ChatContextV1 is Ownable {
    */
   function createMessage(string memory url_) external {
     require(!paused, "Contract is paused");
+    require(!suspended[msg.sender], "You are suspended from posting");
     require(bytes(url_).length > 0, "URL cannot be empty");
 
     Message memory newMsg = Message({
@@ -154,6 +156,7 @@ contract ChatContextV1 is Ownable {
    */
   function createReply(uint256 mainMsgIndex_, string memory url_) external {
     require(!paused, "Contract is paused");
+    require(!suspended[msg.sender], "You are suspended from posting");
     require(bytes(url_).length > 0, "URL cannot be empty");
 
     Message memory newReply = Message({
@@ -252,10 +255,26 @@ contract ChatContextV1 is Ownable {
   }
 
   /**
+   * @notice Suspend a user from posting
+   * @param user_ The address of the user to suspend
+   */
+  function suspendUser(address user_) external onlyMods {
+    suspended[user_] = true;
+  }
+
+  /**
    * @notice Pause the contract to prevent any new posts, or unpause it
    */
   function togglePaused() external onlyMods {
     paused = !paused;
+  }
+
+  /**
+   * @notice Unsuspend a user from posting
+   * @param user_ The address of the user to unsuspend
+   */
+  function unsuspendUser(address user_) external onlyMods {
+    suspended[user_] = false;
   }
 
   // OWNER
