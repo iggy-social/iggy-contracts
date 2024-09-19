@@ -33,9 +33,10 @@ contract ChatContextV1 is Ownable {
 
   struct Message {
     address author;
-    string url; // URL pointing to the message stored on Arweave or IPFS etc., e.g. ar://some-identifier, ipfs://someIdentifier, ...
     uint256 createdAt; // timestamp when the message was created
     bool deleted; // whether the message is deleted or not
+    uint256 repliesCount; // number of replies to the message
+    string url; // URL pointing to the message stored on Arweave or IPFS etc., e.g. ar://some-identifier, ipfs://someIdentifier, ...
   }
 
   // CONSTRUCTOR
@@ -142,7 +143,8 @@ contract ChatContextV1 is Ownable {
       author: msg.sender,
       url: url_,
       createdAt: block.timestamp,
-      deleted: false
+      deleted: false,
+      repliesCount: 0
     });
 
     mainMessages.push(newMsg);
@@ -163,10 +165,12 @@ contract ChatContextV1 is Ownable {
       author: msg.sender,
       url: url_,
       createdAt: block.timestamp,
-      deleted: false
+      deleted: false,
+      repliesCount: 0
     });
 
     replies[mainMsgIndex_].push(newReply);
+    mainMessages[mainMsgIndex_].repliesCount++;
     emit MessageReplied(msg.sender, url_, mainMsgIndex_, block.timestamp);
   }  
 
@@ -196,6 +200,7 @@ contract ChatContextV1 is Ownable {
       "Not the author or owner"
     );
     replies[mainMsgIndex_][replyMsgIndex_].deleted = true;
+    mainMessages[mainMsgIndex_].repliesCount--;
     emit ReplyDeleted(msg.sender, replies[mainMsgIndex_][replyMsgIndex_].url, mainMsgIndex_, replyMsgIndex_, block.timestamp);
   }
 

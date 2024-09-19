@@ -63,10 +63,19 @@ describe("ChatContextV1", function () {
 
   it("allows creating a reply", async function () {
     await chatContract.connect(user2).createMessage("ipfs://message1");
+
+    // get replies count before
+    const message1 = await chatContract.getMainMessage(0);
+    expect(message1.repliesCount).to.equal(0);
+
     const tx = await chatContract.connect(user3).createReply(0, "ipfs://reply1");
     await expect(tx).to.emit(chatContract, "MessageReplied")
       .withArgs(user3.address, "ipfs://reply1", 0, await ethers.provider.getBlock('latest').then(b => b.timestamp));
-    
+
+    // get replies count after
+    const message2 = await chatContract.getMainMessage(0);
+    expect(message2.repliesCount).to.equal(1);
+
     const reply = await chatContract.getReply(0, 0);
     expect(reply.author).to.equal(user3.address);
     expect(reply.url).to.equal("ipfs://reply1");
