@@ -59,6 +59,7 @@ describe("ChatContextV1", function () {
     expect(message.author).to.equal(user2.address);
     expect(message.url).to.equal("ipfs://message1");
     expect(message.deleted).to.be.false;
+    expect(message.index).to.equal(0); // Check the index field
   });
 
   it("allows creating a reply", async function () {
@@ -80,6 +81,7 @@ describe("ChatContextV1", function () {
     expect(reply.author).to.equal(user3.address);
     expect(reply.url).to.equal("ipfs://reply1");
     expect(reply.deleted).to.be.false;
+    expect(reply.index).to.equal(0); // Check the index field
   });
 
   it("allows author to delete their main message", async function () {
@@ -302,7 +304,9 @@ describe("ChatContextV1", function () {
     const messages = await chatContract.fetchMainMessages(true, 0, 10);
     expect(messages.length).to.equal(2);
     expect(messages[0].url).to.equal("ipfs://message0");
+    expect(messages[0].index).to.equal(0); // Check the index field
     expect(messages[1].url).to.equal("ipfs://message1");
+    expect(messages[1].index).to.equal(1); // Check the index field
 
     const replies0 = await chatContract.fetchReplies(true, 0, 0, 10);
     const replies1 = await chatContract.fetchReplies(true, 1, 0, 10);
@@ -310,7 +314,9 @@ describe("ChatContextV1", function () {
     expect(replies0.length).to.equal(1);
     expect(replies1.length).to.equal(1);
     expect(replies0[0].url).to.equal("ipfs://reply0");
+    expect(replies0[0].index).to.equal(0); // Check the index field
     expect(replies1[0].url).to.equal("ipfs://reply1");
+    expect(replies1[0].index).to.equal(0); // Check the index field
   });
 
   it("prevents creating a reply to a non-existent main message", async function () {
@@ -341,6 +347,68 @@ describe("ChatContextV1", function () {
     await chatContract.connect(user1).unsuspendUser(user3.address);
     const tx = await chatContract.connect(user3).createReply(0, "ipfs://reply0");
     await expect(tx).to.emit(chatContract, "MessageReplied");
+  });
+
+  it("allows fetching last main messages", async function () {
+    for (let i = 0; i < 5; i++) {
+      await chatContract.connect(user2).createMessage(`ipfs://message${i}`);
+    }
+    
+    const messages = await chatContract.fetchLastMainMessages(false, 3);
+    expect(messages.length).to.equal(3);
+    expect(messages[0].url).to.equal("ipfs://message2");
+    expect(messages[1].url).to.equal("ipfs://message3");
+    expect(messages[2].url).to.equal("ipfs://message4");
+  });
+
+  it("handles fetchLastMainMessages when requesting more messages than available", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    await chatContract.connect(user2).createMessage("ipfs://message1");
+
+    const messages = await chatContract.fetchLastMainMessages(false, 5);
+    expect(messages.length).to.equal(2);
+    expect(messages[0].url).to.equal("ipfs://message0");
+    expect(messages[1].url).to.equal("ipfs://message1");
+  });
+
+  it("handles fetchLastMainMessages with zero messages", async function () {
+    const messages = await chatContract.fetchLastMainMessages(false, 3);
+    expect(messages.length).to.equal(0);
+  });
+
+  it("allows fetching last replies", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    for (let i = 0; i < 5; i++) {
+      await chatContract.connect(user3).createReply(0, `ipfs://reply${i}`);
+    }
+    
+    const replies = await chatContract.fetchLastReplies(false, 0, 3);
+    expect(replies.length).to.equal(3);
+    expect(replies[0].url).to.equal("ipfs://reply2");
+    expect(replies[1].url).to.equal("ipfs://reply3");
+    expect(replies[2].url).to.equal("ipfs://reply4");
+  });
+
+  it("handles fetchLastReplies when requesting more replies than available", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    await chatContract.connect(user3).createReply(0, "ipfs://reply0");
+    await chatContract.connect(user3).createReply(0, "ipfs://reply1");
+
+    const replies = await chatContract.fetchLastReplies(false, 0, 5);
+    expect(replies.length).to.equal(2);
+    expect(replies[0].url).to.equal("ipfs://reply0");
+    expect(replies[1].url).to.equal("ipfs://reply1");
+  });
+
+  it("handles fetchLastReplies with zero replies", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    const replies = await chatContract.fetchLastReplies(false, 0, 3);
+    expect(replies.length).to.equal(0);
+  });
+
+  it("handles fetchLastReplies for a non-existent main message", async function () {
+    const result = await chatContract.fetchLastReplies(false, 999, 3)
+    expect(result).to.be.empty;
   });
 
 });

@@ -52,7 +52,7 @@ describe("CommentsContextV1", function () {
     expect(ownerAddress).to.equal(owner.address);
   });
 
-  it("allows creating a comment", async function () {
+  it("allows creating a comment and sets the index correctly", async function () {
     const tx = await commentsContract.connect(user2).createComment(subjectAddress, "ipfs://comment1");
     await expect(tx).to.emit(commentsContract, "CommentPosted")
       .withArgs(user2.address, "ipfs://comment1", subjectAddress, await ethers.provider.getBlock('latest').then(b => b.timestamp));
@@ -61,6 +61,21 @@ describe("CommentsContextV1", function () {
     expect(comment.author).to.equal(user2.address);
     expect(comment.url).to.equal("ipfs://comment1");
     expect(comment.deleted).to.be.false;
+    expect(comment.index).to.equal(0);  // Check that the index is set correctly
+  });
+
+  it("sets correct indices for multiple comments", async function () {
+    await commentsContract.connect(user2).createComment(subjectAddress, "ipfs://comment1");
+    await commentsContract.connect(user2).createComment(subjectAddress, "ipfs://comment2");
+    await commentsContract.connect(user2).createComment(subjectAddress, "ipfs://comment3");
+
+    const comment1 = await commentsContract.getComment(subjectAddress, 0);
+    const comment2 = await commentsContract.getComment(subjectAddress, 1);
+    const comment3 = await commentsContract.getComment(subjectAddress, 2);
+
+    expect(comment1.index).to.equal(0);
+    expect(comment2.index).to.equal(1);
+    expect(comment3.index).to.equal(2);
   });
 
   it("allows author to delete their comment", async function () {
@@ -107,6 +122,21 @@ describe("CommentsContextV1", function () {
     expect(comments.length).to.equal(3);
     expect(comments[0].url).to.equal("ipfs://comment1");
     expect(comments[2].url).to.equal("ipfs://comment3");
+  });
+
+  it("correctly sets indices when fetching comments with pagination", async function () {
+    for (let i = 0; i < 5; i++) {
+      await commentsContract.connect(user2).createComment(subjectAddress, `ipfs://comment${i}`);
+    }
+    
+    const comments = await commentsContract.fetchComments(true, subjectAddress, 1, 3);
+    expect(comments.length).to.equal(3);
+    expect(comments[0].url).to.equal("ipfs://comment1");
+    expect(comments[0].index).to.equal(1);
+    expect(comments[1].url).to.equal("ipfs://comment2");
+    expect(comments[1].index).to.equal(2);
+    expect(comments[2].url).to.equal("ipfs://comment3");
+    expect(comments[2].index).to.equal(3);
   });
 
   it("excludes deleted comments when fetching if specified", async function () {
@@ -228,4 +258,65 @@ describe("CommentsContextV1", function () {
     expect(comments1[0].url).to.equal("ipfs://comment0");
     expect(comments2[0].url).to.equal("ipfs://comment1");
   });
+
+  it("fetches the last N comments correctly", async function () {
+    for (let i = 0; i < 5; i++) {
+      await commentsContract.connect(user2).createComment(subjectAddress, `ipfs://comment${i}`);
+    }
+    
+    const comments = await commentsContract.fetchLastComments(true, subjectAddress, 3);
+    expect(comments.length).to.equal(3);
+    expect(comments[0].url).to.equal("ipfs://comment2");
+    expect(comments[1].url).to.equal("ipfs://comment3");
+    expect(comments[2].url).to.equal("ipfs://comment4");
+  });
+
+  it("handles case when requested length is larger than comments array", async function () {
+    for (let i = 0; i < 3; i++) {
+      await commentsContract.connect(user2).createComment(subjectAddress, `ipfs://comment${i}`);
+    }
+    
+    const comments = await commentsContract.fetchLastComments(true, subjectAddress, 5);
+    expect(comments.length).to.equal(3);
+    expect(comments[0].url).to.equal("ipfs://comment0");
+    expect(comments[2].url).to.equal("ipfs://comment2");
+  });
+
+  it("returns empty array when there are no comments", async function () {
+    const comments = await commentsContract.fetchLastComments(true, subjectAddress, 5);
+    expect(comments.length).to.equal(0);
+  });
+
+  it("excludes deleted comments when specified", async function () {
+    await commentsContract.connect(user2).createComment(subjectAddress, "ipfs://comment0");
+    await commentsContract.connect(user2).createComment(subjectAddress, "ipfs://comment1");
+    await commentsContract.connect(user2).createComment(subjectAddress, "ipfs://comment2");
+    await commentsContract.connect(user2).deleteComment(subjectAddress, 1);
+
+    const commentsIncluded = await commentsContract.fetchLastComments(true, subjectAddress, 3);
+    expect(commentsIncluded.length).to.equal(3);
+
+    const commentsExcluded = await commentsContract.fetchLastComments(false, subjectAddress, 3);
+    expect(commentsExcluded.length).to.equal(2);
+    expect(commentsExcluded[0].url).to.equal("ipfs://comment0");
+    expect(commentsExcluded[1].url).to.equal("ipfs://comment2");
+  });
+
+  it("handles multiple subject addresses correctly", async function () {
+    const subjectAddress2 = ethers.Wallet.createRandom().address;
+
+    await commentsContract.connect(user2).createComment(subjectAddress, "ipfs://comment0");
+    await commentsContract.connect(user2).createComment(subjectAddress, "ipfs://comment1");
+    await commentsContract.connect(user2).createComment(subjectAddress2, "ipfs://comment2");
+
+    const comments1 = await commentsContract.fetchLastComments(true, subjectAddress, 2);
+    const comments2 = await commentsContract.fetchLastComments(true, subjectAddress2, 2);
+
+    expect(comments1.length).to.equal(2);
+    expect(comments2.length).to.equal(1);
+    expect(comments1[0].url).to.equal("ipfs://comment0");
+    expect(comments1[1].url).to.equal("ipfs://comment1");
+    expect(comments2[0].url).to.equal("ipfs://comment2");
+  });
+
 });

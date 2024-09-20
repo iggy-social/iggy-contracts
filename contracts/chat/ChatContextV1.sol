@@ -35,6 +35,7 @@ contract ChatContextV1 is Ownable {
     address author;
     uint256 createdAt; // timestamp when the message was created
     bool deleted; // whether the message is deleted or not
+    uint256 index; // the index of the message in the mainMessages array or replies array
     uint256 repliesCount; // number of replies to the message
     string url; // URL pointing to the message stored on Arweave or IPFS etc., e.g. ar://some-identifier, ipfs://someIdentifier, ...
   }
@@ -67,11 +68,28 @@ contract ChatContextV1 is Ownable {
   // READ FUNCTIONS
 
   /**
+   * @notice Fetch the last N main messages
+   * @param includeDeleted_ Whether to include deleted messages
+   * @param length_ The number of messages to fetch
+   * @return Message[] array of main messages
+   */
+  function fetchLastMainMessages(
+    bool includeDeleted_, // if false, you may not get the full requested length of replies if some are deleted
+    uint256 length_
+  ) external view returns (Message[] memory) {
+    // if length_ is greater than mainMessages.length, return all mainMessages
+    if (length_ > mainMessages.length) {
+      return _fetchMessages(mainMessages, includeDeleted_, 0, mainMessages.length);
+    }
+    return _fetchMessages(mainMessages, includeDeleted_, mainMessages.length - length_, length_);
+  }
+
+  /**
    * @notice Fetch multiple main messages (pagination)
    * @param includeDeleted_ Whether to include deleted messages
    * @param fromIndex_ The index to start fetching from
    * @param length_ The number of messages to fetch
-   * @return Message[]
+   * @return Message[] array of main messages
    */
   function fetchMainMessages(
     bool includeDeleted_, 
@@ -79,6 +97,25 @@ contract ChatContextV1 is Ownable {
     uint256 length_
   ) external view returns (Message[] memory) {
     return _fetchMessages(mainMessages, includeDeleted_, fromIndex_, length_);
+  }
+
+  /**
+   * @notice Fetch the last N replies to a main message
+   * @param includeDeleted_ Whether to include deleted messages
+   * @param mainMsgIndex_ The index of the main message
+   * @param length_ The number of messages to fetch
+   * @return Message[] array of replies
+   */
+  function fetchLastReplies(
+    bool includeDeleted_, // if false, you may not get the full requested length of replies if some are deleted
+    uint256 mainMsgIndex_,
+    uint256 length_
+  ) external view returns (Message[] memory) {
+    // if length_ is greater than replies[mainMsgIndex_].length, return all replies
+    if (length_ > replies[mainMsgIndex_].length) {
+      return _fetchMessages(replies[mainMsgIndex_], includeDeleted_, 0, replies[mainMsgIndex_].length);
+    }
+    return _fetchMessages(replies[mainMsgIndex_], includeDeleted_, replies[mainMsgIndex_].length - length_, length_);
   }
 
   /**
@@ -144,7 +181,8 @@ contract ChatContextV1 is Ownable {
       url: url_,
       createdAt: block.timestamp,
       deleted: false,
-      repliesCount: 0
+      repliesCount: 0,
+      index: mainMessages.length // Set the index to the current length of mainMessages
     });
 
     mainMessages.push(newMsg);
@@ -166,7 +204,8 @@ contract ChatContextV1 is Ownable {
       url: url_,
       createdAt: block.timestamp,
       deleted: false,
-      repliesCount: 0
+      repliesCount: 0,
+      index: replies[mainMsgIndex_].length // Set the index to the current length of replies for this main message
     });
 
     replies[mainMsgIndex_].push(newReply);

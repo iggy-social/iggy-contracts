@@ -34,6 +34,7 @@ contract CommentsContextV1 is Ownable {
     address author;
     uint256 createdAt; // timestamp when the comment was created
     bool deleted; // whether the comment is deleted or not
+    uint256 index; // index of the comment in the comments array
     string url; // URL pointing to the comment stored on Arweave or IPFS etc., e.g. ar://some-identifier, ipfs://someIdentifier, ...
   }
 
@@ -60,6 +61,26 @@ contract CommentsContextV1 is Ownable {
   event CommentRestored(address indexed restorer, string indexed url, address indexed subjectAddress, uint256 commentIndex, uint256 restoredAt);
 
   // READ FUNCTIONS
+
+  /**
+   * @notice Fetch the last N comments for a given subject
+   * @param includeDeleted_ Whether to include deleted comments
+   * @param subjectAddress_ The address of the comments subject (NFT, playlist etc.)
+   * @param length_ The number of comments to fetch
+   * @return Comment[]
+   */
+  function fetchLastComments(
+    bool includeDeleted_, // if false, you may not get the full requested length of comments if some are deleted
+    address subjectAddress_,
+    uint256 length_
+  ) external view returns (Comment[] memory) {
+    // if length_ is greater than comments[subjectAddress_].length, return all comments
+    if (length_ > comments[subjectAddress_].length) {
+      return _fetchComments(comments[subjectAddress_], includeDeleted_, 0, comments[subjectAddress_].length);
+    }
+    return _fetchComments(comments[subjectAddress_], includeDeleted_, comments[subjectAddress_].length - length_, length_);
+  }
+
   /**
    * @notice Fetch multiple comments (pagination) for a single subject
    * @param includeDeleted_ Whether to include deleted comments
@@ -110,7 +131,8 @@ contract CommentsContextV1 is Ownable {
       author: msg.sender,
       url: url_,
       createdAt: block.timestamp,
-      deleted: false
+      deleted: false,
+      index: comments[subjectAddress_].length  // Set the index to the current length of the array
     });
 
     comments[subjectAddress_].push(newComment);
