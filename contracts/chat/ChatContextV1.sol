@@ -10,7 +10,7 @@ interface IModToken {
 /**
  * @title ChatContextV1
  * @author TempeTechie.eth
- * @notice This contract is used to store chat messages within a certain context. Context can be a forum category, comments under an NFT etc.
+ * @notice This contract is used to store chat messages within a certain context. Context can be a forum category, a website chat, etc.
  * 
  * Features:
  * - Simple message thread, where each main post can also have an array of replies

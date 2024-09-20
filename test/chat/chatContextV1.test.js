@@ -259,5 +259,88 @@ describe("ChatContextV1", function () {
       .withArgs(user2.address, "ipfs://message1", await ethers.provider.getBlock('latest').then(b => b.timestamp));
   });
 
-  // Add more tests as needed...
+  it("handles pagination correctly when there are no messages", async function () {
+    const messages = await chatContract.fetchMainMessages(true, 0, 10);
+    expect(messages.length).to.equal(0);
+  });
+
+  it("handles pagination correctly when requesting more messages than available", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    await chatContract.connect(user2).createMessage("ipfs://message1");
+
+    const messages = await chatContract.fetchMainMessages(true, 0, 5);
+    expect(messages.length).to.equal(2);
+  });
+
+  it("prevents deleting a non-existent message", async function () {
+    await expect(chatContract.connect(user2).deleteMessage(0))
+      .to.be.reverted;
+  });
+
+  it("prevents restoring a non-deleted message", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    await expect(chatContract.connect(user1).restoreMessage(0))
+      .to.be.revertedWith("Message is not deleted");
+  });
+
+  it("allows owner to delete any message", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    const tx = await chatContract.connect(owner).deleteMessage(0);
+    await expect(tx).to.emit(chatContract, "MainMessageDeleted");
+  });
+
+  it("handles multiple main messages and replies correctly", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    await chatContract.connect(user2).createMessage("ipfs://message1");
+    await chatContract.connect(user3).createReply(0, "ipfs://reply0");
+    await chatContract.connect(user3).createReply(1, "ipfs://reply1");
+
+    expect(await chatContract.getMainMessageCount()).to.equal(2);
+    expect(await chatContract.getReplyCount(0)).to.equal(1);
+    expect(await chatContract.getReplyCount(1)).to.equal(1);
+
+    const messages = await chatContract.fetchMainMessages(true, 0, 10);
+    expect(messages.length).to.equal(2);
+    expect(messages[0].url).to.equal("ipfs://message0");
+    expect(messages[1].url).to.equal("ipfs://message1");
+
+    const replies0 = await chatContract.fetchReplies(true, 0, 0, 10);
+    const replies1 = await chatContract.fetchReplies(true, 1, 0, 10);
+
+    expect(replies0.length).to.equal(1);
+    expect(replies1.length).to.equal(1);
+    expect(replies0[0].url).to.equal("ipfs://reply0");
+    expect(replies1[0].url).to.equal("ipfs://reply1");
+  });
+
+  it("prevents creating a reply to a non-existent main message", async function () {
+    await expect(chatContract.connect(user3).createReply(0, "ipfs://reply0"))
+      .to.be.reverted;
+  });
+
+  it("prevents deleting a non-existent reply", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    await expect(chatContract.connect(user3).deleteReply(0, 0))
+      .to.be.reverted;
+  });
+
+  it("prevents restoring a non-deleted reply", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    await chatContract.connect(user3).createReply(0, "ipfs://reply0");
+    await expect(chatContract.connect(user1).restoreReply(0, 0))
+      .to.be.revertedWith("Reply is not deleted");
+  });
+
+  it("handles suspension and unsuspension for replies", async function () {
+    await chatContract.connect(user2).createMessage("ipfs://message0");
+    await chatContract.connect(user1).suspendUser(user3.address);
+    
+    await expect(chatContract.connect(user3).createReply(0, "ipfs://reply0"))
+      .to.be.revertedWith("You are suspended from posting");
+
+    await chatContract.connect(user1).unsuspendUser(user3.address);
+    const tx = await chatContract.connect(user3).createReply(0, "ipfs://reply0");
+    await expect(tx).to.emit(chatContract, "MessageReplied");
+  });
+
 });
