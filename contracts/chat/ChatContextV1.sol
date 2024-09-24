@@ -26,6 +26,7 @@ contract ChatContextV1 is Ownable {
   address public modTokenAddress; // NFT, SBT, or ERC-20 token which is used to determine if an address is a mod
   uint256 public modMinBalance; // minimum balance of mod token required to be considered a mod
   bool public paused = false; // whether the contract is paused or not
+  uint256 public price = 0.0001 ether; // price to post a message (can serve as anti-spam measure; can be set to 0 to disable)
 
   Message[] public mainMessages; // array of main messages
   mapping(uint256 => Message[]) public replies; // mapping from main message index to array of replies
@@ -171,10 +172,11 @@ contract ChatContextV1 is Ownable {
    * @notice Create a new main message
    * @param url_ The URL of the main message
    */
-  function createMessage(string memory url_) external {
+  function createMessage(string memory url_) external payable {
     require(!paused, "Contract is paused");
     require(!suspended[msg.sender], "You are suspended from posting");
     require(bytes(url_).length > 0, "URL cannot be empty");
+    require(msg.value >= price, "Payment is less than the price");
 
     Message memory newMsg = Message({
       author: msg.sender,
@@ -194,11 +196,11 @@ contract ChatContextV1 is Ownable {
    * @param mainMsgIndex_ The index of the main message to reply to
    * @param url_ The URL of the reply message
    */
-  function createReply(uint256 mainMsgIndex_, string memory url_) external {
+  function createReply(uint256 mainMsgIndex_, string memory url_) external payable {
     require(!paused, "Contract is paused");
     require(!suspended[msg.sender], "You are suspended from posting");
     require(bytes(url_).length > 0, "URL cannot be empty");
-
+    require(msg.value >= price, "Payment is less than the price");
     Message memory newReply = Message({
       author: msg.sender,
       url: url_,
@@ -322,6 +324,11 @@ contract ChatContextV1 is Ownable {
   }
 
   // OWNER
+  function withdrawRevenue(address to_) external onlyOwner {
+    (bool success, ) = to_.call{value: address(this).balance}("");
+    require(success, "Transfer failed");
+  }
+
   function setModTokenAddress(address modTokenAddress_) external onlyOwner {
     modTokenAddress = modTokenAddress_;
   }
@@ -329,5 +336,8 @@ contract ChatContextV1 is Ownable {
   function setModMinBalance(uint256 modMinBalance_) external onlyOwner {
     modMinBalance = modMinBalance_;
   }
-  
+
+  function setPrice(uint256 price_) external onlyOwner {
+    price = price_;
+  }
 }

@@ -26,6 +26,7 @@ contract CommentsContextV1 is Ownable {
   address public modTokenAddress; // NFT, SBT, or ERC-20 token which is used to determine if an address is a mod
   uint256 public modMinBalance; // minimum balance of mod token required to be considered a mod
   bool public paused = false; // whether the contract is paused or not
+  uint256 public price = 0.0001 ether; // price of a comment
 
   mapping(address => Comment[]) public comments; // mapping from subject address to array of comments
   mapping(address => bool) public suspended; // whether an address is suspended from posting or not
@@ -122,10 +123,11 @@ contract CommentsContextV1 is Ownable {
    * @param subjectAddress_ The address of the comments subject (NFT, playlist etc.) to comment to
    * @param url_ The URL of the comment
    */
-  function createComment(address subjectAddress_, string memory url_) external {
+  function createComment(address subjectAddress_, string memory url_) external payable {
     require(!paused, "Contract is paused");
     require(!suspended[msg.sender], "You are suspended from posting");
     require(bytes(url_).length > 0, "URL cannot be empty");
+    require(msg.value >= price, "Payment is less than the price");
 
     Comment memory newComment = Comment({
       author: msg.sender,
@@ -223,12 +225,21 @@ contract CommentsContextV1 is Ownable {
   }
 
   // OWNER
+  function withdrawRevenue(address to_) external onlyOwner {
+    (bool success, ) = to_.call{value: address(this).balance}("");
+    require(success, "Transfer failed");
+  }
+
   function setModTokenAddress(address modTokenAddress_) external onlyOwner {
     modTokenAddress = modTokenAddress_;
   }
 
   function setModMinBalance(uint256 modMinBalance_) external onlyOwner {
     modMinBalance = modMinBalance_;
+  }
+
+  function setPrice(uint256 price_) external onlyOwner {
+    price = price_;
   }
   
 }
