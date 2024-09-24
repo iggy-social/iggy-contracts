@@ -26,7 +26,7 @@ contract ChatContextV1 is Ownable {
   address public modTokenAddress; // NFT, SBT, or ERC-20 token which is used to determine if an address is a mod
   uint256 public modMinBalance; // minimum balance of mod token required to be considered a mod
   bool public paused = false; // whether the contract is paused or not
-  uint256 public price = 0.0001 ether; // price to post a message (can serve as anti-spam measure; can be set to 0 to disable)
+  uint256 public price = 0.00001 ether; // price to post a message (can serve as anti-spam measure; can be set to 0 to disable)
 
   Message[] public mainMessages; // array of main messages
   mapping(uint256 => Message[]) public replies; // mapping from main message index to array of replies
@@ -164,6 +164,10 @@ contract ChatContextV1 is Ownable {
 
   function getReplyCount(uint256 mainMsgIndex_) external view returns (uint256) {
     return replies[mainMsgIndex_].length;
+  }
+
+  function isUserMod(address user_) external view returns (bool) {  
+    return IModToken(modTokenAddress).balanceOf(user_) >= modMinBalance || user_ == owner();
   }
 
   // WRITE FUNCTIONS

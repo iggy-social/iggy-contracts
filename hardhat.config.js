@@ -200,7 +200,7 @@ module.exports = {
       gasPrice: 1000000000, // 1 gwei
     },
     sepolia: { // Sepolia testnet
-      url: 'https://rpc2.sepolia.org',
+      url: 'https://rpc.sepolia.org',
       chainId: 11155111,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
       gas: "auto", // gas limit

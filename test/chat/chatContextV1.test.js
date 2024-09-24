@@ -23,7 +23,7 @@ describe("ChatContextV1", function () {
   let chatContract;
   let modTokenContract;
   let owner, user1, user2, user3;
-  const price = ethers.utils.parseEther("0.0001");
+  const price = ethers.utils.parseEther("0.00001");
 
   beforeEach(async function () {
     [owner, user1, user2, user3] = await ethers.getSigners();
@@ -425,12 +425,16 @@ describe("ChatContextV1", function () {
   });
 
   it("allows owner to withdraw revenue", async function () {
+    // change price to 0.01
+    const newPrice = ethers.utils.parseEther("0.01");
+    await chatContract.connect(owner).setPrice(newPrice);
+
     // Create a message to generate revenue
-    await chatContract.connect(user2).createMessage("ipfs://message1", { value: price });
+    await chatContract.connect(user2).createMessage("ipfs://message1", { value: newPrice });
 
     // Check contract balance
     const contractBalance = await ethers.provider.getBalance(chatContract.address);
-    expect(contractBalance).to.equal(price);
+    expect(contractBalance).to.equal(newPrice);
 
     // Withdraw revenue
     const initialOwnerBalance = await ethers.provider.getBalance(owner.address);
@@ -440,6 +444,31 @@ describe("ChatContextV1", function () {
     // Check final owner balance
     const finalOwnerBalance = await ethers.provider.getBalance(owner.address);
     expect(finalOwnerBalance).to.be.above(initialOwnerBalance);
+  });
+
+  it("correctly identifies mods and non-mods", async function () {
+    // Check if owner is considered a mod
+    expect(await chatContract.isUserMod(owner.address)).to.be.true;
+
+    // Check if user1 (who has a mod token) is considered a mod
+    expect(await chatContract.isUserMod(user1.address)).to.be.true;
+
+    // Check if user2 (who doesn't have a mod token) is not considered a mod
+    expect(await chatContract.isUserMod(user2.address)).to.be.false;
+
+    // Mint a mod token to user2 and check again
+    await modTokenContract.mint(user2.address);
+    expect(await chatContract.isUserMod(user2.address)).to.be.true;
+
+    // Change the minimum balance required to be a mod
+    await chatContract.connect(owner).setModMinBalance(2);
+
+    // Check if user2 (who now has 1 token) is no longer considered a mod
+    expect(await chatContract.isUserMod(user2.address)).to.be.false;
+
+    // Mint another token to user2 and check again
+    await modTokenContract.mint(user2.address);
+    expect(await chatContract.isUserMod(user2.address)).to.be.true;
   });
 
 });

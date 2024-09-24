@@ -24,7 +24,7 @@ describe("CommentsContextV1", function () {
   let modTokenContract;
   let owner, user1, user2, user3;
   let subjectAddress;
-  const price = ethers.utils.parseEther("0.0001");
+  const price = ethers.utils.parseEther("0.00001");
 
   beforeEach(async function () {
     [owner, user1, user2, user3] = await ethers.getSigners();
@@ -404,6 +404,31 @@ describe("CommentsContextV1", function () {
     const maxPrice = ethers.constants.MaxUint256;
     await commentsContract.connect(owner).setPrice(maxPrice);
     expect(await commentsContract.price()).to.equal(maxPrice);
+  });
+
+  it("correctly identifies mods and non-mods", async function () {
+    // Check if owner is considered a mod
+    expect(await commentsContract.isUserMod(owner.address)).to.be.true;
+
+    // Check if user1 (who has a mod token) is considered a mod
+    expect(await commentsContract.isUserMod(user1.address)).to.be.true;
+
+    // Check if user2 (who doesn't have a mod token) is not considered a mod
+    expect(await commentsContract.isUserMod(user2.address)).to.be.false;
+
+    // Mint a mod token to user2 and check again
+    await modTokenContract.mint(user2.address);
+    expect(await commentsContract.isUserMod(user2.address)).to.be.true;
+
+    // Change the minimum balance required to be a mod
+    await commentsContract.connect(owner).setModMinBalance(2);
+
+    // Check if user2 (who now has 1 token) is no longer considered a mod
+    expect(await commentsContract.isUserMod(user2.address)).to.be.false;
+
+    // Mint another token to user2 and check again
+    await modTokenContract.mint(user2.address);
+    expect(await commentsContract.isUserMod(user2.address)).to.be.true;
   });
 
 });

@@ -26,7 +26,7 @@ contract CommentsContextV1 is Ownable {
   address public modTokenAddress; // NFT, SBT, or ERC-20 token which is used to determine if an address is a mod
   uint256 public modMinBalance; // minimum balance of mod token required to be considered a mod
   bool public paused = false; // whether the contract is paused or not
-  uint256 public price = 0.0001 ether; // price of a comment
+  uint256 public price = 0.00001 ether; // price of a comment
 
   mapping(address => Comment[]) public comments; // mapping from subject address to array of comments
   mapping(address => bool) public suspended; // whether an address is suspended from posting or not
@@ -114,6 +114,10 @@ contract CommentsContextV1 is Ownable {
 
   function getCommentCount(address subjectAddress_) external view returns (uint256) {
     return comments[subjectAddress_].length;
+  }
+
+  function isUserMod(address user_) external view returns (bool) {  
+    return IModToken(modTokenAddress).balanceOf(user_) >= modMinBalance || user_ == owner();
   }
 
   // WRITE FUNCTIONS
