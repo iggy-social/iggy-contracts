@@ -1,9 +1,14 @@
-// npx hardhat run scripts/chat/moderatorSbt.deploy.js --network sepolia
+// npx hardhat run scripts/chat/moderatorSbt.deploy.js --network holesky
 
 const contractName = "ModeratorSbt";
 
 const modTokenName = "Iggy Demo Moderator";
 const modTokenSymbol = "IGGYMOD";
+const moderators = [
+  "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D",
+  "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2",
+  "0x5FfD23B1B0350debB17A2cB668929aC5f76d0E18"
+]
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -16,12 +21,16 @@ async function main() {
   const instance = await contract.deploy(
     modTokenName,
     modTokenSymbol,
-    // add nonce 64
     //{ nonce: 64 }
   );
   await instance.deployed();
 
   console.log(`${contractName} deployed to:`, instance.address);
+
+  for (let i = 0; i < moderators.length; i++) {
+    await instance.mint(moderators[i]);
+    console.log("Moderator added:", moderators[i]);
+  }
 
   console.log("Wait a minute and then run this command to verify contracts on block explorer:");
   console.log("npx hardhat verify --network " + network.name + " " + instance.address + ' "' + modTokenName + '" "' + modTokenSymbol + '"');

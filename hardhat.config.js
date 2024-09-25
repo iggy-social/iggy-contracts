@@ -112,6 +112,13 @@ module.exports = {
       gas: "auto", // gas limit
       gasPrice: 20000000000, // 20 gwei
     },
+    holesky: { // Holesky testnet
+      url: "https://holesky.drpc.org",
+      chainId: 17000,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      gas: "auto", // gas limit
+      gasPrice: 1000000000, // 1 gwei
+    },
     linea: { // Linea mainnet
       url: "https://rpc.linea.build/", 
       chainId: 59144,
@@ -286,6 +293,7 @@ module.exports = {
       flareCoston: "randomstring",
       ftmTestnet: process.env.FTMSCAN_API_KEY,
       gnosis: process.env.GNOSISSCAN_API_KEY, // xdai
+      holesky: process.env.ETHERSCAN_API_KEY,
       linea: process.env.LINEASCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       mantleTestnet: "randomstring",

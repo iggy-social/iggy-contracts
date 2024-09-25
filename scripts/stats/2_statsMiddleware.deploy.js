@@ -1,9 +1,9 @@
 // 2. Deploy StatsMiddleware contract.
-// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network sepolia
+// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network holesky
 
 const contractName = "StatsMiddleware";
 
-const statsAddress = "0x2D4144B4E00cf1dC1c4DeDa37cb1CaCEda030998";
+const statsAddress = "0x5e54CebB2612744cB56547bC7CC41466ad7ac557";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

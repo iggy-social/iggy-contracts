@@ -1,10 +1,10 @@
-// npx hardhat run scripts/chat/commentsContextV1.deploy.js --network sepolia
+// npx hardhat run scripts/chat/commentsContextV1.deploy.js --network holesky
 
 const contractName = "CommentsContextV1";
 
-const modTokenAddress = "0x63F36191b3660A70059661083C2189a71be5FBdE";
+const modTokenAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee";
 const modMinBalance = 1; // 1 NFT
-const chatOwnerAddress = "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D";
+const chatOwnerAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
