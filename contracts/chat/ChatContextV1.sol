@@ -166,7 +166,7 @@ contract ChatContextV1 is Ownable {
     return replies[mainMsgIndex_].length;
   }
 
-  function isUserMod(address user_) external view returns (bool) {  
+  function isUserMod(address user_) public view returns (bool) {  
     return IModToken(modTokenAddress).balanceOf(user_) >= modMinBalance || user_ == owner();
   }
 
@@ -226,8 +226,8 @@ contract ChatContextV1 is Ownable {
   function deleteMessage(uint256 mainMsgIndex_) external {
     require(
       mainMessages[mainMsgIndex_].author == msg.sender || 
-      msg.sender == owner(), 
-      "Not the author or owner"
+      isUserMod(msg.sender), 
+      "Not the author, mod, or owner"
     );
     mainMessages[mainMsgIndex_].deleted = true;
     emit MainMessageDeleted(msg.sender, mainMessages[mainMsgIndex_].url, mainMsgIndex_, block.timestamp);
@@ -241,8 +241,8 @@ contract ChatContextV1 is Ownable {
   function deleteReply(uint256 mainMsgIndex_, uint256 replyMsgIndex_) external {
     require(
       replies[mainMsgIndex_][replyMsgIndex_].author == msg.sender || 
-      msg.sender == owner(), 
-      "Not the author or owner"
+      isUserMod(msg.sender), 
+      "Not the author, mod, or owner"
     );
     replies[mainMsgIndex_][replyMsgIndex_].deleted = true;
     mainMessages[mainMsgIndex_].repliesCount--;

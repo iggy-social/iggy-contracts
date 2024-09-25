@@ -116,7 +116,7 @@ contract CommentsContextV1 is Ownable {
     return comments[subjectAddress_].length;
   }
 
-  function isUserMod(address user_) external view returns (bool) {  
+  function isUserMod(address user_) public view returns (bool) {  
     return IModToken(modTokenAddress).balanceOf(user_) >= modMinBalance || user_ == owner();
   }
 
@@ -153,8 +153,8 @@ contract CommentsContextV1 is Ownable {
   function deleteComment(address subjectAddress_, uint256 commentIndex_) external {
     require(
       comments[subjectAddress_][commentIndex_].author == msg.sender || 
-      msg.sender == owner(), 
-      "Not the author or owner"
+      isUserMod(msg.sender), 
+      "Not the author, mod, or owner"
     );
     comments[subjectAddress_][commentIndex_].deleted = true;
     emit CommentDeleted(msg.sender, comments[subjectAddress_][commentIndex_].url, subjectAddress_, commentIndex_, block.timestamp);
