@@ -1,10 +1,10 @@
-// npx hardhat run scripts/chat/chatContextV1.deploy.js --network holesky
+// npx hardhat run scripts/chat/chatContextV1.deploy.js --network songbird
 
 const contractName = "ChatContextV1";
 
-const modTokenAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee";
+const modTokenAddress = "0xc2EbBc86AC2Ea592e71B6A08360EAf4A9B09C156";
 const modMinBalance = 1; // 1 NFT
-const chatOwnerAddress = "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee";
+const chatOwnerAddress = "0x41EDA56be2191fbeDf1BacC45105B57915929665";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

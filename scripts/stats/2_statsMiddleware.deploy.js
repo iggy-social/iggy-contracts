@@ -1,9 +1,9 @@
 // 2. Deploy StatsMiddleware contract.
-// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network holesky
+// npx hardhat run scripts/stats/2_statsMiddleware.deploy.js --network superposition
 
 const contractName = "StatsMiddleware";
 
-const statsAddress = "0x5e54CebB2612744cB56547bC7CC41466ad7ac557";
+const statsAddress = "0x5eA5B4665FE9a96b8ded4ec99676235FC137A763";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

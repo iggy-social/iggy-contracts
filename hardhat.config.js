@@ -293,7 +293,7 @@ module.exports = {
       flareCoston: "randomstring",
       ftmTestnet: process.env.FTMSCAN_API_KEY,
       gnosis: process.env.GNOSISSCAN_API_KEY, // xdai
-      holesky: process.env.ETHERSCAN_API_KEY,
+      //holesky: process.env.ETHERSCAN_API_KEY,
       linea: process.env.LINEASCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       mantleTestnet: "randomstring",

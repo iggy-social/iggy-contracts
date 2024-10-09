@@ -1,9 +1,9 @@
 module.exports = [
-  "0x1EB2Adc19eB3Df26D84427Be11F1eB1887c6631c", // factory address
-  "0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e", // metadata address
-  "0x5193877dD31b569Fedf762308aFae70B9091b951", // minting fee receiver address
-  "Fractal Universe", // collection name
-  "FRACTAL", // collection symbol
+  "0x927490FC2c5797E99d2F13cC6A4952bb62069496", // factory address
+  "0xF2d0dad8945ec1E241aC8D549E9bd0A186756cDb", // metadata address
+  "0xE08033d0bDBcEbE7e619c3aE165E7957Ab577961", // minting fee receiver address
+  "Gmeow", // collection name
+  "GMEOW", // collection symbol
   "20000000000000000", // minting fee percentage
-  "1000000000000000000000000" // ratio
+  "10000000000000000" // ratio
 ];

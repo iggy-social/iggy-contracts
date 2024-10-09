@@ -1,9 +1,9 @@
-// npx hardhat run scripts/chat/moderatorSbt.deploy.js --network holesky
+// npx hardhat run scripts/chat/moderatorSbt.deploy.js --network superposition
 
 const contractName = "ModeratorSbt";
 
-const modTokenName = "Iggy Demo Moderator";
-const modTokenSymbol = "IGGYMOD";
+const modTokenName = "MeowNFTs Moderator";
+const modTokenSymbol = "MEOWNFTSMOD";
 const moderators = [
   "0xb29050965A5AC70ab487aa47546cdCBc97dAE45D",
   "0x6771F33Cfd8C6FC0A1766331f715f5d2E1d4E0e2",
